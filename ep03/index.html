@@ -1,0 +1,764 @@
+<!doctype html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>03화 도장 찍다 날 샌 출결, 1초 만에 알림톡 | 학원장 자동화 스토리 튜토리얼</title>
+<meta name="description" content="수업 시작 10분 전, 30명 출결 문자를 손으로 치다 다른 학부모에게 지각 문자를 보낼 뻔한 남궁 원장. CSV 파싱과 개인정보 마스킹, 인간 승인(Human Gate)으로 1초 만에 안전한 알림톡을 완성한다.">
+<style>
+:root{
+  --paper:#F7F1E5;--card:#FFFDF8;--ink:#24211C;--muted:#6E665A;--line:#E3D9C6;
+  --brick:#B5452F;--teal:#2F6F73;--ochre:#C98B2B;--navy:#1F3A5F;--hl:#FFE89A;
+  --ok:#2F7D4F;--bad:#B5452F;--r:14px;
+  --bubble-me:#E7F0EE;--bubble-you:#FFFFFF;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#1C1A17;--card:#25221E;--ink:#EDE6D8;--muted:#A89F90;--line:#3A352E;
+  --brick:#E07A62;--teal:#6FB3B6;--ochre:#E2AE5C;--navy:#9DB8DD;--hl:#5A4A12;
+  --ok:#6BC28E;--bad:#E07A62;--bubble-me:#22332F;--bubble-you:#2B2823;}}
+:root[data-theme="dark"]{
+  --paper:#1C1A17;--card:#25221E;--ink:#EDE6D8;--muted:#A89F90;--line:#3A352E;
+  --brick:#E07A62;--teal:#6FB3B6;--ochre:#E2AE5C;--navy:#9DB8DD;--hl:#5A4A12;
+  --ok:#6BC28E;--bad:#E07A62;--bubble-me:#22332F;--bubble-you:#2B2823;}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:Pretendard,"Pretendard Variable","NanumSquare Neo","Apple SD Gothic Neo","Noto Sans KR",sans-serif;font-size:17px;line-height:1.8;word-break:keep-all;overflow-wrap:break-word}
+img{max-width:100%;display:block}
+a{color:var(--teal)}
+.wrap{max-width:740px;margin:0 auto;padding:0 16px}
+.wide{max-width:1040px;margin:0 auto;padding:0 16px}
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.top .in{display:flex;justify-content:space-between;align-items:center;gap:12px;height:52px}
+.top b{font-size:14px}.top a{font-size:14px;font-weight:700;text-decoration:none;color:var(--brick);white-space:nowrap}
+.prog{position:absolute;left:0;bottom:-1px;height:3px;background:var(--brick);width:0}
+.hero{padding:28px 0 8px}
+.hero img{border-radius:18px;border:1px solid var(--line);aspect-ratio:16/9;object-fit:cover;width:100%}
+.kicker{font-size:13.5px;letter-spacing:.04em;color:var(--brick);font-weight:700;margin:26px 0 6px}
+h1{font-size:clamp(30px,6.5vw,50px);line-height:1.25;letter-spacing:-.02em;margin:0 0 16px}
+.deck{font-size:18.5px;color:var(--muted);margin:0}
+.cast{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:28px 0}
+.cast div{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;font-size:14.5px;line-height:1.6}
+.cast img{width:64px;height:64px;border-radius:50%;border:2px solid var(--line);margin-bottom:8px;object-fit:cover}
+.cast b{display:block;font-size:16px}.cast small{display:block;color:var(--muted);margin-bottom:6px}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:14px;color:var(--muted);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:12px 0;margin:8px 0 10px}
+.meta b{color:var(--ink)}
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0;padding:0;list-style:none}
+.toc a{display:inline-block;font-size:13.5px;text-decoration:none;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px 12px}
+.chap{padding:56px 0 10px}
+.chap .no{font-size:13px;font-weight:800;letter-spacing:.12em;color:var(--brick)}
+h2{font-size:clamp(24px,4.8vw,32px);line-height:1.3;margin:4px 0 18px;letter-spacing:-.01em}
+h3{font-size:20px;margin:28px 0 8px}
+
+.place{font-size:13px;color:var(--muted);letter-spacing:.06em;margin:22px 0 6px;text-transform:uppercase;font-weight:700}
+.act{color:var(--muted);font-style:italic;margin:10px 0}
+.say{display:flex;gap:12px;align-items:flex-start;margin:18px 0}
+.say .av{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);flex-shrink:0;object-fit:cover}
+.say .bub{background:var(--bubble-you);border:1px solid var(--line);border-radius:14px;border-top-left-radius:3px;padding:10px 14px;font-size:16px;max-width:580px;line-height:1.65}
+.say.me{flex-direction:row-reverse}
+.say.me .bub{background:var(--bubble-me);border-top-left-radius:14px;border-top-right-radius:3px}
+.say.claude .bub{background:var(--card);border-left:4px solid var(--brick);border-radius:8px;font-size:15px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+.say.claude .av-c{width:42px;height:42px;border-radius:50%;background:var(--btn-brick);color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;flex-shrink:0}
+
+.msgr{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin:24px 0}
+.msgr-h{font-size:13px;font-weight:700;color:var(--navy);border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:12px;display:flex;justify-content:space-between}
+.msgr .m{display:flex;gap:8px;margin:10px 0;align-items:flex-end}
+.msgr .m.mine{flex-direction:row-reverse}
+.msgr .b{background:var(--paper);border:1px solid var(--line);padding:8px 12px;border-radius:12px;font-size:14.5px;max-width:80%}
+.msgr .m.mine .b{background:#E7F0EE;border-color:#C1D7D1}
+
+.try{background:var(--card);border:2px solid var(--hl);border-radius:var(--r);margin:32px 0;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.03)}
+.try-h{background:var(--hl);padding:10px 16px;font-size:13.5px;font-weight:800;color:var(--ink);display:flex;justify-content:space-between;align-items:center}
+.try-b{padding:20px}
+
+.point{background:color-mix(in srgb,var(--ochre) 12%,var(--card));border-left:5px solid var(--ochre);border-radius:4px 12px 12px 4px;padding:16px 20px;margin:26px 0}
+.point h4{margin:0 0 6px;color:var(--ink);font-size:17px}
+.point p{margin:0;font-size:15px;color:var(--muted)}
+
+.real{background:var(--card);border:1px solid var(--line);border-radius:var(--r);margin:26px 0;overflow:hidden}
+.real-h{background:color-mix(in srgb,var(--teal) 12%,var(--card));border-bottom:1px solid var(--line);padding:8px 14px;font-size:12.5px;font-weight:700;color:var(--teal);display:flex;gap:8px;align-items:center}
+.real-b{padding:16px;font-size:14.5px}
+
+.btn{display:inline-flex;align-items:center;gap:6px;background:var(--btn-brick);color:#FFFFFF;border:none;border-radius:8px;padding:8px 16px;font-size:14.5px;font-weight:700;cursor:pointer;text-decoration:none}
+.btn:hover{filter:brightness(1.1)}
+.btn.sec{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+
+.steps{margin:28px 0;padding:0;list-style:none}
+.steps li{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px 20px;margin-bottom:12px;position:relative}
+.steps li b{display:block;font-size:16px;margin-bottom:4px;color:var(--brick)}
+
+.mission{background:color-mix(in srgb,var(--navy) 10%,var(--card));border:1px solid var(--navy);border-radius:var(--r);padding:20px;margin:28px 0}
+.mission h4{margin:0 0 10px;color:var(--navy);font-size:18px}
+.mission ol{margin:0;padding-left:22px;font-size:15.5px}
+.mission li{margin-bottom:8px}
+
+.code{background:#23211E;color:#F3EDE2;border-radius:8px;padding:14px 18px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13.5px;line-height:1.6;overflow-x:auto;position:relative;margin:12px 0}
+.code button{position:absolute;right:8px;top:8px;background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:4px;padding:4px 8px;font-size:11px;cursor:pointer}
+
+/* EP03 Widget Styles */
+.csv-table{width:100%;border-collapse:collapse;font-size:14px;margin-bottom:12px}
+.csv-table th,.csv-table td{border:1px solid var(--line);padding:8px 10px;text-align:left}
+.csv-table tr.row-sel{cursor:pointer;background:var(--paper)}
+.csv-table tr.row-sel.active{background:color-mix(in srgb,var(--teal) 15%,var(--card));font-weight:700}
+.var-tag{display:inline-block;background:var(--hl);color:var(--ink);padding:1px 6px;border-radius:4px;font-weight:800;font-family:monospace}
+.gate-card{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px}
+.tpl-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.tpl-tab{padding:9px;border:1px solid var(--line);background:var(--paper);border-radius:8px;font-weight:700;cursor:pointer}
+.tpl-tab.active{background:var(--btn-brick);color:#FFFFFF;border-color:var(--brick)}
+
+@media(max-width:680px){
+  .cast{grid-template-columns:1fr}
+  .tpl-tabs{grid-template-columns:1fr}
+}
+
+/* === Universal Contrast & Visibility Safety Rules (Light & Dark Mode) === */
+:root {
+  color-scheme: light;
+  --btn-brick: #B5452F;
+  --btn-teal: #2F6F73;
+  --btn-ok: #2F7D4F;
+  --btn-bad: #B5452F;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme: dark;
+  --paper:#181614;--card:#221F1C;--ink:#F5EFE6;--muted:#C4BAA8;--line:#3E3830;
+  --brick:#F08A72;--teal:#7FD0D4;--ochre:#F0BE6E;--navy:#A8C4E8;--hl:#4A3D10;
+  --ok:#7CE0A3;--bad:#F08A72;--bubble-me:#1F332E;--bubble-you:#2A2622;
+  --btn-brick:#B5452F;--btn-teal:#245E62;--btn-ok:#256B42;--btn-bad:#B53824;
+}}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --paper:#181614;--card:#221F1C;--ink:#F5EFE6;--muted:#C4BAA8;--line:#3E3830;
+  --brick:#F08A72;--teal:#7FD0D4;--ochre:#F0BE6E;--navy:#A8C4E8;--hl:#4A3D10;
+  --ok:#7CE0A3;--bad:#F08A72;--bubble-me:#1F332E;--bubble-you:#2A2622;
+  --btn-brick:#B5452F;--btn-teal:#245E62;--btn-ok:#256B42;--btn-bad:#B53824;
+}
+:root[data-theme="light"]{
+  color-scheme: light;
+  --paper:#F7F1E5;--card:#FFFDF8;--ink:#24211C;--muted:#5C5449;--line:#E3D9C6;
+  --brick:#B5452F;--teal:#2F6F73;--ochre:#C98B2B;--navy:#1F3A5F;--hl:#FFE89A;
+  --ok:#2F7D4F;--bad:#B5452F;--bubble-me:#E7F0EE;--bubble-you:#FFFFFF;
+  --btn-brick:#B5452F;--btn-teal:#2F6F73;--btn-ok:#2F7D4F;--btn-bad:#B5452F;
+}
+
+/* Explicit foreground & background for all form controls and interactive elements */
+button, input, select, textarea, option {
+  font-family: inherit;
+  color: var(--ink);
+  background-color: var(--card);
+}
+input[type="text"], select, textarea {
+  color: var(--ink) !important;
+  background-color: var(--paper) !important;
+  border: 1px solid var(--line) !important;
+}
+option {
+  color: var(--ink);
+  background-color: var(--card);
+}
+
+/* Fix all custom buttons, tabs, cards to explicitly use var(--ink) on var(--paper)/var(--card) */
+.quiz-btn, .mat-tab, .token-btn, .tree-folder, .tpl-tab, .dpi-btn, .key-btn, .drill-tab, .v-tab, .diag-btn, .nav-pill, .sort-card, .desk-item, .faq-card, .gate-card, .mcp-row, .dict-row, .rpt-card {
+  color: var(--ink) !important;
+  background-color: var(--paper);
+}
+.quiz-btn, .sort-card, .nav-pill {
+  background-color: var(--card);
+}
+
+/* Fix active/selected/status states to use deep background + pure white #FFFFFF text */
+.btn, a.btn {
+  background-color: var(--btn-brick) !important;
+  color: #FFFFFF !important;
+}
+.btn.sec, a.btn.sec, button.btn.sec {
+  background-color: var(--card) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+}
+.mat-tab.active, .tree-folder.active, .dpi-btn.active, .key-btn.active, .diag-btn.active {
+  background-color: var(--btn-teal) !important;
+  color: #FFFFFF !important;
+  border-color: var(--btn-teal) !important;
+}
+.tpl-tab.active, .drill-tab.active, .v-tab.active, .nav-pill.active {
+  background-color: var(--btn-brick) !important;
+  color: #FFFFFF !important;
+  border-color: var(--btn-brick) !important;
+}
+.quiz-btn.correct {
+  background-color: var(--btn-ok) !important;
+  color: #FFFFFF !important;
+  border-color: var(--btn-ok) !important;
+}
+.quiz-btn.wrong {
+  background-color: var(--btn-bad) !important;
+  color: #FFFFFF !important;
+  border-color: var(--btn-bad) !important;
+}
+
+/* Fix messenger bubbles and dialogue bubbles in both light and dark modes */
+.say .bub {
+  background-color: var(--bubble-you) !important;
+  color: var(--ink) !important;
+}
+.say.me .bub {
+  background-color: var(--bubble-me) !important;
+  color: var(--ink) !important;
+}
+.say.claude .bub {
+  background-color: var(--card) !important;
+  color: var(--ink) !important;
+}
+.msgr .b {
+  background-color: var(--paper) !important;
+  color: var(--ink) !important;
+}
+.msgr .m.mine .b {
+  background-color: var(--bubble-me) !important;
+  color: var(--ink) !important;
+  border-color: var(--line) !important;
+}
+
+/* Fix .try-h, .var-tag, .ep-badge highlight backgrounds to always have readable text */
+.try-h, .var-tag, .ep-badge {
+  background-color: var(--hl) !important;
+  color: var(--ink) !important;
+}
+
+/* Fix .code blocks so dark terminal always has light text #F3EDE2 on #23211E */
+.code, .code pre {
+  background-color: #23211E !important;
+  color: #F3EDE2 !important;
+}
+.code button {
+  background-color: #3E3A35 !important;
+  color: #FFFFFF !important;
+  border: 1px solid #6E665A !important;
+}
+
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="wide in" style="height:auto;min-height:52px;padding:8px 16px;flex-wrap:wrap">
+    <b><a href="../index.html" style="color:var(--ink);margin-right:8px">☰ 포털 홈</a> | 03화 · 데일리 출결</b>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <a href="../ep00/index.html" style="font-size:13px;color:var(--muted);">00화</a><a href="../ep01/index.html" style="font-size:13px;color:var(--muted);">01화</a><a href="../ep02/index.html" style="font-size:13px;color:var(--muted);">02화</a><a href="../ep03/index.html" style="font-size:13px;background:var(--btn-brick);color:#FFFFFF;padding:2px 8px;border-radius:999px;">03화</a><a href="../ep04/index.html" style="font-size:13px;color:var(--muted);">04화</a><a href="../ep05/index.html" style="font-size:13px;color:var(--muted);">05화</a><a href="../ep06/index.html" style="font-size:13px;color:var(--muted);">06화</a>
+      <a href="#try1" style="margin-left:4px">체험 ↓</a>
+      <button type="button" id="btnThemeToggle" style="font-size:12.5px;padding:3px 9px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-weight:700;cursor:pointer">🌙 어두운 화면</button>
+    </div>
+  </div>
+  <div class="prog" id="prog"></div>
+</div>
+
+<div class="wrap">
+
+  <div class="hero">
+    <img src="../assets/hero.webp" alt="출결 CSV 데이터를 읽어 안전한 알림톡 미리보기를 검수하는 남궁 철 원장과 지유나" width="1376" height="768">
+  </div>
+
+  <div class="kicker">EPISODE 03 · DAY 2: DAILY ATTENDANCE &amp; PII MASKING</div>
+  <h1>"도장 찍다 날 샌 출결, 1초 만에 알림톡"</h1>
+  <p class="deck">수업 시작 10분 전, 30명 학생이 우르르 몰려들고 원장님은 엄지손가락으로 지각 문자를 치다 다른 학부모에게 보낼 뻔했다. 유나가 설계한 CSV 변수 매핑과 개인정보 마스킹, 그리고 '발송 전 인간 승인' 안전망.</p>
+
+  <div class="cast">
+    <div>
+      <img src="../assets/av-cheol.webp" alt="남궁 철 원장 아바타">
+      <b>남궁 철 (49세)</b>
+      <small>봄볕영어 원장</small>
+      매일 오후 5시마다 출석 도장을 찍고 독수리 타법으로 문자 30통을 보내느라 진이 빠진다.
+    </div>
+    <div>
+      <img src="../assets/av-yuna.webp" alt="지유나 아바타">
+      <b>지유나 (17세)</b>
+      <small>고2 수강생 · 방송부</small>
+      "자동화의 핵심은 빠른 발송이 아니라 오발송 제로 검수예요!"라며 승인 인터페이스를 심는다.
+    </div>
+    <div>
+      <img src="../assets/av-moon.webp" alt="문 사장 아바타">
+      <b>문 사장 (50대)</b>
+      <small>1층 문인쇄 대표</small>
+      다른 학원이 단체문자 실수로 전화번호를 노출해 난리 난 사건을 전하며 개인정보 마스킹을 신신당부한다.
+    </div>
+  </div>
+
+  <div class="meta">
+    <span><b>난이도:</b> 초중급 (CSV &amp; 정규식)</span>
+    <span><b>소요 시간:</b> 약 25분</span>
+    <span><b>핵심 도구:</b> Python <code>csv</code>, PII 마스킹, Human-in-the-loop</span>
+    <span><b>검증 일자:</b> 2026-10-12</span>
+  </div>
+
+  <ul class="toc">
+    <li><a href="#chap1">1장. 오후 5시 05분, 엄지손가락의 대참사</a></li>
+    <li><a href="#chap2">2장. 엑셀 한 줄이 따뜻한 편지가 되는 마법</a></li>
+    <li><a href="#chap3">3장. 문 사장님의 경보: 전화번호 뒷자리를 가려라</a></li>
+    <li><a href="#chap4">4장. 지뢰 찾기: AI의 착각을 반려하라</a></li>
+    <li><a href="#chap5">5장. 단 1분 검수로 끝나는 오후 5시</a></li>
+    <li><a href="#steps">실습 &amp; 미션</a></li>
+  </ul>
+
+  <!-- 1장 -->
+  <section class="chap" id="chap1">
+    <div class="no">CHAPTER 01</div>
+    <h2>오후 5시 05분, 엄지손가락의 대참사</h2>
+    <div class="place">12월 28일 (월) 오후 5시 05분 · 봄볕영어 교무실 입구</div>
+
+    <p class="act">"선생님 저 왔어요!" 중3 A반 학생 15명이 찬 바람을 몰고 우르르 들어왔다. 남궁 원장은 한 손으론 출석 카드에 도장을 찍고, 다른 손으론 스마트폰 문자창을 열어 안내 문자를 치고 있었다.</p>
+
+    <div class="say me">
+      <img src="../assets/av-cheol.webp" class="av" alt="남궁 철">
+      <div class="bub">
+        어이쿠, 서준이는 12분 지각이네... "서준이 어머님, 오늘 서준이가 5시 12분에..." 어라? 내가 방금 이 문자를 민준이 어머님 창에다 쳤나?!
+      </div>
+    </div>
+
+    <p class="act">원장의 엄지손가락이 전송 버튼을 누르기 직전, 뒤에 서 있던 유나가 재빨리 손을 뻗어 스마트폰 화면을 가렸다.</p>
+
+    <div class="say">
+      <img src="../assets/av-yuna.webp" class="av" alt="지유나">
+      <div class="bub">
+        원장님 스톱!! 지금 민준이 어머님 대화방 맞아요! 민준이는 5분 일찍 와서 단어 외우고 있는데 지각 문자 보낼 뻔하셨잖아요!
+      </div>
+    </div>
+
+    <div class="say me">
+      <img src="../assets/av-cheol.webp" class="av" alt="남궁 철">
+      <div class="bub">
+        휴우... 십년감수했네. 마음이 급해서 손으로 치다 보니 이름이 자꾸 헷갈린다.
+      </div>
+    </div>
+
+    <div class="say">
+      <img src="../assets/av-yuna.webp" class="av" alt="지유나">
+      <div class="bub">
+        손으로 치니까 헷갈리죠! 어제 만든 <code>02_attendance</code> 폴더에 출결 CSV 표만 저장하면, 컴퓨터가 <code>{이름}</code>이랑 <code>{등원시각}</code> 칸에 알아서 쏙쏙 끼워 넣어 준다니까요!
+      </div>
+    </div>
+
+    <!-- 체험 1: CSV 데이터 파서 & 변수 매핑기 -->
+    <div class="try" id="try1">
+      <div class="try-h">
+        <span>체험 1 · 출결 CSV 데이터 → 알림톡 변수 매핑기</span>
+        <span id="csvProg" style="font-size:12px;font-weight:400">학생 행을 클릭해 보세요 (1/3)</span>
+      </div>
+      <div class="try-b">
+        <p style="margin:0 0 10px;font-size:14.5px;color:var(--muted)">표의 학생 행을 클릭하면 CSV의 각 열(Column)이 템플릿 변수(<code>{name}</code>, <code>{time}</code>, <code>{hw}</code>)에 자동 결합됩니다.</p>
+        <div style="overflow-x:auto">
+          <table class="csv-table" id="csvTable">
+            <thead>
+              <tr style="background:var(--card)">
+                <th>학번(id)</th><th>이름(name)</th><th>상태(status)</th><th>시각(time)</th><th>과제율(hw)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="row-sel active" data-idx="0">
+                <td>STD-2027-012</td><td>김민준</td><td>정상등원</td><td>16:55</td><td>95%</td>
+              </tr>
+              <tr class="row-sel" data-idx="1">
+                <td>STD-2027-015</td><td>이서준</td><td>지각(12분)</td><td>17:12</td><td>80%</td>
+              </tr>
+              <tr class="row-sel" data-idx="2">
+                <td>STD-2027-019</td><td>박지호</td><td>미등원</td><td>-</td><td>60%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="csvPreview" style="background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px;font-size:15px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2장 -->
+  <section class="chap" id="chap2">
+    <div class="no">CHAPTER 02</div>
+    <h2>문 사장님의 경보: 전화번호 뒷자리를 가려라</h2>
+    <div class="place">오후 5시 20분 · 카카오톡 메신저</div>
+
+    <p class="act">그때 1층 문 사장에게서 뉴스 링크 하나와 함께 카톡이 날아왔다.</p>
+
+    <div class="msgr">
+      <div class="msgr-h">
+        <span>문인쇄 문 사장 (30년 경력)</span>
+        <span>오후 5:20</span>
+      </div>
+      <div class="m">
+        <img src="../assets/av-moon.webp" style="width:36px;height:36px;border-radius:50%" alt="문 사장">
+        <div class="b">남궁 원장, 옆 동네 학원에서 AI에 학생 명단 통째로 붙여넣었다가 학부모 전화번호랑 점수가 섞여 나가는 바람에 난리 났대!</div>
+      </div>
+      <div class="m">
+        <img src="../assets/av-moon.webp" style="width:36px;height:36px;border-radius:50%" alt="문 사장">
+        <div class="b">절대 전화번호 생짜로 외부 창에 올리지 마! 가운데 네 자리는 별표(****)로 가리는 안전장치 꼭 걸어둬!</div>
+      </div>
+    </div>
+
+    <div class="say">
+      <img src="../assets/av-yuna.webp" class="av" alt="지유나">
+      <div class="bub">
+        문 사장님 말씀이 백번 맞아요! AI가 문구를 만들 때는 학생 전화번호 전체를 알 필요가 전혀 없거든요. 파이썬 정규식으로 <b>민감정보(PII)를 자동 마스킹</b>한 뒤 문구를 만들고, 마지막 발송 순간에만 로컬에서 매칭하는 거예요.
+      </div>
+    </div>
+
+    <!-- 체험 2: 개인정보 마스킹 체험 -->
+    <div class="try" id="try2">
+      <div class="try-h">
+        <span>체험 2 · 개인정보(PII) 실시간 마스킹 필터</span>
+        <span id="piiStatus" style="font-size:12px;font-weight:400">보호 스위치를 켜보세요</span>
+      </div>
+      <div class="try-b">
+        <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px">
+          <label style="display:flex;align-items:center;gap:8px;font-weight:700;cursor:pointer">
+            <input type="checkbox" id="chkPhone" style="width:18px;height:18px;accent-color:var(--brick)"> 전화번호 가운데 4자리 마스킹
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-weight:700;cursor:pointer">
+            <input type="checkbox" id="chkBirth" style="width:18px;height:18px;accent-color:var(--brick)"> 생년월일/상세주소 마스킹
+          </label>
+        </div>
+        <div class="code" id="piiBox" style="white-space:pre-wrap"></div>
+      </div>
+    </div>
+
+    <div class="point">
+      <h4>📌 짚고 가기: PII (Personally Identifiable Information) 최소 노출 원칙</h4>
+      <p>학부모 연락처, 주민등록번호, 상세 주소 등 개인식별정보(PII)는 생성형 AI 모델에 전달할 필요가 없습니다. 고유 학번(<code>STD-2027-012</code>)과 마스킹된 번호(<code>010-****-3391</code>)만으로도 모든 텍스트 생성과 검수가 가능합니다.</p>
+    </div>
+  </section>
+
+  <!-- 3장 -->
+  <section class="chap" id="chap3">
+    <div class="no">CHAPTER 03</div>
+    <h2>지뢰 찾기: AI의 착각을 반려하라</h2>
+    <div class="place">오후 5시 35분 · 발송 승인 대기 화면</div>
+
+    <div class="say">
+      <img src="../assets/av-yuna.webp" class="av" alt="지유나">
+      <div class="bub">
+        원장님, 이제 오늘의 하이라이트예요. AI가 출결 초안 4개를 만들었는데요, 무조건 '전체 발송' 누르시면 절대 안 돼요. 표 데이터랑 문구가 다르게 적힌 <b>불량 메시지(지뢰) 1개</b>가 숨어 있거든요. 직접 찾아서 반려(Reject)해 보세요!
+      </div>
+    </div>
+
+    <!-- 체험 3: 발송 승인 훈련기 (함정 1개) -->
+    <div class="try" id="try3">
+      <div class="try-h">
+        <span>체험 3 · Human-in-the-Loop 발송 승인 훈련기 (함정 1건 포함)</span>
+        <span id="gateScore" style="font-size:12px;font-weight:400">검수 완료: 0 / 4</span>
+      </div>
+      <div class="try-b">
+        <p style="margin:0 0 12px;font-size:14.5px;color:var(--muted)">원본 사실 데이터와 생성된 알림톡 문구를 대조하여 <b>정상 3건은 승인(Approve)</b>, <b>사실이 틀린 함정 1건은 반려(Reject)</b>하세요.</p>
+        <div id="gateContainer"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4장 -->
+  <section class="chap" id="chap4">
+    <div class="no">CHAPTER 04</div>
+    <h2>출석·지각·결석 상황별 온도 맞추기</h2>
+    <div class="place">오후 5시 45분 · 템플릿 편집기</div>
+
+    <div class="say me">
+      <img src="../assets/av-cheol.webp" class="av" alt="남궁 철">
+      <div class="bub">
+        유나야, 지각이나 미등원 문자는 자칫 차갑게 보내면 학부모님이 덜컥 걱정하시거든. 상황별로 내 말투가 자연스럽게 들어가게 할 수 있니?
+      </div>
+    </div>
+
+    <!-- 체험 4: 조건부 문자 템플릿 조립기 -->
+    <div class="try" id="try4">
+      <div class="try-h">
+        <span>체험 4 · 출결 상태별 조건부 알림톡 템플릿 뷰어</span>
+        <span id="tplProg" style="font-size:12px;font-weight:400">3가지 상태를 모두 확인하세요 (1/3)</span>
+      </div>
+      <div class="try-b">
+        <div class="tpl-tabs">
+          <button type="button" class="tpl-tab active" data-st="ok">① 정상 등원</button>
+          <button type="button" class="tpl-tab" data-st="late">② 지각 등원</button>
+          <button type="button" class="tpl-tab" data-st="absent">③ 미등원 확인</button>
+        </div>
+        <div id="tplView" style="background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:16px"></div>
+      </div>
+    </div>
+
+    <div class="real">
+      <div class="real-h">
+        <span>🖥️ 실제 도구 검증 · Python 출결 파서 및 PII 마스킹 실행 결과</span>
+      </div>
+      <div class="real-b">
+        <p style="margin:0 0 10px"><code>verified/spring-hub/02_attendance/20270104_중3A_출결현황_원본.csv</code>를 실제로 파싱하고 전화번호를 마스킹한 터미널 검증 출력입니다.</p>
+        <div class="code">$ python3 -c "
+import csv, re
+with open('verified/spring-hub/02_attendance/20270104_중3A_출결현황_원본.csv') as f:
+    for r in csv.DictReader(f):
+        masked = re.sub(r'(\d{3})-\d{4}-(\d{4})', r'\1-****-\2', r['parent_phone'])
+        print(f\"[{r['student_id']}] {r['name']}({r['grade']}) | {r['status']}({r['time']}) | 수신:{masked}\")
+"
+[STD-2027-012] 김민준(중3A) | 정상등원(16:55) | 수신:010-****-3391
+[STD-2027-015] 이서준(중3A) | 지각(17:12) | 수신:010-****-7740
+[STD-2027-019] 김민준(중2B) | 미등원(확인필요)(-) | 수신:010-****-5502</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5장 -->
+  <section class="chap" id="chap5">
+    <div class="no">CHAPTER 05</div>
+    <h2>단 1분 검수로 끝나는 오후 5시</h2>
+    <div class="place">오후 5시 55분 · 봄볕영어 교무실</div>
+
+    <p class="act">원장은 화면에 뜬 미리보기 표에서 30명의 이름과 등원 시각을 눈으로 쓱 훑은 뒤, 오타가 없음을 확인하고 [승인 완료] 키를 눌렀다. 매일 30분씩 걸리던 작업이 단 50초 만에 끝났다.</p>
+
+    <!-- 체험 5: 파이썬 스크립트 생성기 -->
+    <div class="try" id="try5">
+      <div class="try-h">
+        <span>체험 5 · 일일 출결 알림톡 생성 파이썬 스크립트 빌더</span>
+        <span style="font-size:12px;font-weight:400">복사하여 바로 실행 가능</span>
+      </div>
+      <div class="try-b">
+        <label style="display:block;font-size:14px;font-weight:700;margin-bottom:6px">수업 시작 기준 시각 (예: 17:00):</label>
+        <input type="text" id="iptClassTime" value="17:00" style="width:100%;padding:8px 12px;border:1px solid var(--line);border-radius:6px;font-size:15px;margin-bottom:10px;background:var(--paper);color:var(--ink)">
+        <div class="code">
+          <button type="button" id="btnCopyPy">복사</button>
+          <pre id="outPyScript" style="margin:0;white-space:pre-wrap"></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="say">
+      <img src="../assets/av-yuna.webp" class="av" alt="지유나">
+      <div class="bub">
+        원장님, 매일 보내는 출결 알림톡은 이제 졸업이에요! 내일(04화)은 원장님이 매주 금요일 밤마다 새벽 3시까지 야근하시던 주범... <b>'학생 30명 주간·월간 리포트 PDF 일괄 생성'</b>을 끝장낼 거예요!
+      </div>
+    </div>
+  </section>
+
+  <!-- 실습 & 미션 -->
+  <section class="chap" id="steps">
+    <div class="no">HANDS-ON PRACTICE</div>
+    <h2>내 컴퓨터에서 직접 해 보기</h2>
+    <ul class="steps">
+      <li>
+        <b>1단계 · 출결 CSV 파일 준비 및 파이썬 스크립트 저장</b>
+        <code>02_attendance</code> 폴더에 오늘 출결 CSV를 넣고 체험 5의 스크립트를 실행합니다.
+      </li>
+      <li>
+        <b>2단계 · 터미널 미리보기 검수 후 승인(y) 입력</b>
+        화면에서 마스킹된 연락처와 출결 시각이 일치하는지 확인한 뒤에만 <code>y</code>를 눌러 확정합니다.
+      </li>
+    </ul>
+
+    <div class="mission">
+      <h4>🎯 03화 수료 미션 3가지</h4>
+      <ol>
+        <li>체험 1에서 학생 3명의 CSV 데이터가 변수로 변환되는 과정 확인하기</li>
+        <li>체험 2에서 전화번호와 생년월일 마스킹 스위치 모두 켜기</li>
+        <li>체험 3에서 사실과 다른 함정 알림톡 1건을 정확히 반려(Reject)하기</li>
+      </ol>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:30px 0 60px;gap:12px;flex-wrap:wrap">
+      <a href="../ep02/index.html" class="btn sec">← 이전 화: 02화 드라이브 허브</a>
+      <a href="../ep04/index.html" class="btn" style="padding:12px 24px;font-size:16px">다음 화: 04화 주간·월간 리포트 자동화 →</a>
+    </div>
+  </section>
+
+</div>
+
+<script>
+window.addEventListener('scroll',()=>{
+  const d=document.documentElement;
+  const p=(d.scrollTop)/(d.scrollHeight-d.clientHeight)*100;
+  document.getElementById('prog').style.width=p+'%';
+});
+
+// Try 1: CSV Mapper
+(function(){
+  const rows=document.querySelectorAll('#csvTable .row-sel');
+  const box=document.getElementById('csvPreview');
+  const prog=document.getElementById('csvProg');
+  const seen=new Set(['0']);
+  const list=[
+    {id:"STD-2027-012", name:"김민준", status:"정상등원", time:"16:55", hw:"95%", msg:"[봄볕영어] <span class='var-tag'>김민준</span> 학생이 <span class='var-tag'>16:55</span>에 밝은 표정으로 <span class='var-tag'>정상등원</span>했습니다. 지난 과제 이행률은 <span class='var-tag'>95%</span>로 매우 성실합니다."},
+    {id:"STD-2027-015", name:"이서준", status:"지각(12분)", time:"17:12", hw:"80%", msg:"[봄볕영어] <span class='var-tag'>이서준</span> 학생이 <span class='var-tag'>17:12</span>에 등원(<span class='var-tag'>지각 12분</span>)하여 현재 수업에 집중하고 있습니다. 놓친 도입부 단어는 쉬는 시간에 보충하겠습니다."},
+    {id:"STD-2027-019", name:"박지호", status:"미등원", time:"-", hw:"60%", msg:"[봄볕영어] 지호 어머님, 오후 5시 10분 기준 <span class='var-tag'>박지호</span> 학생이 아직 <span class='var-tag'>미등원</span> 상태입니다. 이동 중인지 확인 부탁드립니다. (031-555-0142)"}
+  ];
+  function show(idx){
+    const d=list[idx];
+    box.innerHTML=`
+      <div style="font-size:12.5px;color:var(--muted);margin-bottom:6px">매핑된 변수: <code>{id}="${d.id}"</code>, <code>{name}="${d.name}"</code>, <code>{status}="${d.status}"</code>, <code>{time}="${d.time}"</code></div>
+      <div style="line-height:1.7">${d.msg}</div>
+    `;
+    seen.add(String(idx));
+    prog.textContent=`확인 완료: ${seen.size} / 3`+(seen.size===3?' ✓':'');
+  }
+  rows.forEach(r=>{
+    r.addEventListener('click',()=>{
+      rows.forEach(x=>x.classList.remove('active'));
+      r.classList.add('active');
+      show(parseInt(r.dataset.idx,10));
+    });
+  });
+  show(0);
+})();
+
+// Try 2: PII Masker
+(function(){
+  const cPhone=document.getElementById('chkPhone');
+  const cBirth=document.getElementById('chkBirth');
+  const box=document.getElementById('piiBox');
+  const st=document.getElementById('piiStatus');
+  function render(){
+    const p1=cPhone.checked?'010-****-3391':'010-4821-3391';
+    const p2=cPhone.checked?'010-****-7740':'010-9102-7740';
+    const b1=cBirth.checked?'2012-**-** (일산동구 ***)':'2012-05-19 (일산동구 마두동 742-1)';
+    const b2=cBirth.checked?'2012-**-** (일산서구 ***)':'2012-11-03 (일산서구 주엽동 109-4)';
+    box.textContent=`[AI 프롬프트 전달용 안전 데이터 미리보기]
+1. STD-2027-012 | 김민준 | 연락처: ${p1} | 신상: ${b1}
+2. STD-2027-015 | 이서준 | 연락처: ${p2} | 신상: ${b2}`;
+    if(cPhone.checked && cBirth.checked){
+      st.textContent='✓ 개인정보(PII) 완벽 보호됨!';
+      st.style.color='var(--ok)';
+    } else {
+      st.textContent='민감정보가 아직 노출되어 있습니다';
+      st.style.color='var(--bad)';
+    }
+  }
+  cPhone.addEventListener('change',render);
+  cBirth.addEventListener('change',render);
+  render();
+})();
+
+// Try 3: Human Gate Approval Simulator
+(function(){
+  const items=[
+    {fact:"원본 CSV: 김민준 | 16:55 | 정상등원 | 과제 95%", msg:"민준 어머님, 김민준 학생 16:55 정상 등원했습니다. 과제 95% 완료!", valid:true, why:"원본 CSV 데이터와 100% 일치합니다."},
+    {fact:"원본 CSV: 이서준 | 17:12 | 지각(12분) | 과제 80%", msg:"서준 어머님, 이서준 학생 16:50에 일찍 정상 등원하여 과제 100%를 마쳤습니다!", valid:false, why:"[함정 색출 성공!] 원본은 17:12 지각(과제 80%)인데 AI가 정상등원·100%로 잘못 작성했습니다."},
+    {fact:"원본 CSV: 박지호 | - | 미등원(확인필요)", msg:"지호 어머님, 박지호 학생이 아직 등원 전이라 안전 확인차 연락드립니다. (031-555-0142)", valid:true, why:"미등원 안내 규칙과 연락처가 정확합니다."},
+    {fact:"원본 CSV: 최유진 | 16:58 | 정상등원 | 과제 100%", msg:"유진 어머님, 최유진 학생 16:58 정상 등원했습니다. 오늘 과제도 100% 완벽히 해왔습니다.", valid:true, why:"원본 CSV 데이터와 정확히 일치합니다."}
+  ];
+  const wrap=document.getElementById('gateContainer');
+  const score=document.getElementById('gateScore');
+  let solved=0;
+  items.forEach(it=>{
+    const card=document.createElement('div');
+    card.className='gate-card';
+    card.innerHTML=`
+      <div style="font-size:13px;font-family:monospace;color:var(--teal);font-weight:700;margin-bottom:4px">${it.fact}</div>
+      <div style="font-size:14.5px;margin-bottom:8px">"${it.msg}"</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button type="button" class="btn" style="background:var(--btn-ok);color:#FFFFFF;padding:5px 12px;font-size:13px" data-act="app">승인 (Approve)</button>
+        <button type="button" class="btn" style="background:var(--btn-bad);color:#FFFFFF;padding:5px 12px;font-size:13px" data-act="rej">반려 (Reject)</button>
+        <span class="gate-res" style="font-size:13px;font-weight:700"></span>
+      </div>
+    `;
+    const res=card.querySelector('.gate-res');
+    const btns=card.querySelectorAll('button');
+    btns.forEach(b=>{
+      b.addEventListener('click',()=>{
+        const app=(b.dataset.act==='app');
+        if(app===it.valid){
+          res.style.color='var(--ok)';
+          res.textContent='✓ '+it.why;
+          btns.forEach(x=>x.disabled=true);
+          solved++;
+          score.textContent=`검수 완료: ${solved} / 4`;
+        } else {
+          res.style.color='var(--bad)';
+          res.textContent='✗ 잠깐! 위쪽 원본 CSV 시각·과제율과 문구를 다시 대조해 보세요!';
+        }
+      });
+    });
+    wrap.appendChild(card);
+  });
+})();
+
+// Try 4: Conditional Template Viewer
+(function(){
+  const tabs=document.querySelectorAll('#try4 .tpl-tab');
+  const view=document.getElementById('tplView');
+  const prog=document.getElementById('tplProg');
+  const seen=new Set(['ok']);
+  const tpls={
+    ok:{cond:"조건: status == '정상등원' (17:00 이전)", txt:"\"[봄볕영어] {name} 어머님, 오늘 {name} 학생이 {time}에 밝은 얼굴로 등원했습니다. 지난 시간 과제({hw})도 성실히 챙겨와 칭찬해 주었습니다. 오늘도 알차게 지도하겠습니다.\""},
+    late:{cond:"조건: status == '지각' (17:01 이후 등원)", txt:"\"[봄볕영어] {name} 어머님, {name} 학생이 {time}에 무사히 도착하여 현재 수업에 집중하고 있습니다. 늦은 시간만큼 놓친 어휘 풀이는 수업 후 제가 10분간 따로 챙겨 보충하겠습니다.\""},
+    absent:{cond:"조건: status == '미등원' (수업 시작 10분 경과)", txt:"\"[봄볕영어] {name} 어머님, 오후 5시 10분 현재 {name} 학생이 아직 교실에 도착하지 않아 안전 확인차 먼저 연락드립니다. 확인되시면 031-555-0142로 말씀 부탁드립니다.\""}
+  };
+  function render(k){
+    const d=tpls[k];
+    view.innerHTML=`
+      <div style="font-family:monospace;font-size:13px;color:var(--brick);font-weight:700;margin-bottom:6px">${d.cond}</div>
+      <div style="font-size:15px;line-height:1.7">${d.txt}</div>
+    `;
+    seen.add(k);
+    prog.textContent=`확인 완료: ${seen.size} / 3`+(seen.size===3?' ✓':'');
+  }
+  tabs.forEach(t=>{
+    t.addEventListener('click',()=>{
+      tabs.forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      render(t.dataset.st);
+    });
+  });
+  render('ok');
+})();
+
+// Try 5: Python Attendance Script Generator
+(function(){
+  const ipt=document.getElementById('iptClassTime');
+  const out=document.getElementById('outPyScript');
+  const btn=document.getElementById('btnCopyPy');
+  function update(){
+    const t=ipt.value.trim()||'17:00';
+    out.textContent=`#!/usr/bin/env python3
+# 봄볕영어 데일리 출결 알림톡 생성 및 PII 마스킹 검수기 (기준시각: ${t})
+import csv, re
+
+CSV_PATH = "02_attendance/20270104_중3A_출결현황_원본.csv"
+
+def mask_phone(phone):
+    return re.sub(r"(\\d{3})-\\d{4}-(\\d{4})", r"\\1-****-\\2", phone)
+
+with open(CSV_PATH, encoding="utf-8") as f:
+    for row in csv.DictReader(f):
+        safe_phone = mask_phone(row["parent_phone"])
+        print(f"[검수대기] {row['student_id']} {row['name']} ({safe_phone}) -> {row['status']} ({row['time']})")
+print("\\n* 육안 검수 후 이상이 없을 때만 발송 승인(Human Gate)을 진행하세요.")`;
+  }
+  ipt.addEventListener('input',update);
+  update();
+  btn.addEventListener('click',()=>{
+    navigator.clipboard.writeText(out.textContent).then(()=>{
+      btn.textContent='복사됨!';
+      setTimeout(()=>btn.textContent='복사',1500);
+    });
+  });
+})();
+
+// Theme Toggle (Light / Dark) synced via localStorage
+(function(){
+  const saved = localStorage.getItem("agy_theme") || "light";
+  document.documentElement.setAttribute("data-theme", saved);
+  const btn = document.getElementById("btnThemeToggle");
+  function updateBtn(t){
+    if(!btn) return;
+    btn.textContent = (t === "dark") ? "☀️ 밝은 화면" : "🌙 어두운 화면";
+  }
+  updateBtn(saved);
+  if(btn){
+    btn.addEventListener("click", ()=>{
+      const cur = document.documentElement.getAttribute("data-theme") || "light";
+      const next = (cur === "dark") ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      localStorage.setItem("agy_theme", next);
+      updateBtn(next);
+      const frame = document.getElementById("epFrame");
+      if(frame && frame.contentDocument && frame.contentDocument.documentElement){
+        frame.contentDocument.documentElement.setAttribute("data-theme", next);
+      }
+    });
+  }
+})();
+
+</script>
+</body>
+</html>

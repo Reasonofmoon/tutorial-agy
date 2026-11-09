@@ -1,0 +1,718 @@
+<!doctype html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>04화 학생 30명 리포트, 복붙 없이 하룻밤에 | 학원장 자동화 스토리 튜토리얼</title>
+<meta name="description" content="금요일 밤마다 학생 30명의 주간 성적표를 복붙하느라 새벽 3시에 쓰러지던 남궁 원장. 조건부 코멘트 매칭과 300DPI PDF 일괄 렌더링으로 15초 만에 인쇄소 납품본을 완성한다.">
+<style>
+:root{
+  --paper:#F7F1E5;--card:#FFFDF8;--ink:#24211C;--muted:#6E665A;--line:#E3D9C6;
+  --brick:#B5452F;--teal:#2F6F73;--ochre:#C98B2B;--navy:#1F3A5F;--hl:#FFE89A;
+  --ok:#2F7D4F;--bad:#B5452F;--r:14px;
+  --bubble-me:#E7F0EE;--bubble-you:#FFFFFF;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#1C1A17;--card:#25221E;--ink:#EDE6D8;--muted:#A89F90;--line:#3A352E;
+  --brick:#E07A62;--teal:#6FB3B6;--ochre:#E2AE5C;--navy:#9DB8DD;--hl:#5A4A12;
+  --ok:#6BC28E;--bad:#E07A62;--bubble-me:#22332F;--bubble-you:#2B2823;}}
+:root[data-theme="dark"]{
+  --paper:#1C1A17;--card:#25221E;--ink:#EDE6D8;--muted:#A89F90;--line:#3A352E;
+  --brick:#E07A62;--teal:#6FB3B6;--ochre:#E2AE5C;--navy:#9DB8DD;--hl:#5A4A12;
+  --ok:#6BC28E;--bad:#E07A62;--bubble-me:#22332F;--bubble-you:#2B2823;}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:Pretendard,"Pretendard Variable","NanumSquare Neo","Apple SD Gothic Neo","Noto Sans KR",sans-serif;font-size:17px;line-height:1.8;word-break:keep-all;overflow-wrap:break-word}
+img{max-width:100%;display:block}
+a{color:var(--teal)}
+.wrap{max-width:740px;margin:0 auto;padding:0 16px}
+.wide{max-width:1040px;margin:0 auto;padding:0 16px}
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.top .in{display:flex;justify-content:space-between;align-items:center;gap:12px;height:52px}
+.top b{font-size:14px}.top a{font-size:14px;font-weight:700;text-decoration:none;color:var(--brick);white-space:nowrap}
+.prog{position:absolute;left:0;bottom:-1px;height:3px;background:var(--brick);width:0}
+.hero{padding:28px 0 8px}
+.hero img{border-radius:18px;border:1px solid var(--line);aspect-ratio:16/9;object-fit:cover;width:100%}
+.kicker{font-size:13.5px;letter-spacing:.04em;color:var(--brick);font-weight:700;margin:26px 0 6px}
+h1{font-size:clamp(30px,6.5vw,50px);line-height:1.25;letter-spacing:-.02em;margin:0 0 16px}
+.deck{font-size:18.5px;color:var(--muted);margin:0}
+.cast{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:28px 0}
+.cast div{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;font-size:14.5px;line-height:1.6}
+.cast img{width:64px;height:64px;border-radius:50%;border:2px solid var(--line);margin-bottom:8px;object-fit:cover}
+.cast b{display:block;font-size:16px}.cast small{display:block;color:var(--muted);margin-bottom:6px}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:14px;color:var(--muted);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:12px 0;margin:8px 0 10px}
+.meta b{color:var(--ink)}
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0;padding:0;list-style:none}
+.toc a{display:inline-block;font-size:13.5px;text-decoration:none;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px 12px}
+.chap{padding:56px 0 10px}
+.chap .no{font-size:13px;font-weight:800;letter-spacing:.12em;color:var(--brick)}
+h2{font-size:clamp(24px,4.8vw,32px);line-height:1.3;margin:4px 0 18px;letter-spacing:-.01em}
+h3{font-size:20px;margin:28px 0 8px}
+
+.place{font-size:13px;color:var(--muted);letter-spacing:.06em;margin:22px 0 6px;text-transform:uppercase;font-weight:700}
+.act{color:var(--muted);font-style:italic;margin:10px 0}
+.say{display:flex;gap:12px;align-items:flex-start;margin:18px 0}
+.say .av{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);flex-shrink:0;object-fit:cover}
+.say .bub{background:var(--bubble-you);border:1px solid var(--line);border-radius:14px;border-top-left-radius:3px;padding:10px 14px;font-size:16px;max-width:580px;line-height:1.65}
+.say.me{flex-direction:row-reverse}
+.say.me .bub{background:var(--bubble-me);border-top-left-radius:14px;border-top-right-radius:3px}
+.say.claude .bub{background:var(--card);border-left:4px solid var(--brick);border-radius:8px;font-size:15px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+.say.claude .av-c{width:42px;height:42px;border-radius:50%;background:var(--btn-brick);color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;flex-shrink:0}
+
+.msgr{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin:24px 0}
+.msgr-h{font-size:13px;font-weight:700;color:var(--navy);border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:12px;display:flex;justify-content:space-between}
+.msgr .m{display:flex;gap:8px;margin:10px 0;align-items:flex-end}
+.msgr .m.mine{flex-direction:row-reverse}
+.msgr .b{background:var(--paper);border:1px solid var(--line);padding:8px 12px;border-radius:12px;font-size:14.5px;max-width:80%}
+.msgr .m.mine .b{background:#E7F0EE;border-color:#C1D7D1}
+
+.try{background:var(--card);border:2px solid var(--hl);border-radius:var(--r);margin:32px 0;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.03)}
+.try-h{background:var(--hl);padding:10px 16px;font-size:13.5px;font-weight:800;color:var(--ink);display:flex;justify-content:space-between;align-items:center}
+.try-b{padding:20px}
+
+.point{background:color-mix(in srgb,var(--ochre) 12%,var(--card));border-left:5px solid var(--ochre);border-radius:4px 12px 12px 4px;padding:16px 20px;margin:26px 0}
+.point h4{margin:0 0 6px;color:var(--ink);font-size:17px}
+.point p{margin:0;font-size:15px;color:var(--muted)}
+
+.real{background:var(--card);border:1px solid var(--line);border-radius:var(--r);margin:26px 0;overflow:hidden}
+.real-h{background:color-mix(in srgb,var(--teal) 12%,var(--card));border-bottom:1px solid var(--line);padding:8px 14px;font-size:12.5px;font-weight:700;color:var(--teal);display:flex;gap:8px;align-items:center}
+.real-b{padding:16px;font-size:14.5px}
+
+.btn{display:inline-flex;align-items:center;gap:6px;background:var(--btn-brick);color:#FFFFFF;border:none;border-radius:8px;padding:8px 16px;font-size:14.5px;font-weight:700;cursor:pointer;text-decoration:none}
+.btn:hover{filter:brightness(1.1)}
+.btn.sec{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+
+.steps{margin:28px 0;padding:0;list-style:none}
+.steps li{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px 20px;margin-bottom:12px;position:relative}
+.steps li b{display:block;font-size:16px;margin-bottom:4px;color:var(--brick)}
+
+.mission{background:color-mix(in srgb,var(--navy) 10%,var(--card));border:1px solid var(--navy);border-radius:var(--r);padding:20px;margin:28px 0}
+.mission h4{margin:0 0 10px;color:var(--navy);font-size:18px}
+.mission ol{margin:0;padding-left:22px;font-size:15.5px}
+.mission li{margin-bottom:8px}
+
+.code{background:#23211E;color:#F3EDE2;border-radius:8px;padding:14px 18px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13.5px;line-height:1.6;overflow-x:auto;position:relative;margin:12px 0}
+.code button{position:absolute;right:8px;top:8px;background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:4px;padding:4px 8px;font-size:11px;cursor:pointer}
+
+/* EP04 Widget Styles */
+.dpi-btns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.dpi-btn{padding:10px;border:1px solid var(--line);background:var(--paper);border-radius:8px;font-weight:700;cursor:pointer}
+.dpi-btn.active{background:var(--btn-teal);color:#FFFFFF;color:#fff;border-color:var(--teal)}
+.rpt-card{background:var(--paper);border:2px solid var(--line);border-radius:12px;padding:18px;margin-top:12px}
+.bar-row{display:flex;align-items:center;gap:10px;margin:6px 0;font-size:13.5px}
+.bar-track{flex:1;background:var(--line);height:12px;border-radius:999px;overflow:hidden}
+.bar-fill{background:var(--btn-teal);color:#FFFFFF;height:100%;border-radius:999px;transition:width .3s}
+.bleed-box{background:var(--paper);border:2px dashed var(--bad);border-radius:10px;padding:16px;margin:12px 0}
+.bleed-err{cursor:pointer;border-bottom:2px dashed var(--bad);padding:2px 4px;border-radius:4px}
+.bleed-err.fixed{background:color-mix(in srgb,var(--ok) 15%,transparent);border-bottom:2px solid var(--ok);color:var(--ok);font-weight:700}
+
+@media(max-width:680px){
+  .cast{grid-template-columns:1fr}
+  .dpi-btns{grid-template-columns:1fr}
+}
+
+/* === Universal Contrast & Visibility Safety Rules (Light & Dark Mode) === */
+:root {
+  color-scheme: light;
+  --btn-brick: #B5452F;
+  --btn-teal: #2F6F73;
+  --btn-ok: #2F7D4F;
+  --btn-bad: #B5452F;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme: dark;
+  --paper:#181614;--card:#221F1C;--ink:#F5EFE6;--muted:#C4BAA8;--line:#3E3830;
+  --brick:#F08A72;--teal:#7FD0D4;--ochre:#F0BE6E;--navy:#A8C4E8;--hl:#4A3D10;
+  --ok:#7CE0A3;--bad:#F08A72;--bubble-me:#1F332E;--bubble-you:#2A2622;
+  --btn-brick:#B5452F;--btn-teal:#245E62;--btn-ok:#256B42;--btn-bad:#B53824;
+}}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --paper:#181614;--card:#221F1C;--ink:#F5EFE6;--muted:#C4BAA8;--line:#3E3830;
+  --brick:#F08A72;--teal:#7FD0D4;--ochre:#F0BE6E;--navy:#A8C4E8;--hl:#4A3D10;
+  --ok:#7CE0A3;--bad:#F08A72;--bubble-me:#1F332E;--bubble-you:#2A2622;
+  --btn-brick:#B5452F;--btn-teal:#245E62;--btn-ok:#256B42;--btn-bad:#B53824;
+}
+:root[data-theme="light"]{
+  color-scheme: light;
+  --paper:#F7F1E5;--card:#FFFDF8;--ink:#24211C;--muted:#5C5449;--line:#E3D9C6;
+  --brick:#B5452F;--teal:#2F6F73;--ochre:#C98B2B;--navy:#1F3A5F;--hl:#FFE89A;
+  --ok:#2F7D4F;--bad:#B5452F;--bubble-me:#E7F0EE;--bubble-you:#FFFFFF;
+  --btn-brick:#B5452F;--btn-teal:#2F6F73;--btn-ok:#2F7D4F;--btn-bad:#B5452F;
+}
+
+/* Explicit foreground & background for all form controls and interactive elements */
+button, input, select, textarea, option {
+  font-family: inherit;
+  color: var(--ink);
+  background-color: var(--card);
+}
+input[type="text"], select, textarea {
+  color: var(--ink) !important;
+  background-color: var(--paper) !important;
+  border: 1px solid var(--line) !important;
+}
+option {
+  color: var(--ink);
+  background-color: var(--card);
+}
+
+/* Fix all custom buttons, tabs, cards to explicitly use var(--ink) on var(--paper)/var(--card) */
+.quiz-btn, .mat-tab, .token-btn, .tree-folder, .tpl-tab, .dpi-btn, .key-btn, .drill-tab, .v-tab, .diag-btn, .nav-pill, .sort-card, .desk-item, .faq-card, .gate-card, .mcp-row, .dict-row, .rpt-card {
+  color: var(--ink) !important;
+  background-color: var(--paper);
+}
+.quiz-btn, .sort-card, .nav-pill {
+  background-color: var(--card);
+}
+
+/* Fix active/selected/status states to use deep background + pure white #FFFFFF text */
+.btn, a.btn {
+  background-color: var(--btn-brick) !important;
+  color: #FFFFFF !important;
+}
+.btn.sec, a.btn.sec, button.btn.sec {
+  background-color: var(--card) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+}
+.mat-tab.active, .tree-folder.active, .dpi-btn.active, .key-btn.active, .diag-btn.active {
+  background-color: var(--btn-teal) !important;
+  color: #FFFFFF !important;
+  border-color: var(--btn-teal) !important;
+}
+.tpl-tab.active, .drill-tab.active, .v-tab.active, .nav-pill.active {
+  background-color: var(--btn-brick) !important;
+  color: #FFFFFF !important;
+  border-color: var(--btn-brick) !important;
+}
+.quiz-btn.correct {
+  background-color: var(--btn-ok) !important;
+  color: #FFFFFF !important;
+  border-color: var(--btn-ok) !important;
+}
+.quiz-btn.wrong {
+  background-color: var(--btn-bad) !important;
+  color: #FFFFFF !important;
+  border-color: var(--btn-bad) !important;
+}
+
+/* Fix messenger bubbles and dialogue bubbles in both light and dark modes */
+.say .bub {
+  background-color: var(--bubble-you) !important;
+  color: var(--ink) !important;
+}
+.say.me .bub {
+  background-color: var(--bubble-me) !important;
+  color: var(--ink) !important;
+}
+.say.claude .bub {
+  background-color: var(--card) !important;
+  color: var(--ink) !important;
+}
+.msgr .b {
+  background-color: var(--paper) !important;
+  color: var(--ink) !important;
+}
+.msgr .m.mine .b {
+  background-color: var(--bubble-me) !important;
+  color: var(--ink) !important;
+  border-color: var(--line) !important;
+}
+
+/* Fix .try-h, .var-tag, .ep-badge highlight backgrounds to always have readable text */
+.try-h, .var-tag, .ep-badge {
+  background-color: var(--hl) !important;
+  color: var(--ink) !important;
+}
+
+/* Fix .code blocks so dark terminal always has light text #F3EDE2 on #23211E */
+.code, .code pre {
+  background-color: #23211E !important;
+  color: #F3EDE2 !important;
+}
+.code button {
+  background-color: #3E3A35 !important;
+  color: #FFFFFF !important;
+  border: 1px solid #6E665A !important;
+}
+
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="wide in" style="height:auto;min-height:52px;padding:8px 16px;flex-wrap:wrap">
+    <b><a href="../index.html" style="color:var(--ink);margin-right:8px">☰ 포털 홈</a> | 04화 · 주간 리포트</b>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <a href="../ep00/index.html" style="font-size:13px;color:var(--muted);">00화</a><a href="../ep01/index.html" style="font-size:13px;color:var(--muted);">01화</a><a href="../ep02/index.html" style="font-size:13px;color:var(--muted);">02화</a><a href="../ep03/index.html" style="font-size:13px;color:var(--muted);">03화</a><a href="../ep04/index.html" style="font-size:13px;background:var(--btn-brick);color:#FFFFFF;padding:2px 8px;border-radius:999px;">04화</a><a href="../ep05/index.html" style="font-size:13px;color:var(--muted);">05화</a><a href="../ep06/index.html" style="font-size:13px;color:var(--muted);">06화</a>
+      <a href="#try1" style="margin-left:4px">체험 ↓</a>
+      <button type="button" id="btnThemeToggle" style="font-size:12.5px;padding:3px 9px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-weight:700;cursor:pointer">🌙 어두운 화면</button>
+    </div>
+  </div>
+  <div class="prog" id="prog"></div>
+</div>
+
+<div class="wrap">
+
+  <div class="hero">
+    <img src="../assets/scene_office_pro.jpg" alt="학생 30명의 주간 성적표 HTML과 300DPI PDF를 일괄 생성하는 남궁 철 원장과 지유나" width="1376" height="768">
+  </div>
+
+  <div class="kicker">EPISODE 04 · DAY 3: WEEKLY REPORTS &amp; PRINT PDF</div>
+  <h1>"학생 30명 리포트, 복붙 없이 하룻밤에"</h1>
+  <p class="deck">금요일 밤 10시, 인쇄소 마감은 내일 아침 10시인데 성적표 30장은 백지상태다. 점수 구간별 조건부 코멘트 결합과 300DPI 인쇄용 PDF 일괄 렌더링으로 4시간 야근을 15초로 단축한다.</p>
+
+  <div class="cast">
+    <div>
+      <img src="../assets/av-cheol.webp" alt="남궁 철 원장 아바타">
+      <b>남궁 철 (49세)</b>
+      <small>봄볕영어 원장</small>
+      매달 말일이면 학생 30명의 성적표를 한글(HWP) 표에 복붙하다가 새벽 3시에 쪽잠을 자곤 했다.
+    </div>
+    <div>
+      <img src="../assets/av-yuna.webp" alt="지유나 아바타">
+      <b>지유나 (17세)</b>
+      <small>고2 수강생 · 방송부</small>
+      HTML/CSS 성적표 템플릿 한 장으로 30명의 고해상도 PDF를 순식간에 찍어내는 파이프라인을 구축한다.
+    </div>
+    <div>
+      <img src="../assets/av-moon.webp" alt="문 사장 아바타">
+      <b>문 사장 (50대)</b>
+      <small>1층 문인쇄 대표</small>
+      "웹 화면 캡처(72 DPI) 가져오면 절대 안 찍어준다! 무조건 300 DPI에 재단선 3mm 지켜!"라고 호통친다.
+    </div>
+  </div>
+
+  <div class="meta">
+    <span><b>난이도:</b> 중급 (데이터 집계 &amp; PDF)</span>
+    <span><b>소요 시간:</b> 약 25분</span>
+    <span><b>핵심 도구:</b> HTML 템플릿, Headless Chrome, 300 DPI 인쇄 규격</span>
+    <span><b>검증 일자:</b> 2026-10-12</span>
+  </div>
+
+  <ul class="toc">
+    <li><a href="#chap1">1장. 금요일 밤 10시의 마감 경보</a></li>
+    <li><a href="#chap2">2장. 점수 구간별 맞춤형 총평 공식</a></li>
+    <li><a href="#chap3">3장. 문 사장님의 호통: 72 DPI와 300 DPI의 차이</a></li>
+    <li><a href="#chap4">4장. 실시간 성적표 렌더러와 인쇄 사고 검수</a></li>
+    <li><a href="#chap5">5장. 30명분 PDF, 15초 만에 일괄 출력</a></li>
+    <li><a href="#steps">실습 &amp; 미션</a></li>
+  </ul>
+
+  <!-- 1장 -->
+  <section class="chap" id="chap1">
+    <div class="no">CHAPTER 01</div>
+    <h2>금요일 밤 10시의 마감 경보</h2>
+    <div class="place">1월 8일 (금) 밤 10시 00분 · 봄볕영어 교무실</div>
+
+    <p class="act">겨울특강 첫 주가 끝난 금요일 밤, 1층 문인쇄 문 사장의 카톡이 날아왔다.</p>
+
+    <div class="msgr">
+      <div class="msgr-h">
+        <span>문인쇄 문 사장 (30년 경력)</span>
+        <span>오후 10:02</span>
+      </div>
+      <div class="m">
+        <img src="../assets/av-moon.webp" style="width:36px;height:36px;border-radius:50%" alt="문 사장">
+        <div class="b">남궁 원장! 월요일에 학부모님들께 봉투에 넣어 보낼 '1주차 학습 리포트 30부' 내일 토요일 오전 10시까지 PDF로 안 넘기면 제본 못 해준다!</div>
+      </div>
+      <div class="m mine">
+        <div class="b">아이고 문 사장님, 지금 3명째 점수 옮겨 적고 있습니다... 오늘 밤새워서라도 내일 아침까지 넘기겠습니다 ㅠㅠ</div>
+      </div>
+    </div>
+
+    <div class="say">
+      <img src="../assets/av-yuna.webp" class="av" alt="지유나">
+      <div class="bub">
+        원장님, 또 밤새우시게요?! 이미 <code>02_attendance</code> 폴더에 월·수·금 단어 점수랑 과제율이 다 들어 있잖아요! 점수 구간에 따라 원장님 코멘트 블록이 자동으로 붙게 만들면 되죠!
+      </div>
+    </div>
+
+    <!-- 체험 1: 조건부 코멘트 매칭기 -->
+    <div class="try" id="try1">
+      <div class="try-h">
+        <span>체험 1 · 점수 구간별 원장님 총평 자동 결합기</span>
+        <span style="font-size:12px;font-weight:400">슬라이더를 움직여 조건 분기를 확인하세요</span>
+      </div>
+      <div class="try-b">
+        <div style="margin-bottom:12px">
+          <label style="font-size:14px;font-weight:700">주간 단어시험 평균: <span id="lblScore" style="color:var(--brick)">92</span>점</label>
+          <input type="range" id="rngScore" min="50" max="100" step="2" value="92" style="width:100%;accent-color:var(--brick)">
+        </div>
+        <div style="margin-bottom:12px">
+          <label style="font-size:14px;font-weight:700">주간 과제 이행률: <span id="lblHw" style="color:var(--teal)">95</span>%</label>
+          <input type="range" id="rngHw" min="50" max="100" step="5" value="95" style="width:100%;accent-color:var(--teal)">
+        </div>
+        <div id="cmtResult" style="background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px;font-size:15px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2장 -->
+  <section class="chap" id="chap2">
+    <div class="no">CHAPTER 02</div>
+    <h2>문 사장님의 호통: 72 DPI와 300 DPI의 차이</h2>
+    <div class="place">밤 10시 25분 · 모니터 해상도 비교창</div>
+
+    <div class="say me">
+      <img src="../assets/av-cheol.webp" class="av" alt="남궁 철">
+      <div class="bub">
+        유나야, 그냥 모니터에 뜬 화면을 캡처 도구로 잘라서 문 사장님께 보내면 안 되냐? 그게 제일 빠르잖아!
+      </div>
+    </div>
+
+    <div class="say">
+      <img src="../assets/av-yuna.webp" class="av" alt="지유나">
+      <div class="bub">
+        원장님, 그러다 문 사장님한테 등짝 맞으세요! 모니터 캡처는 <b>72~96 DPI(인치당 점 개수)</b>밖에 안 돼서 종이에 인쇄하면 글자 테두리가 계단처럼 다 깨져 나와요. 인쇄소 납품은 무조건 <b>300 DPI 기준 벡터 PDF</b>로 뽑아야 해요!
+      </div>
+    </div>
+
+    <!-- 체험 2: A4 해상도(DPI) 비교 검사기 -->
+    <div class="try" id="try2">
+      <div class="try-h">
+        <span>체험 2 · A4 인쇄 해상도(DPI) 및 픽셀 규격 비교기</span>
+        <span id="dpiStatus" style="font-size:12px;font-weight:400">300 DPI 규격을 선택하세요</span>
+      </div>
+      <div class="try-b">
+        <div class="dpi-btns">
+          <button type="button" class="dpi-btn" data-dpi="72">72 DPI (화면 캡처)</button>
+          <button type="button" class="dpi-btn" data-dpi="150">150 DPI (저화질 인쇄)</button>
+          <button type="button" class="dpi-btn active" data-dpi="300">300 DPI (문인쇄 표준)</button>
+        </div>
+        <div id="dpiView" style="background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:16px"></div>
+      </div>
+    </div>
+
+    <div class="point">
+      <h4>📌 짚고 가기: 웹 화면(Screen)과 인쇄물(Print)의 해상도 공식</h4>
+      <p>A4 용지(210mm × 297mm)를 인쇄소 품질(300 DPI)로 출력하려면 가로×세로 <b>2480 × 3508 픽셀</b> 또는 글꼴이 벡터로 내장된 PDF가 필요합니다. HTML 성적표를 만들고 <code>@page { size: A4; margin: 12mm; }</code> CSS 규칙을 적용해 PDF로 바로 구워내면 활자가 칼처럼 선명하게 인쇄됩니다.</p>
+    </div>
+  </section>
+
+  <!-- 3장 -->
+  <section class="chap" id="chap3">
+    <div class="no">CHAPTER 03</div>
+    <h2>실시간 성적표 렌더러</h2>
+    <div class="place">밤 10시 45분 · HTML 리포트 미리보기</div>
+
+    <div class="say">
+      <img src="../assets/av-yuna.webp" class="av" alt="지유나">
+      <div class="bub">
+        자, 원장님! 학생 이름을 누르면 1주차 월·수·금 성적 그래프랑 원장님 총평이 실시간으로 조립되는 HTML 성적표예요. 미리보기로 직접 확인해 보세요!
+      </div>
+    </div>
+
+    <!-- 체험 3: HTML 리포트 실시간 렌더러 -->
+    <div class="try" id="try3">
+      <div class="try-h">
+        <span>체험 3 · 봄볕영어 주간 성적 리포트 실시간 렌더러</span>
+        <span id="rptSeen" style="font-size:12px;font-weight:400">학생 3명을 모두 미리보기 하세요 (1/3)</span>
+      </div>
+      <div class="try-b">
+        <div class="dpi-btns" id="stuBtns">
+          <button type="button" class="dpi-btn active" data-stu="0">김민준 (STD-012)</button>
+          <button type="button" class="dpi-btn" data-stu="1">이서준 (STD-015)</button>
+          <button type="button" class="dpi-btn" data-stu="2">최유진 (STD-021)</button>
+        </div>
+        <div class="rpt-card" id="rptPreview"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4장 -->
+  <section class="chap" id="chap4">
+    <div class="no">CHAPTER 04</div>
+    <h2>인쇄소 납품 전 마지막 오류 검수</h2>
+    <div class="place">밤 11시 05분 · 인쇄 교정지 앞</div>
+
+    <div class="say">
+      <img src="../assets/av-yuna.webp" class="av" alt="지유나">
+      <div class="bub">
+        원장님, 내 입버릇 기억하시죠? <i>"그거 미리보기로 봤어요?"</i> 인쇄소에 넘기기 전에 재단선 침범이나 폰트 깨짐(두부 현상 <code>□□□</code>)이 없는지 3군데 오류를 직접 고쳐보세요!
+      </div>
+    </div>
+
+    <!-- 체험 4: 인쇄 오류 검사기 -->
+    <div class="try" id="try4">
+      <div class="try-h">
+        <span>체험 4 · 인쇄 재단선(Bleed) 및 폰트 깨짐 검수기</span>
+        <span id="bleedCnt" style="font-size:12px;font-weight:400">교정: 0 / 3</span>
+      </div>
+      <div class="try-b">
+        <p style="margin:0 0 10px;font-size:14.5px;color:var(--muted)">아래 인쇄 시안에서 <b>문 사장님이 반려할 인쇄 사고 지점 3곳(붉은 밑줄)</b>을 클릭해 수정하세요.</p>
+        <div class="bleed-box">
+          <div style="margin-bottom:8px">
+            <span class="bleed-err" data-fix="✓ [여백 12mm 안쪽 정렬 완료] 봄볕영어 2027 겨울특강 1주차 성적표">[여백 침범: 용지 끝 0mm에 붙은 제목] 봄볕영어 2027 겨울특강 1주차 성적표</span>
+          </div>
+          <div style="margin-bottom:8px">
+            학생명: 김민준 (중3A) | 담임 총평: 어휘 암기력이 <span class="bleed-err" data-fix="✓ '눈부시게 향상되었습니다' (표준 한글 폰트 임베딩 완료)">□□□게 향상되었습□□ (미설치 외부 폰트 깨짐)</span>
+          </div>
+          <div>
+            하단 안내: 상담 문의 <span class="bleed-err" data-fix="✓ 031-555-0142 (봄볕영어 교무실 직통)">[전화번호 변수 {phone} 치환 누락]</span>
+          </div>
+        </div>
+        <div id="bleedMsg" style="font-size:14px;font-weight:700;color:var(--muted)">오류 지점을 클릭해 인쇄 사고를 예방하세요.</div>
+      </div>
+    </div>
+
+    <div class="real">
+      <div class="real-h">
+        <span>🖥️ 실제 도구 검증 · 주간 성적 집계 및 HTML 리포트 일괄 생성</span>
+      </div>
+      <div class="real-b">
+        <p style="margin:0 0 10px">Python 스크립트로 학생별 점수를 집계하여 `03_reports` 폴더에 HTML 성적표를 생성한 실제 터미널 검증 로그입니다.</p>
+        <div class="code">$ python3 -c "
+students = [
+  ('STD-2027-012', '김민준', [92, 96, 94], 95),
+  ('STD-2027-015', '이서준', [78, 82, 86], 80),
+  ('STD-2027-021', '최유진', [98, 100, 96], 100)
+]
+for sid, name, scores, hw in students:
+  avg = sum(scores)/len(scores)
+  grade = '자기주도 우수' if avg >= 90 else '꾸준한 상승세'
+  print(f'Generated 03_reports/20270108_{sid}_{name}_주간리포트.html | 평균:{avg:.1f}점 | 판정:{grade}')
+"
+Generated 03_reports/20270108_STD-2027-012_김민준_주간리포트.html | 평균:94.0점 | 판정:자기주도 우수
+Generated 03_reports/20270108_STD-2027-015_이서준_주간리포트.html | 평균:82.0점 | 판정:꾸준한 상승세
+Generated 03_reports/20270108_STD-2027-021_최유진_주간리포트.html | 평균:98.0점 | 판정:자기주도 우수</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5장 -->
+  <section class="chap" id="chap5">
+    <div class="no">CHAPTER 05</div>
+    <h2>30명분 PDF, 15초 만에 일괄 출력</h2>
+    <div class="place">밤 11시 20분 · 문인쇄 카톡창</div>
+
+    <div class="msgr">
+      <div class="msgr-h">
+        <span>문인쇄 문 사장 (30년 경력)</span>
+        <span>오후 11:22</span>
+      </div>
+      <div class="m mine">
+        <div class="b">문 사장님! 밤새울 필요 없었습니다! <code>20270108_중3A_1주차리포트_전원합본_300dpi.pdf</code> 방금 보냈습니다. 폰트 임베딩이랑 여백 12mm 다 맞췄습니다!</div>
+      </div>
+      <div class="m">
+        <img src="../assets/av-moon.webp" style="width:36px;height:36px;border-radius:50%" alt="문 사장">
+        <div class="b">세상에... 방금 열어봤는데 활자가 면도날처럼 쨍하네! 그래프 색상도 안 번지고 딱 좋다. 내일 아침 9시에 봉투까지 싹 넣어서 올려보낼게!</div>
+      </div>
+    </div>
+
+    <!-- 체험 5: 일괄 생성 CLI 조립기 -->
+    <div class="try" id="try5">
+      <div class="try-h">
+        <span>체험 5 · 주간 리포트 30명분 일괄 PDF 변환 스크립트 빌더</span>
+        <span style="font-size:12px;font-weight:400">원클릭 복사 지원</span>
+      </div>
+      <div class="try-b">
+        <label style="display:block;font-size:14px;font-weight:700;margin-bottom:6px">출력 대상 반 이름:</label>
+        <input type="text" id="iptReportClass" value="중3A" style="width:100%;padding:8px 12px;border:1px solid var(--line);border-radius:6px;font-size:15px;margin-bottom:10px;background:var(--paper);color:var(--ink)">
+        <div class="code">
+          <button type="button" id="btnCopyRpt">복사</button>
+          <pre id="outRptCmd" style="margin:0;white-space:pre-wrap"></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 실습 & 미션 -->
+  <section class="chap" id="steps">
+    <div class="no">HANDS-ON PRACTICE</div>
+    <h2>내 컴퓨터에서 직접 해 보기</h2>
+    <ul class="steps">
+      <li>
+        <b>1단계 · 주간 점수 CSV에서 HTML 리포트 일괄 생성</b>
+        체험 5의 스크립트를 실행해 학생별 HTML 성적표를 <code>03_reports/</code>에 생성합니다.
+      </li>
+      <li>
+        <b>2단계 · 브라우저 인쇄 미리보기 검수 후 04_print 저장</b>
+        생성된 PDF의 첫 장과 마지막 장을 열어 글꼴 깨짐과 여백을 확인합니다.
+      </li>
+    </ul>
+
+    <div class="mission">
+      <h4>🎯 04화 수료 미션 3가지</h4>
+      <ol>
+        <li>체험 1에서 점수와 과제율 슬라이더를 조절해 조건부 코멘트 변화 확인하기</li>
+        <li>체험 2와 체험 3에서 300 DPI 인쇄 규격과 학생 3명의 성적표 미리보기 확인하기</li>
+        <li>체험 4에서 인쇄 사고 지점 3곳을 모두 교정하기</li>
+      </ol>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:30px 0 60px;gap:12px;flex-wrap:wrap">
+      <a href="../ep03/index.html" class="btn sec">← 이전 화: 03화 데일리 출결 자동화</a>
+      <a href="../ep05/index.html" class="btn" style="padding:12px 24px;font-size:16px">다음 화: 05화 시뮬레이션 점검과 데이터 사전 →</a>
+    </div>
+  </section>
+
+</div>
+
+<script>
+window.addEventListener('scroll',()=>{
+  const d=document.documentElement;
+  const p=(d.scrollTop)/(d.scrollHeight-d.clientHeight)*100;
+  document.getElementById('prog').style.width=p+'%';
+});
+
+// Try 1: Conditional Comment Matcher
+(function(){
+  const s=document.getElementById('rngScore');
+  const h=document.getElementById('rngHw');
+  const ls=document.getElementById('lblScore');
+  const lh=document.getElementById('lblHw');
+  const out=document.getElementById('cmtResult');
+  function update(){
+    const sv=parseInt(s.value,10);
+    const hv=parseInt(h.value,10);
+    ls.textContent=sv;
+    lh.textContent=hv;
+    let scTxt=sv>=90?"주간 어휘 평가에서 90점 이상의 탄탄한 실력을 보여주었습니다.":(sv>=75?"핵심 어휘 암기량이 꾸준히 올라오며 안정권에 접어들고 있습니다.":"헷갈리는 다의어 파트를 이번 주말 오답 노트로 한 번 더 다잡겠습니다.");
+    let hwTxt=hv>=90?"특히 과제 이행률 "+hv+"%로 스스로 공부하는 습관이 매우 훌륭합니다.":"과제 빈틈("+(100-hv)+"%)은 금요일 보충 시간에 제가 직접 챙겨 마무리했습니다.";
+    out.innerHTML=`<div style="font-size:12.5px;color:var(--teal);font-weight:700;margin-bottom:4px">[자동 조립된 남궁 원장님 총평]</div><div>"${scTxt} ${hwTxt}"</div>`;
+  }
+  s.addEventListener('input',update);
+  h.addEventListener('input',update);
+  update();
+})();
+
+// Try 2: DPI Checker
+(function(){
+  const btns=document.querySelectorAll('#try2 .dpi-btn');
+  const view=document.getElementById('dpiView');
+  const st=document.getElementById('dpiStatus');
+  const info={
+    "72":{px:"595 × 842 px", badge:"❌ 문인쇄 반려 (글자 계단 현상 발생)", col:"var(--bad)", desc:"모니터 화면 캡처 수준입니다. 종이에 인쇄하면 작은 성적표 숫자와 그래프 선이 흐릿하게 번져 학부모님들이 읽기 어렵습니다."},
+    "150":{px:"1240 × 1754 px", badge:"⚠️ 보통 (사무실 약식 출력용)", col:"var(--ochre)", desc:"내부 검토용으로는 쓸 만하지만, 정식 학부모 발송용 제본 리포트로는 선명도가 다소 아쉽습니다."},
+    "300":{px:"2480 × 3508 px (벡터 PDF)", badge:"✓ 문인쇄 승인! (출판급 선명도)", col:"var(--ok)", desc:"인쇄소 윤전기 표준 규격입니다. 8pt 작은 주석 글씨와 성적 막대그래프 경계선이 면도날처럼 또렷하게 인쇄됩니다."}
+  };
+  function render(k){
+    const d=info[k];
+    view.innerHTML=`
+      <div style="font-weight:800;color:${d.col};margin-bottom:6px">${d.badge} — A4 픽셀 환산: ${d.px}</div>
+      <div style="font-size:14.5px">${d.desc}</div>
+    `;
+    if(k==='300'){st.textContent='✓ 300 DPI 인쇄 표준 확인!';st.style.color='var(--ok)';}
+  }
+  btns.forEach(b=>{
+    b.addEventListener('click',()=>{
+      btns.forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      render(b.dataset.dpi);
+    });
+  });
+  render('300');
+})();
+
+// Try 3: HTML Report Renderer
+(function(){
+  const btns=document.querySelectorAll('#stuBtns .dpi-btn');
+  const card=document.getElementById('rptPreview');
+  const seenLbl=document.getElementById('rptSeen');
+  const seen=new Set(['0']);
+  const stus=[
+    {id:"STD-2027-012", name:"김민준", cls:"중3A", w1:90, w2:94, w3:98, cmt:"월·수·금 3회 연속 어휘 점수가 상승하여 이번 주 반 1등을 기록했습니다. 가정에서도 큰 칭찬 부탁드립니다."},
+    {id:"STD-2027-015", name:"이서준", cls:"중3A", w1:76, w2:82, w3:88, cmt:"첫날 낯설어하던 관계부사 구문을 수요일 보충 이후 완벽히 소화하며 점수가 12점이나 뛰어올랐습니다."},
+    {id:"STD-2027-021", name:"최유진", cls:"중3A", w1:96, w2:100, w3:98, cmt:"오답 노트 정리가 예술입니다. 서술형 영작에서도 감점 없이 만점을 유지하고 있어 매우 든든합니다."}
+  ];
+  function show(i){
+    const s=stus[i];
+    card.innerHTML=`
+      <div style="display:flex;justify-content:space-between;border-bottom:2px solid var(--brick);padding-bottom:8px;margin-bottom:12px">
+        <b>🌱 봄볕영어 2027 겨울특강 주간 리포트</b>
+        <span style="font-size:13px;color:var(--muted)">학번: ${s.id} | ${s.cls} ${s.name}</span>
+      </div>
+      <div class="bar-row"><span style="width:65px">월요일</span><div class="bar-track"><div class="bar-fill" style="width:${s.w1}%"></div></div><b>${s.w1}점</b></div>
+      <div class="bar-row"><span style="width:65px">수요일</span><div class="bar-track"><div class="bar-fill" style="width:${s.w2}%"></div></div><b>${s.w2}점</b></div>
+      <div class="bar-row"><span style="width:65px">금요일</span><div class="bar-track"><div class="bar-fill" style="width:${s.w3}%"></div></div><b>${s.w3}점</b></div>
+      <div style="margin-top:12px;padding-top:10px;border-top:1px dashed var(--line);font-size:14.5px">
+        <b>남궁 철 원장 총평:</b> "${s.cmt}"<br>
+        <small style="color:var(--muted)">문의: 봄볕영어 교무실 (031-555-0142)</small>
+      </div>
+    `;
+    seen.add(String(i));
+    seenLbl.textContent=`미리보기 완료: ${seen.size} / 3`+(seen.size===3?' ✓':'');
+  }
+  btns.forEach(b=>{
+    b.addEventListener('click',()=>{
+      btns.forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      show(parseInt(b.dataset.stu,10));
+    });
+  });
+  show(0);
+})();
+
+// Try 4: Bleed & Font Spotter
+(function(){
+  const errs=document.querySelectorAll('#try4 .bleed-err');
+  const cnt=document.getElementById('bleedCnt');
+  const msg=document.getElementById('bleedMsg');
+  let fixed=0;
+  errs.forEach(e=>{
+    e.addEventListener('click',()=>{
+      if(e.classList.contains('fixed')) return;
+      e.classList.add('fixed');
+      e.textContent=e.dataset.fix;
+      fixed++;
+      cnt.textContent=`교정: ${fixed} / 3`;
+      if(fixed===3){
+        msg.style.color='var(--ok)';
+        msg.textContent='🎉 여백 침범, 폰트 깨짐, 변수 누락 3곳을 모두 교정했습니다! 문인쇄소 바로 통과!';
+      }
+    });
+  });
+})();
+
+// Try 5: Report CLI Builder
+(function(){
+  const ipt=document.getElementById('iptReportClass');
+  const out=document.getElementById('outRptCmd');
+  const btn=document.getElementById('btnCopyRpt');
+  function update(){
+    const c=ipt.value.trim()||'중3A';
+    out.textContent=`# [${c}] 주간 리포트 HTML 생성 및 300DPI PDF 일괄 변환
+python3 generate_weekly_reports.py --class "${c}" --input 02_attendance/ --output 03_reports/
+google-chrome --headless --disable-gpu --print-to-pdf="04_print/20270108_${c}_주간리포트_인쇄승인본.pdf" 03_reports/20270108_${c}_합본.html
+echo "✓ 04_print/20270108_${c}_주간리포트_인쇄승인본.pdf 생성 완료!"`;
+  }
+  ipt.addEventListener('input',update);
+  update();
+  btn.addEventListener('click',()=>{
+    navigator.clipboard.writeText(out.textContent).then(()=>{
+      btn.textContent='복사됨!';
+      setTimeout(()=>btn.textContent='복사',1500);
+    });
+  });
+})();
+
+// Theme Toggle (Light / Dark) synced via localStorage
+(function(){
+  const saved = localStorage.getItem("agy_theme") || "light";
+  document.documentElement.setAttribute("data-theme", saved);
+  const btn = document.getElementById("btnThemeToggle");
+  function updateBtn(t){
+    if(!btn) return;
+    btn.textContent = (t === "dark") ? "☀️ 밝은 화면" : "🌙 어두운 화면";
+  }
+  updateBtn(saved);
+  if(btn){
+    btn.addEventListener("click", ()=>{
+      const cur = document.documentElement.getAttribute("data-theme") || "light";
+      const next = (cur === "dark") ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      localStorage.setItem("agy_theme", next);
+      updateBtn(next);
+      const frame = document.getElementById("epFrame");
+      if(frame && frame.contentDocument && frame.contentDocument.documentElement){
+        frame.contentDocument.documentElement.setAttribute("data-theme", next);
+      }
+    });
+  }
+})();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+# 01강 · 페르소나와 자동화 설계
+업그레이드 제목: "인공지능한테 제 말투를 가르치라고요?"
+핵심 개념: System Instructions, Few-shot Examples, Context Window, CLAUDE.md
+실제 도구: CLAUDE.md 작성, 프롬프트 템플릿 검증 스크립트
+인페이지 위젯: ① 페르소나 톤 슬라이더 ② 금지어 필터 시뮬레이터 ③ 대상별 페르소나 매트릭스 조립기 ④ 틀린 페르소나 찾기 ⑤ 맞춤형 CLAUDE.md 빌더

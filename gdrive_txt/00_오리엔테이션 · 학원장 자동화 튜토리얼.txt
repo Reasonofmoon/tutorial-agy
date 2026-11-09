@@ -1,0 +1,5 @@
+# 00강 · 오리엔테이션 · 학원장 자동화 튜토리얼
+업그레이드 제목: "원장님, 매번 밤 11시에 퇴근하실 거예요?"
+핵심 개념: AI Fluency 4D 기초 (위임 Delegation · 설명 Description · 분별 Discernment · 성실 Diligence)
+실제 도구: Claude Code / Antigravity CLI (agy) / 터미널 환경 점검
+인페이지 위젯: ① 학원 업무 위임 분류기 ② 자동화 ROI 계산기 ③ 프롬프트 착각 퀴즈 ④ 틀린 프롬프트 찾기 ⑤ 0화 완주 헌장 생성기

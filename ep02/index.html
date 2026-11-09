@@ -1,0 +1,773 @@
+<!doctype html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>02화 바탕화면에 새 폴더 (37) 은 이제 그만 | 학원장 자동화 스토리 튜토리얼</title>
+<meta name="description" content="진짜_최종_수정3.hwp를 찾느라 진땀 빼는 남궁 철 원장. MCP 로컬 파일시스템 격리(Root Isolation)와 표준 디렉터리 허브로 1초 만에 찾는 디지털 교무실을 구축한다.">
+<style>
+:root{
+  --paper:#F7F1E5;--card:#FFFDF8;--ink:#24211C;--muted:#6E665A;--line:#E3D9C6;
+  --brick:#B5452F;--teal:#2F6F73;--ochre:#C98B2B;--navy:#1F3A5F;--hl:#FFE89A;
+  --ok:#2F7D4F;--bad:#B5452F;--r:14px;
+  --bubble-me:#E7F0EE;--bubble-you:#FFFFFF;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#1C1A17;--card:#25221E;--ink:#EDE6D8;--muted:#A89F90;--line:#3A352E;
+  --brick:#E07A62;--teal:#6FB3B6;--ochre:#E2AE5C;--navy:#9DB8DD;--hl:#5A4A12;
+  --ok:#6BC28E;--bad:#E07A62;--bubble-me:#22332F;--bubble-you:#2B2823;}}
+:root[data-theme="dark"]{
+  --paper:#1C1A17;--card:#25221E;--ink:#EDE6D8;--muted:#A89F90;--line:#3A352E;
+  --brick:#E07A62;--teal:#6FB3B6;--ochre:#E2AE5C;--navy:#9DB8DD;--hl:#5A4A12;
+  --ok:#6BC28E;--bad:#E07A62;--bubble-me:#22332F;--bubble-you:#2B2823;}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:Pretendard,"Pretendard Variable","NanumSquare Neo","Apple SD Gothic Neo","Noto Sans KR",sans-serif;font-size:17px;line-height:1.8;word-break:keep-all;overflow-wrap:break-word}
+img{max-width:100%;display:block}
+a{color:var(--teal)}
+.wrap{max-width:740px;margin:0 auto;padding:0 16px}
+.wide{max-width:1040px;margin:0 auto;padding:0 16px}
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.top .in{display:flex;justify-content:space-between;align-items:center;gap:12px;height:52px}
+.top b{font-size:14px}.top a{font-size:14px;font-weight:700;text-decoration:none;color:var(--brick);white-space:nowrap}
+.prog{position:absolute;left:0;bottom:-1px;height:3px;background:var(--brick);width:0}
+.hero{padding:28px 0 8px}
+.hero img{border-radius:18px;border:1px solid var(--line);aspect-ratio:16/9;object-fit:cover;width:100%}
+.kicker{font-size:13.5px;letter-spacing:.04em;color:var(--brick);font-weight:700;margin:26px 0 6px}
+h1{font-size:clamp(30px,6.5vw,50px);line-height:1.25;letter-spacing:-.02em;margin:0 0 16px}
+.deck{font-size:18.5px;color:var(--muted);margin:0}
+.cast{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:28px 0}
+.cast div{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;font-size:14.5px;line-height:1.6}
+.cast img{width:64px;height:64px;border-radius:50%;border:2px solid var(--line);margin-bottom:8px;object-fit:cover}
+.cast b{display:block;font-size:16px}.cast small{display:block;color:var(--muted);margin-bottom:6px}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:14px;color:var(--muted);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:12px 0;margin:8px 0 10px}
+.meta b{color:var(--ink)}
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0;padding:0;list-style:none}
+.toc a{display:inline-block;font-size:13.5px;text-decoration:none;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px 12px}
+.chap{padding:56px 0 10px}
+.chap .no{font-size:13px;font-weight:800;letter-spacing:.12em;color:var(--brick)}
+h2{font-size:clamp(24px,4.8vw,32px);line-height:1.3;margin:4px 0 18px;letter-spacing:-.01em}
+h3{font-size:20px;margin:28px 0 8px}
+
+.place{font-size:13px;color:var(--muted);letter-spacing:.06em;margin:22px 0 6px;text-transform:uppercase;font-weight:700}
+.act{color:var(--muted);font-style:italic;margin:10px 0}
+.say{display:flex;gap:12px;align-items:flex-start;margin:18px 0}
+.say .av{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);flex-shrink:0;object-fit:cover}
+.say .bub{background:var(--bubble-you);border:1px solid var(--line);border-radius:14px;border-top-left-radius:3px;padding:10px 14px;font-size:16px;max-width:580px;line-height:1.65}
+.say.me{flex-direction:row-reverse}
+.say.me .bub{background:var(--bubble-me);border-top-left-radius:14px;border-top-right-radius:3px}
+.say.claude .bub{background:var(--card);border-left:4px solid var(--brick);border-radius:8px;font-size:15px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+.say.claude .av-c{width:42px;height:42px;border-radius:50%;background:var(--btn-brick);color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;flex-shrink:0}
+
+.msgr{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin:24px 0}
+.msgr-h{font-size:13px;font-weight:700;color:var(--navy);border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:12px;display:flex;justify-content:space-between}
+.msgr .m{display:flex;gap:8px;margin:10px 0;align-items:flex-end}
+.msgr .m.mine{flex-direction:row-reverse}
+.msgr .b{background:var(--paper);border:1px solid var(--line);padding:8px 12px;border-radius:12px;font-size:14.5px;max-width:80%}
+.msgr .m.mine .b{background:#E7F0EE;border-color:#C1D7D1}
+
+.try{background:var(--card);border:2px solid var(--hl);border-radius:var(--r);margin:32px 0;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.03)}
+.try-h{background:var(--hl);padding:10px 16px;font-size:13.5px;font-weight:800;color:var(--ink);display:flex;justify-content:space-between;align-items:center}
+.try-b{padding:20px}
+
+.point{background:color-mix(in srgb,var(--ochre) 12%,var(--card));border-left:5px solid var(--ochre);border-radius:4px 12px 12px 4px;padding:16px 20px;margin:26px 0}
+.point h4{margin:0 0 6px;color:var(--ink);font-size:17px}
+.point p{margin:0;font-size:15px;color:var(--muted)}
+
+.real{background:var(--card);border:1px solid var(--line);border-radius:var(--r);margin:26px 0;overflow:hidden}
+.real-h{background:color-mix(in srgb,var(--teal) 12%,var(--card));border-bottom:1px solid var(--line);padding:8px 14px;font-size:12.5px;font-weight:700;color:var(--teal);display:flex;gap:8px;align-items:center}
+.real-b{padding:16px;font-size:14.5px}
+
+.btn{display:inline-flex;align-items:center;gap:6px;background:var(--btn-brick);color:#FFFFFF;border:none;border-radius:8px;padding:8px 16px;font-size:14.5px;font-weight:700;cursor:pointer;text-decoration:none}
+.btn:hover{filter:brightness(1.1)}
+.btn.sec{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+
+.steps{margin:28px 0;padding:0;list-style:none}
+.steps li{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px 20px;margin-bottom:12px;position:relative}
+.steps li b{display:block;font-size:16px;margin-bottom:4px;color:var(--brick)}
+
+.mission{background:color-mix(in srgb,var(--navy) 10%,var(--card));border:1px solid var(--navy);border-radius:var(--r);padding:20px;margin:28px 0}
+.mission h4{margin:0 0 10px;color:var(--navy);font-size:18px}
+.mission ol{margin:0;padding-left:22px;font-size:15.5px}
+.mission li{margin-bottom:8px}
+
+.code{background:#23211E;color:#F3EDE2;border-radius:8px;padding:14px 18px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13.5px;line-height:1.6;overflow-x:auto;position:relative;margin:12px 0}
+.code button{position:absolute;right:8px;top:8px;background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:4px;padding:4px 8px;font-size:11px;cursor:pointer}
+
+/* EP02 Widget Styles */
+.desk-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:12px 0}
+.desk-item{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:.2s}
+.desk-item:hover{border-color:var(--brick)}
+.desk-item.caught{background:color-mix(in srgb,var(--bad) 15%,var(--card));border-color:var(--bad);color:var(--bad);font-weight:700}
+.desk-item.safe{background:color-mix(in srgb,var(--ok) 15%,var(--card));border-color:var(--ok);color:var(--ok)}
+.mcp-row{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px}
+.token-btn{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:8px 14px;font-size:14px;font-weight:700;cursor:pointer}
+.token-btn.used{opacity:.4;pointer-events:none}
+.tree-layout{display:grid;grid-template-columns:220px 1fr;gap:12px}
+.tree-folder{display:block;width:100%;text-align:left;padding:10px 12px;border:1px solid var(--line);background:var(--paper);border-radius:8px;margin-bottom:6px;font-weight:700;cursor:pointer;color:var(--ink)}
+.tree-folder.active{background:var(--btn-teal);color:#FFFFFF;color:#fff;border-color:var(--teal)}
+
+@media(max-width:680px){
+  .cast{grid-template-columns:1fr}
+  .desk-grid{grid-template-columns:1fr}
+  .tree-layout{grid-template-columns:1fr}
+}
+
+/* === Universal Contrast & Visibility Safety Rules (Light & Dark Mode) === */
+:root {
+  color-scheme: light;
+  --btn-brick: #B5452F;
+  --btn-teal: #2F6F73;
+  --btn-ok: #2F7D4F;
+  --btn-bad: #B5452F;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme: dark;
+  --paper:#181614;--card:#221F1C;--ink:#F5EFE6;--muted:#C4BAA8;--line:#3E3830;
+  --brick:#F08A72;--teal:#7FD0D4;--ochre:#F0BE6E;--navy:#A8C4E8;--hl:#4A3D10;
+  --ok:#7CE0A3;--bad:#F08A72;--bubble-me:#1F332E;--bubble-you:#2A2622;
+  --btn-brick:#B5452F;--btn-teal:#245E62;--btn-ok:#256B42;--btn-bad:#B53824;
+}}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --paper:#181614;--card:#221F1C;--ink:#F5EFE6;--muted:#C4BAA8;--line:#3E3830;
+  --brick:#F08A72;--teal:#7FD0D4;--ochre:#F0BE6E;--navy:#A8C4E8;--hl:#4A3D10;
+  --ok:#7CE0A3;--bad:#F08A72;--bubble-me:#1F332E;--bubble-you:#2A2622;
+  --btn-brick:#B5452F;--btn-teal:#245E62;--btn-ok:#256B42;--btn-bad:#B53824;
+}
+:root[data-theme="light"]{
+  color-scheme: light;
+  --paper:#F7F1E5;--card:#FFFDF8;--ink:#24211C;--muted:#5C5449;--line:#E3D9C6;
+  --brick:#B5452F;--teal:#2F6F73;--ochre:#C98B2B;--navy:#1F3A5F;--hl:#FFE89A;
+  --ok:#2F7D4F;--bad:#B5452F;--bubble-me:#E7F0EE;--bubble-you:#FFFFFF;
+  --btn-brick:#B5452F;--btn-teal:#2F6F73;--btn-ok:#2F7D4F;--btn-bad:#B5452F;
+}
+
+/* Explicit foreground & background for all form controls and interactive elements */
+button, input, select, textarea, option {
+  font-family: inherit;
+  color: var(--ink);
+  background-color: var(--card);
+}
+input[type="text"], select, textarea {
+  color: var(--ink) !important;
+  background-color: var(--paper) !important;
+  border: 1px solid var(--line) !important;
+}
+option {
+  color: var(--ink);
+  background-color: var(--card);
+}
+
+/* Fix all custom buttons, tabs, cards to explicitly use var(--ink) on var(--paper)/var(--card) */
+.quiz-btn, .mat-tab, .token-btn, .tree-folder, .tpl-tab, .dpi-btn, .key-btn, .drill-tab, .v-tab, .diag-btn, .nav-pill, .sort-card, .desk-item, .faq-card, .gate-card, .mcp-row, .dict-row, .rpt-card {
+  color: var(--ink) !important;
+  background-color: var(--paper);
+}
+.quiz-btn, .sort-card, .nav-pill {
+  background-color: var(--card);
+}
+
+/* Fix active/selected/status states to use deep background + pure white #FFFFFF text */
+.btn, a.btn {
+  background-color: var(--btn-brick) !important;
+  color: #FFFFFF !important;
+}
+.btn.sec, a.btn.sec, button.btn.sec {
+  background-color: var(--card) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+}
+.mat-tab.active, .tree-folder.active, .dpi-btn.active, .key-btn.active, .diag-btn.active {
+  background-color: var(--btn-teal) !important;
+  color: #FFFFFF !important;
+  border-color: var(--btn-teal) !important;
+}
+.tpl-tab.active, .drill-tab.active, .v-tab.active, .nav-pill.active {
+  background-color: var(--btn-brick) !important;
+  color: #FFFFFF !important;
+  border-color: var(--btn-brick) !important;
+}
+.quiz-btn.correct {
+  background-color: var(--btn-ok) !important;
+  color: #FFFFFF !important;
+  border-color: var(--btn-ok) !important;
+}
+.quiz-btn.wrong {
+  background-color: var(--btn-bad) !important;
+  color: #FFFFFF !important;
+  border-color: var(--btn-bad) !important;
+}
+
+/* Fix messenger bubbles and dialogue bubbles in both light and dark modes */
+.say .bub {
+  background-color: var(--bubble-you) !important;
+  color: var(--ink) !important;
+}
+.say.me .bub {
+  background-color: var(--bubble-me) !important;
+  color: var(--ink) !important;
+}
+.say.claude .bub {
+  background-color: var(--card) !important;
+  color: var(--ink) !important;
+}
+.msgr .b {
+  background-color: var(--paper) !important;
+  color: var(--ink) !important;
+}
+.msgr .m.mine .b {
+  background-color: var(--bubble-me) !important;
+  color: var(--ink) !important;
+  border-color: var(--line) !important;
+}
+
+/* Fix .try-h, .var-tag, .ep-badge highlight backgrounds to always have readable text */
+.try-h, .var-tag, .ep-badge {
+  background-color: var(--hl) !important;
+  color: var(--ink) !important;
+}
+
+/* Fix .code blocks so dark terminal always has light text #F3EDE2 on #23211E */
+.code, .code pre {
+  background-color: #23211E !important;
+  color: #F3EDE2 !important;
+}
+.code button {
+  background-color: #3E3A35 !important;
+  color: #FFFFFF !important;
+  border: 1px solid #6E665A !important;
+}
+
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="wide in" style="height:auto;min-height:52px;padding:8px 16px;flex-wrap:wrap">
+    <b><a href="../index.html" style="color:var(--ink);margin-right:8px">☰ 포털 홈</a> | 02화 · 드라이브 허브</b>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <a href="../ep00/index.html" style="font-size:13px;color:var(--muted);">00화</a><a href="../ep01/index.html" style="font-size:13px;color:var(--muted);">01화</a><a href="../ep02/index.html" style="font-size:13px;background:var(--btn-brick);color:#FFFFFF;padding:2px 8px;border-radius:999px;">02화</a><a href="../ep03/index.html" style="font-size:13px;color:var(--muted);">03화</a><a href="../ep04/index.html" style="font-size:13px;color:var(--muted);">04화</a><a href="../ep05/index.html" style="font-size:13px;color:var(--muted);">05화</a><a href="../ep06/index.html" style="font-size:13px;color:var(--muted);">06화</a>
+      <a href="#try1" style="margin-left:4px">체험 ↓</a>
+      <button type="button" id="btnThemeToggle" style="font-size:12.5px;padding:3px 9px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-weight:700;cursor:pointer">🌙 어두운 화면</button>
+    </div>
+  </div>
+  <div class="prog" id="prog"></div>
+</div>
+
+<div class="wrap">
+
+  <div class="hero">
+    <img src="../assets/scene_flash.jpg" alt="바탕화면 폴더를 정리하고 표준 허브 디렉터리 트리를 설계하는 남궁 철 원장과 지유나" width="1376" height="768">
+  </div>
+
+  <div class="kicker">EPISODE 02 · DAY 1: DRIVE HUB &amp; MCP</div>
+  <h1>"바탕화면에 새 폴더 (37) 은 이제 그만"</h1>
+  <p class="deck"><code>특강안내문_최종_진짜최종_이거인쇄.pdf</code>를 잘못 보내 문 사장님의 뒷목을 잡게 만든 남궁 원장. AI가 길을 잃지 않고 개인정보도 새지 않는 격리된 로컬 허브(<code>~/spring-hub/</code>)를 짓는다.</p>
+
+  <div class="cast">
+    <div>
+      <img src="../assets/av-cheol.webp" alt="남궁 철 원장 아바타">
+      <b>남궁 철 (49세)</b>
+      <small>봄볕영어 원장</small>
+      바탕화면에 아이콘 140개를 깔아두고 사는 폴더 맥시멀리스트. 급할 때마다 '새 폴더'를 만든다.
+    </div>
+    <div>
+      <img src="../assets/av-yuna.webp" alt="지유나 아바타">
+      <b>지유나 (17세)</b>
+      <small>고2 수강생 · 방송부</small>
+      방송부 영상 아카이브도 날짜·규격 코드로 칼같이 정리하는 파일 정리 마스터.
+    </div>
+    <div>
+      <img src="../assets/av-moon.webp" alt="문 사장 아바타">
+      <b>문 사장 (50대)</b>
+      <small>1층 문인쇄 대표</small>
+      오타 난 구버전 파일을 보낸 원장 때문에 인쇄 판을 새로 깎을 뻔하고 불호령을 내린다.
+    </div>
+  </div>
+
+  <div class="meta">
+    <span><b>난이도:</b> 초급 (폴더·MCP 보안)</span>
+    <span><b>소요 시간:</b> 약 25분</span>
+    <span><b>핵심 도구:</b> <code>filesystem-mcp</code>, Bash 스크립트</span>
+    <span><b>검증 일자:</b> 2026-10-12</span>
+  </div>
+
+  <ul class="toc">
+    <li><a href="#chap1">1장. '진짜_최종_수정3.pdf'의 참사</a></li>
+    <li><a href="#chap2">2장. AI에게 안방 열쇠까지 주실 건가요?</a></li>
+    <li><a href="#chap3">3장. 1초 만에 찾는 파일명 공식</a></li>
+    <li><a href="#chap4">4장. 봄볕영어 5대 표준 폴더 트리</a></li>
+    <li><a href="#chap5">5장. 원클릭 허브 생성과 문 사장의 미소</a></li>
+    <li><a href="#steps">실습 &amp; 미션</a></li>
+  </ul>
+
+  <!-- 1장 -->
+  <section class="chap" id="chap1">
+    <div class="no">CHAPTER 01</div>
+    <h2>'진짜_최종_수정3.pdf'의 참사</h2>
+    <div class="place">12월 26일 (토) 오전 10시 15분 · 봄볕영어 교무실</div>
+
+    <p class="act">토요일 아침부터 교무실 전화기가 불이 나듯 울렸다. 수화기 너머에서 1층 문인쇄 문 사장의 우렁찬 목소리가 터져 나왔다.</p>
+
+    <div class="msgr">
+      <div class="msgr-h">
+        <span>문인쇄 문 사장 (30년 경력)</span>
+        <span>오전 10:15</span>
+      </div>
+      <div class="m">
+        <img src="../assets/av-moon.webp" style="width:36px;height:36px;border-radius:50%" alt="문 사장">
+        <div class="b">남궁 원장!! 방금 메일로 보낸 <code>겨울특강_전단_진짜최종.pdf</code> 말이야! 개강일이 왜 2026년 1월로 돼 있어?! 작년 파일 보냈잖아!!</div>
+      </div>
+      <div class="m mine">
+        <div class="b">헉?! 잠깐만요 문 사장님! 바탕화면 <code>새 폴더 (37)</code>에 있던 건데... 아뿔싸, <code>새 폴더 (38)</code>에 든 게 올해 거였나 봅니다!</div>
+      </div>
+      <div class="m">
+        <img src="../assets/av-moon.webp" style="width:36px;height:36px;border-radius:50%" alt="문 사장">
+        <div class="b">내가 인쇄 전에 미리보기로 날짜 확인 안 했으면 전단지 2,000장 다 파지 만들 뻔했어! 제발 컴퓨터 바탕화면 좀 치워!!</div>
+      </div>
+    </div>
+
+    <p class="act">원장의 모니터 바탕화면에는 아이콘이 빈틈없이 다닥다닥 붙어 있었다. 옆에서 이를 본 유나가 이마를 짚었다.</p>
+
+    <div class="say">
+      <img src="../assets/av-yuna.webp" class="av" alt="지유나">
+      <div class="bub">
+        원장님... 이 상태로 AI한테 파일 읽으라고 시키면 AI도 작년 파일이랑 올해 파일 구분 못 해서 대참사 나요. 게다가 바탕화면에 가족사진이랑 세금계산서까지 다 섞여 있잖아요!
+      </div>
+    </div>
+
+    <!-- 체험 1: 위험한 바탕화면 찾기 -->
+    <div class="try" id="try1">
+      <div class="try-h">
+        <span>체험 1 · 위험한 바탕화면 파일 4개 색출하기</span>
+        <span id="deskScore" style="font-size:12px;font-weight:400">색출: 0 / 4</span>
+      </div>
+      <div class="try-b">
+        <p style="margin:0 0 10px;font-size:14.5px;color:var(--muted)">남궁 원장님의 바탕화면입니다. <b>개인정보 유출 위험이 있거나 버전 혼선을 일으키는 위험 항목 4개</b>를 클릭해 치워버리세요.</p>
+        <div class="desk-grid" id="deskGrid">
+          <div class="desk-item" data-bad="true" data-reason="버전 혼선 주범! '최종_진짜최종' 대신 연월일(20270104)을 적어야 합니다.">📄 특강전단_최종_진짜최종.pdf</div>
+          <div class="desk-item" data-bad="false" data-reason="정확한 날짜와 반 이름이 들어간 모범 파일입니다.">📊 20270104_중3A_출결명부.csv</div>
+          <div class="desk-item" data-bad="true" data-reason="폴더 이름만 보고는 무엇이 들었는지 절대 알 수 없습니다.">📁 새 폴더 (37)</div>
+          <div class="desk-item" data-bad="true" data-reason="주민등록번호가 든 개인 세금 서류는 학원 AI 작업 폴더와 철저히 분리해야 합니다!">🔒 원장_종합소득세_주민번호포함.xlsx</div>
+          <div class="desk-item" data-bad="false" data-reason="표준 지침 파일입니다.">📘 CLAUDE.md</div>
+          <div class="desk-item" data-bad="true" data-reason="작년 파일인지 올해 파일인지 연도가 빠져 있어 오발송 사고를 유발합니다.">📝 장학생명단_수정본_복사본.hwp</div>
+        </div>
+        <div id="deskFeedback" style="font-size:14px;font-weight:700;margin-top:10px;color:var(--muted)">위험해 보이는 파일을 클릭해 보세요.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2장 -->
+  <section class="chap" id="chap2">
+    <div class="no">CHAPTER 02</div>
+    <h2>AI에게 안방 열쇠까지 주실 건가요?</h2>
+    <div class="place">오전 10시 40분 · 노트북 보안 설정 창</div>
+
+    <div class="say me">
+      <img src="../assets/av-cheol.webp" class="av" alt="남궁 철">
+      <div class="bub">
+        유나야, 근데 AI가 내 컴퓨터에 있는 엑셀 파일을 직접 읽고 저장하게 하려면 어떻게 해야 하냐? 혹시 내 컴퓨터 전체를 다 뒤지게 놔둬도 되는 거야?
+      </div>
+    </div>
+
+    <div class="say">
+      <img src="../assets/av-yuna.webp" class="av" alt="지유나">
+      <div class="bub">
+        절대 안 되죠! 손님한테 교무실 책상 하나만 쓰라고 해야지 안방 금고 열쇠까지 주면 어떡해요! AI한테는 <b>딱 지정된 학원 허브 폴더(<code>~/spring-hub/</code>) 하나만</b> 열람할 수 있게 울타리를 쳐줘야 해요.
+      </div>
+    </div>
+
+    <!-- 체험 2: MCP 경로 승인 시뮬레이터 -->
+    <div class="try" id="try2">
+      <div class="try-h">
+        <span>체험 2 · MCP 로컬 파일 경로 승인/차단 훈련</span>
+        <span id="mcpCount" style="font-size:12px;font-weight:400">판정: 0 / 4</span>
+      </div>
+      <div class="try-b">
+        <p style="margin:0 0 12px;font-size:14.5px;color:var(--muted)">AI 에이전트가 파일 접근을 요청합니다. <b>격리된 학원 허브(<code>~/spring-hub/</code>) 내부만 허용(Allow)</b>하고 나머지는 모두 차단(Block)하세요.</p>
+        <div id="mcpList"></div>
+      </div>
+    </div>
+
+    <div class="point">
+      <h4>📌 짚고 가기: MCP (Model Context Protocol)와 Root Isolation</h4>
+      <p>MCP 파일시스템 도구를 연결할 때는 반드시 <b>루트 디렉터리 격리(Root Isolation)</b> 원칙을 지켜야 합니다. <code>~/spring-hub/</code>만 마운트하면 AI는 그 상위 폴더(바탕화면, 공인인증서, 시스템 설정)의 존재조차 볼 수 없어 사고가 원천 차단됩니다.</p>
+    </div>
+  </section>
+
+  <!-- 3장 -->
+  <section class="chap" id="chap3">
+    <div class="no">CHAPTER 03</div>
+    <h2>1초 만에 찾는 파일명 공식</h2>
+    <div class="place">오전 11시 05분 · 교무실 칠판</div>
+
+    <p class="act">유나는 칠판에 네모 칸 네 개를 그리고 사이사이에 밑줄(<code>_</code>)을 그었다.</p>
+
+    <div class="say">
+      <img src="../assets/av-yuna.webp" class="av" alt="지유나">
+      <div class="bub">
+        원장님, 앞으로 봄볕영어의 모든 파일 이름은 무조건 <b>[8자리날짜]_[반이름]_[문서종류]_[상태].확장자</b> 순서예요. 이렇게만 지으면 이름순 정렬만 눌러도 시간순으로 딱 줄을 서거든요!
+      </div>
+    </div>
+
+    <!-- 체험 3: 파일명 조립기 -->
+    <div class="try" id="try3">
+      <div class="try-h">
+        <span>체험 3 · 표준 파일명 조립 퍼즐</span>
+        <span id="fnStatus" style="font-size:12px;font-weight:400">순서대로 조각을 클릭하세요</span>
+      </div>
+      <div class="try-b">
+        <p style="margin:0 0 10px;font-size:14.5px;color:var(--muted)">규칙: <b>① 날짜(YYYYMMDD) → ② 반 이름 → ③ 문서 종류 → ④ 상태 및 확장자</b> 순서로 버튼을 눌러 파일명을 완성하세요.</p>
+        <div id="fnPreview" class="code" style="font-size:16px;text-align:center;min-height:48px">여기에 파일명이 조립됩니다</div>
+        <div id="fnTokens" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">
+          <button type="button" class="token-btn" data-part="단어테스트">단어테스트</button>
+          <button type="button" class="token-btn" data-part="20270104">20270104</button>
+          <button type="button" class="token-btn" data-part="결과.csv">결과.csv</button>
+          <button type="button" class="token-btn" data-part="중3A">중3A</button>
+        </div>
+        <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center">
+          <button type="button" class="btn sec" id="btnFnReset">다시 조립</button>
+          <span id="fnResult" style="font-size:14px;font-weight:700"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4장 -->
+  <section class="chap" id="chap4">
+    <div class="no">CHAPTER 04</div>
+    <h2>봄볕영어 5대 표준 폴더 트리</h2>
+    <div class="place">오전 11시 30분 · 노트북 파일 탐색기</div>
+
+    <div class="say me">
+      <img src="../assets/av-cheol.webp" class="av" alt="남궁 철">
+      <div class="bub">
+        파일 이름은 알겠는데, 폴더는 몇 개나 만들어야 하냐? 너무 많으면 또 헷갈릴 텐데...
+      </div>
+    </div>
+
+    <div class="say">
+      <img src="../assets/av-yuna.webp" class="av" alt="지유나">
+      <div class="bub">
+        딱 5개만 만드세요! 앞에 번호(<code>01</code>~<code>04</code>, <code>99</code>)를 붙여두면 순서가 절대 안 뒤집혀요. 각 방에 뭐가 들어가는지 직접 열어보실래요?
+      </div>
+    </div>
+
+    <!-- 체험 4: 폴더 트리 탐색기 -->
+    <div class="try" id="try4">
+      <div class="try-h">
+        <span>체험 4 · 봄볕영어 드라이브 허브 5대 폴더 탐색기</span>
+        <span id="treeProg" style="font-size:12px;font-weight:400">폴더를 눌러 역할을 확인하세요 (1/5)</span>
+      </div>
+      <div class="try-b">
+        <div class="tree-layout">
+          <div id="treeNav">
+            <button type="button" class="tree-folder active" data-f="01">📁 01_students</button>
+            <button type="button" class="tree-folder" data-f="02">📁 02_attendance</button>
+            <button type="button" class="tree-folder" data-f="03">📁 03_reports</button>
+            <button type="button" class="tree-folder" data-f="04">📁 04_print</button>
+            <button type="button" class="tree-folder" data-f="99">📁 99_archive</button>
+          </div>
+          <div id="treeContent" style="background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:16px"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="real">
+      <div class="real-h">
+        <span>🖥️ 실제 도구 검증 · 표준 허브 디렉터리 생성 및 확인</span>
+      </div>
+      <div class="real-b">
+        <p style="margin:0 0 10px">실제 터미널에서 생성된 <code>verified/spring-hub</code> 디렉터리 구조와 표준 파일 검증 결과입니다.</p>
+        <div class="code">$ ls -la verified/spring-hub/
+drwxrwxr-x  01_students/     # 원생 마스터 명부 (고유 학번 기준)
+drwxrwxr-x  02_attendance/   # 일일 출결 및 단어시험 CSV
+drwxrwxr-x  03_reports/      # 주간·월간 학부모 리포트 초안
+drwxrwxr-x  04_print/        # 문인쇄 발주용 최종 PDF (300DPI)
+drwxrwxr-x  99_archive/      # 학기 종료 백업 보관소
+
+$ ls -la verified/spring-hub/02_attendance/
+-rw-rw-r--  20270104_중3A_출결현황_원본.csv</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5장 -->
+  <section class="chap" id="chap5">
+    <div class="no">CHAPTER 05</div>
+    <h2>원클릭 허브 생성과 문 사장의 미소</h2>
+    <div class="place">낮 12시 00분 · 교무실</div>
+
+    <p class="act">원장은 유나가 만들어 준 한 줄짜리 명령어를 터미널에 붙여넣었다. 엔터를 치자마자 1초도 안 되어 5개의 폴더와 규칙 파일이 가지런히 생성되었다.</p>
+
+    <div class="msgr">
+      <div class="msgr-h">
+        <span>문인쇄 문 사장 (30년 경력)</span>
+        <span>오후 12:03</span>
+      </div>
+      <div class="m mine">
+        <div class="b">문 사장님! 정식 명명 규칙 적용한 <code>20270104_전학년_겨울특강전단_인쇄승인본.pdf</code> 다시 보냈습니다! 앞으로 <code>04_print</code> 폴더에 든 파일만 보내드리겠습니다.</div>
+      </div>
+      <div class="m">
+        <img src="../assets/av-moon.webp" style="width:36px;height:36px;border-radius:50%" alt="문 사장">
+        <div class="b">오호, 파일 이름에 날짜랑 '인쇄승인본'이 딱 박혀 있네! 이러면 나도 절대로 옛날 파일이랑 헷갈릴 일이 없지. 합격이다!!</div>
+      </div>
+    </div>
+
+    <!-- 체험 5: 원클릭 허브 생성 스크립터 -->
+    <div class="try" id="try5">
+      <div class="try-h">
+        <span>체험 5 · 원클릭 드라이브 허브 생성 스크립트 빌더</span>
+        <span style="font-size:12px;font-weight:400">내 학원 폴더명 맞춤 생성</span>
+      </div>
+      <div class="try-b">
+        <label style="display:block;font-size:14px;font-weight:700;margin-bottom:6px">허브 루트 폴더 이름 (영문 권장):</label>
+        <input type="text" id="hubFolderInput" value="spring-hub" style="width:100%;padding:8px 12px;border:1px solid var(--line);border-radius:6px;font-size:15px;margin-bottom:10px;background:var(--paper);color:var(--ink)">
+        <div class="code">
+          <button type="button" id="btnCopyHub">복사</button>
+          <pre id="hubScriptOut" style="margin:0;white-space:pre-wrap"></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 실습 & 미션 -->
+  <section class="chap" id="steps">
+    <div class="no">HANDS-ON PRACTICE</div>
+    <h2>내 컴퓨터에서 직접 해 보기</h2>
+    <ul class="steps">
+      <li>
+        <b>1단계 · 체험 5의 스크립트로 5대 허브 폴더 생성</b>
+        터미널을 열고 복사한 스크립트를 붙여넣어 1초 만에 표준 폴더 트리를 만듭니다.
+      </li>
+      <li>
+        <b>2단계 · 작업 디렉터리를 허브 내부로 고정</b>
+        AI 에이전트를 실행할 때 항상 홈 디렉터리가 아닌 허브 폴더 안에서 실행합니다.
+        <div class="code">cd ~/spring-hub &amp;&amp; agy</div>
+      </li>
+    </ul>
+
+    <div class="mission">
+      <h4>🎯 02화 수료 미션 3가지</h4>
+      <ol>
+        <li>체험 1과 체험 2에서 바탕화면 위험 파일 4개와 비인가 경로 요청을 정확히 차단하기</li>
+        <li>체험 3에서 표준 파일명(<code>20270104_중3A_단어테스트_결과.csv</code>) 조립 성공하기</li>
+        <li>체험 4와 체험 5에서 5대 표준 폴더 구조를 확인하고 생성 스크립트 복사하기</li>
+      </ol>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:30px 0 60px;gap:12px;flex-wrap:wrap">
+      <a href="../ep01/index.html" class="btn sec">← 이전 화: 01화 페르소나 설계</a>
+      <a href="../ep03/index.html" class="btn" style="padding:12px 24px;font-size:16px">다음 화: 03화 데일리 자동화 세팅 →</a>
+    </div>
+  </section>
+
+</div>
+
+<script>
+window.addEventListener('scroll',()=>{
+  const d=document.documentElement;
+  const p=(d.scrollTop)/(d.scrollHeight-d.clientHeight)*100;
+  document.getElementById('prog').style.width=p+'%';
+});
+
+// Try 1: Desktop Spotter
+(function(){
+  const items=document.querySelectorAll('#deskGrid .desk-item');
+  const score=document.getElementById('deskScore');
+  const fb=document.getElementById('deskFeedback');
+  let caught=0;
+  items.forEach(it=>{
+    it.addEventListener('click',()=>{
+      if(it.classList.contains('caught')||it.classList.contains('safe')) return;
+      if(it.dataset.bad==='true'){
+        it.classList.add('caught');
+        caught++;
+        score.textContent=`색출: ${caught} / 4`;
+        fb.style.color='var(--bad)';
+        fb.textContent=`[위험 파일 격리] ${it.dataset.reason}`;
+        if(caught===4){
+          fb.style.color='var(--ok)';
+          fb.textContent='🎉 4개의 위험 파일을 모두 찾아내어 정리했습니다! 이제 바탕화면이 안전합니다.';
+        }
+      } else {
+        it.classList.add('safe');
+        fb.style.color='var(--ok)';
+        fb.textContent=`[안전 파일] ${it.dataset.reason}`;
+      }
+    });
+  });
+})();
+
+// Try 2: MCP Gate Simulator
+(function(){
+  const reqs=[
+    {path:"~/spring-hub/02_attendance/20270104_중3A_출결현황.csv", allow:true, desc:"허브 내부의 출결 CSV 읽기 요청"},
+    {path:"/Users/cheol/Desktop/원장_종합소득세_주민번호.xlsx", allow:false, desc:"허브 외부 바탕화면의 민감 세무 파일 접근 시도"},
+    {path:"~/spring-hub/04_print/20270104_특강전단_초안.pdf", allow:true, desc:"허브 인쇄 폴더에 PDF 생성 요청"},
+    {path:"/etc/SystemConfig/network_keys.conf", allow:false, desc:"운영체제 시스템 보안 폴더 접근 시도"}
+  ];
+  const wrap=document.getElementById('mcpList');
+  const cnt=document.getElementById('mcpCount');
+  let done=0;
+  reqs.forEach((r,i)=>{
+    const row=document.createElement('div');
+    row.className='mcp-row';
+    row.innerHTML=`
+      <div style="font-family:monospace;font-weight:700;font-size:13.5px;margin-bottom:4px">${r.path}</div>
+      <div style="font-size:13.5px;color:var(--muted);margin-bottom:8px">${r.desc}</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button type="button" class="btn" style="background:var(--btn-ok);color:#FFFFFF;padding:6px 12px;font-size:13px" data-act="allow">승인 (Allow)</button>
+        <button type="button" class="btn" style="background:var(--btn-bad);color:#FFFFFF;padding:6px 12px;font-size:13px" data-act="block">차단 (Block)</button>
+        <span class="mcp-msg" style="font-size:13px;font-weight:700"></span>
+      </div>
+    `;
+    const msg=row.querySelector('.mcp-msg');
+    const btns=row.querySelectorAll('button');
+    btns.forEach(b=>{
+      b.addEventListener('click',()=>{
+        const chooseAllow=(b.dataset.act==='allow');
+        if(chooseAllow===r.allow){
+          msg.style.color='var(--ok)';
+          msg.textContent='✓ 정확한 보안 판정입니다!';
+          btns.forEach(x=>x.disabled=true);
+          done++;
+          cnt.textContent=`판정: ${done} / 4`;
+        } else {
+          msg.style.color='var(--bad)';
+          msg.textContent='✗ 위험! 허브(~/spring-hub/) 내부인지 다시 확인하세요.';
+        }
+      });
+    });
+    wrap.appendChild(row);
+  });
+})();
+
+// Try 3: Filename Assembler
+(function(){
+  const preview=document.getElementById('fnPreview');
+  const btns=document.querySelectorAll('#fnTokens .token-btn');
+  const reset=document.getElementById('btnFnReset');
+  const res=document.getElementById('fnResult');
+  const status=document.getElementById('fnStatus');
+  let parts=[];
+
+  function render(){
+    preview.textContent=parts.length?parts.join('_'):'여기에 파일명이 조립됩니다';
+    if(parts.length===4){
+      const joined=parts.join('_');
+      if(joined==='20270104_중3A_단어테스트_결과.csv'){
+        res.style.color='var(--ok)';
+        res.textContent='✓ 정답! 날짜순 정렬과 반별 분류가 완벽한 표준 파일명입니다.';
+        status.textContent='✓ 조립 성공!';
+      } else {
+        res.style.color='var(--bad)';
+        res.textContent='✗ 순서가 틀렸습니다. [날짜_반이름_문서종류_결과.csv] 순서로 다시 조립해 보세요.';
+      }
+    } else {
+      res.textContent='';
+    }
+  }
+  btns.forEach(b=>{
+    b.addEventListener('click',()=>{
+      b.classList.add('used');
+      parts.push(b.dataset.part);
+      render();
+    });
+  });
+  reset.addEventListener('click',()=>{
+    parts=[];
+    btns.forEach(b=>b.classList.remove('used'));
+    render();
+  });
+})();
+
+// Try 4: Folder Tree Explorer
+(function(){
+  const btns=document.querySelectorAll('#treeNav .tree-folder');
+  const box=document.getElementById('treeContent');
+  const prog=document.getElementById('treeProg');
+  const visited=new Set(['01']);
+  const info={
+    "01":{t:"01_students (학생 마스터 명부)", d:"동명이인을 구분하는 고유 학번(STD-2027-012)과 학년, 반 정보가 담긴 기준 폴더입니다. AI는 읽기 전용(Read-only)으로 참조합니다.", ex:"2027_봄볕영어_전체원생마스터.csv"},
+    "02":{t:"02_attendance (일일 출결·단어점수)", d:"매일 수업 직후 출결 시간과 일일 단어시험 점수가 기록되는 폴더입니다. 데일리 알림톡 자동화의 입력 데이터가 됩니다.", ex:"20270104_중3A_출결현황_원본.csv"},
+    "03":{t:"03_reports (주간·월간 성적표 초안)", d:"AI가 일주일 치 데이터를 집계하여 생성한 학생별 HTML/PDF 리포트 초안이 저장되는 검수 대기실입니다.", ex:"20270108_중3A_김민준_주간리포트_초안.html"},
+    "04":{t:"04_print (문인쇄 발주 확정본)", d:"원장님과 유나가 미리보기 검수를 마친 300DPI 인쇄용 최종 PDF만 들어가는 폴더입니다. 문 사장님께 보내는 유일한 폴더!", ex:"20270104_전학년_겨울특강전단_인쇄승인본.pdf"},
+    "99":{t:"99_archive (학기별 보존 서고)", d:"지난 학기 파일들을 연도·학기별로 압축해 보관하는 곳입니다. 작업 폴더가 어지러워지지 않게 지켜줍니다.", ex:"2026_2학기_기말대비_전체백업.zip"}
+  };
+  function show(k){
+    const item=info[k];
+    box.innerHTML=`
+      <div style="font-weight:800;font-size:16px;color:var(--brick);margin-bottom:6px">${item.t}</div>
+      <p style="margin:0 0 12px;font-size:14.5px">${item.d}</p>
+      <div style="font-size:13px;background:var(--card);border:1px solid var(--line);padding:8px 10px;border-radius:6px;font-family:monospace">예시 파일: ${item.ex}</div>
+    `;
+    visited.add(k);
+    prog.textContent=`탐색 완료: ${visited.size} / 5`+(visited.size===5?' ✓':'');
+  }
+  btns.forEach(b=>{
+    b.addEventListener('click',()=>{
+      btns.forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      show(b.dataset.f);
+    });
+  });
+  show('01');
+})();
+
+// Try 5: Hub Script Generator
+(function(){
+  const ipt=document.getElementById('hubFolderInput');
+  const out=document.getElementById('hubScriptOut');
+  const btn=document.getElementById('btnCopyHub');
+  function update(){
+    const f=(ipt.value.trim()||'spring-hub').replace(/[^a-zA-Z0-9_-]/g,'');
+    out.textContent=`#!/usr/bin/env bash
+# [${f}] 학원 자동화 표준 드라이브 허브 생성 스크립트
+mkdir -p ~/${f}/{01_students,02_attendance,03_reports,04_print,99_archive}
+cat > ~/${f}/README_HUB_RULES.txt << 'EOF'
+1. 모든 파일명은 YYYYMMDD_반이름_문서종류_상태.확장자 규칙을 준수합니다. (봄볕영어 · 031-555-0142)
+2. 04_print 폴더에는 미리보기 검수를 통과한 최종 인쇄본만 저장합니다.
+3. AI 에이전트(MCP)는 이 허브 폴더 외부의 상위 경로에 접근할 수 없습니다.
+EOF
+echo "✓ ~/${f} 5대 표준 폴더 생성 완료!"`;
+  }
+  ipt.addEventListener('input',update);
+  update();
+  btn.addEventListener('click',()=>{
+    navigator.clipboard.writeText(out.textContent).then(()=>{
+      btn.textContent='복사됨!';
+      setTimeout(()=>btn.textContent='복사',1500);
+    });
+  });
+})();
+
+// Theme Toggle (Light / Dark) synced via localStorage
+(function(){
+  const saved = localStorage.getItem("agy_theme") || "light";
+  document.documentElement.setAttribute("data-theme", saved);
+  const btn = document.getElementById("btnThemeToggle");
+  function updateBtn(t){
+    if(!btn) return;
+    btn.textContent = (t === "dark") ? "☀️ 밝은 화면" : "🌙 어두운 화면";
+  }
+  updateBtn(saved);
+  if(btn){
+    btn.addEventListener("click", ()=>{
+      const cur = document.documentElement.getAttribute("data-theme") || "light";
+      const next = (cur === "dark") ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      localStorage.setItem("agy_theme", next);
+      updateBtn(next);
+      const frame = document.getElementById("epFrame");
+      if(frame && frame.contentDocument && frame.contentDocument.documentElement){
+        frame.contentDocument.documentElement.setAttribute("data-theme", next);
+      }
+    });
+  }
+})();
+
+</script>
+</body>
+</html>

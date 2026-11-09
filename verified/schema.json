@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0.0",
+  "academy": "봄볕영어",
+  "primary_key": "student_id",
+  "id_pattern": "^STD-2027-[0-9]{3}$",
+  "date_format": "YYYY-MM-DD",
+  "required_fields": [
+    "student_id",
+    "name",
+    "grade",
+    "status",
+    "parent_phone"
+  ]
+}

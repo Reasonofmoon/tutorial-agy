@@ -1,0 +1,852 @@
+<!doctype html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>01화 인공지능한테 제 말투를 가르치라고요? | 학원장 자동화 스토리 튜토리얼</title>
+<meta name="description" content="1층 문인쇄 문 사장에게 다단계 의심을 받은 남궁 철 원장. 15년 손글씨 가정통신문의 따뜻한 말투와 원칙을 CLAUDE.md 시스템 지침으로 이식한다.">
+<style>
+:root{
+  --paper:#F7F1E5;--card:#FFFDF8;--ink:#24211C;--muted:#6E665A;--line:#E3D9C6;
+  --brick:#B5452F;--teal:#2F6F73;--ochre:#C98B2B;--navy:#1F3A5F;--hl:#FFE89A;
+  --ok:#2F7D4F;--bad:#B5452F;--r:14px;
+  --bubble-me:#E7F0EE;--bubble-you:#FFFFFF;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#1C1A17;--card:#25221E;--ink:#EDE6D8;--muted:#A89F90;--line:#3A352E;
+  --brick:#E07A62;--teal:#6FB3B6;--ochre:#E2AE5C;--navy:#9DB8DD;--hl:#5A4A12;
+  --ok:#6BC28E;--bad:#E07A62;--bubble-me:#22332F;--bubble-you:#2B2823;}}
+:root[data-theme="dark"]{
+  --paper:#1C1A17;--card:#25221E;--ink:#EDE6D8;--muted:#A89F90;--line:#3A352E;
+  --brick:#E07A62;--teal:#6FB3B6;--ochre:#E2AE5C;--navy:#9DB8DD;--hl:#5A4A12;
+  --ok:#6BC28E;--bad:#E07A62;--bubble-me:#22332F;--bubble-you:#2B2823;}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:Pretendard,"Pretendard Variable","NanumSquare Neo","Apple SD Gothic Neo","Noto Sans KR",sans-serif;font-size:17px;line-height:1.8;word-break:keep-all;overflow-wrap:break-word}
+img{max-width:100%;display:block}
+a{color:var(--teal)}
+.wrap{max-width:740px;margin:0 auto;padding:0 16px}
+.wide{max-width:1040px;margin:0 auto;padding:0 16px}
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.top .in{display:flex;justify-content:space-between;align-items:center;gap:12px;height:52px}
+.top b{font-size:14px}.top a{font-size:14px;font-weight:700;text-decoration:none;color:var(--brick);white-space:nowrap}
+.prog{position:absolute;left:0;bottom:-1px;height:3px;background:var(--brick);width:0}
+.hero{padding:28px 0 8px}
+.hero img{border-radius:18px;border:1px solid var(--line);aspect-ratio:16/9;object-fit:cover;width:100%}
+.kicker{font-size:13.5px;letter-spacing:.04em;color:var(--brick);font-weight:700;margin:26px 0 6px}
+h1{font-size:clamp(30px,6.5vw,50px);line-height:1.25;letter-spacing:-.02em;margin:0 0 16px}
+.deck{font-size:18.5px;color:var(--muted);margin:0}
+.cast{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:28px 0}
+.cast div{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;font-size:14.5px;line-height:1.6}
+.cast img{width:64px;height:64px;border-radius:50%;border:2px solid var(--line);margin-bottom:8px;object-fit:cover}
+.cast b{display:block;font-size:16px}.cast small{display:block;color:var(--muted);margin-bottom:6px}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:14px;color:var(--muted);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:12px 0;margin:8px 0 10px}
+.meta b{color:var(--ink)}
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0;padding:0;list-style:none}
+.toc a{display:inline-block;font-size:13.5px;text-decoration:none;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px 12px}
+.chap{padding:56px 0 10px}
+.chap .no{font-size:13px;font-weight:800;letter-spacing:.12em;color:var(--brick)}
+h2{font-size:clamp(24px,4.8vw,32px);line-height:1.3;margin:4px 0 18px;letter-spacing:-.01em}
+h3{font-size:20px;margin:28px 0 8px}
+
+.place{font-size:13px;color:var(--muted);letter-spacing:.06em;margin:22px 0 6px;text-transform:uppercase;font-weight:700}
+.act{color:var(--muted);font-style:italic;margin:10px 0}
+.say{display:flex;gap:12px;align-items:flex-start;margin:18px 0}
+.say .av{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);flex-shrink:0;object-fit:cover}
+.say .bub{background:var(--bubble-you);border:1px solid var(--line);border-radius:14px;border-top-left-radius:3px;padding:10px 14px;font-size:16px;max-width:580px;line-height:1.65}
+.say.me{flex-direction:row-reverse}
+.say.me .bub{background:var(--bubble-me);border-top-left-radius:14px;border-top-right-radius:3px}
+.say.claude .bub{background:var(--card);border-left:4px solid var(--brick);border-radius:8px;font-size:15px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+.say.claude .av-c{width:42px;height:42px;border-radius:50%;background:var(--btn-brick);color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;flex-shrink:0}
+
+.msgr{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin:24px 0}
+.msgr-h{font-size:13px;font-weight:700;color:var(--navy);border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:12px;display:flex;justify-content:space-between}
+.msgr .m{display:flex;gap:8px;margin:10px 0;align-items:flex-end}
+.msgr .m.mine{flex-direction:row-reverse}
+.msgr .b{background:var(--paper);border:1px solid var(--line);padding:8px 12px;border-radius:12px;font-size:14.5px;max-width:80%}
+.msgr .m.mine .b{background:#E7F0EE;border-color:#C1D7D1}
+
+.try{background:var(--card);border:2px solid var(--hl);border-radius:var(--r);margin:32px 0;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.03)}
+.try-h{background:var(--hl);padding:10px 16px;font-size:13.5px;font-weight:800;color:var(--ink);display:flex;justify-content:space-between;align-items:center}
+.try-b{padding:20px}
+
+.point{background:color-mix(in srgb,var(--ochre) 12%,var(--card));border-left:5px solid var(--ochre);border-radius:4px 12px 12px 4px;padding:16px 20px;margin:26px 0}
+.point h4{margin:0 0 6px;color:var(--ink);font-size:17px}
+.point p{margin:0;font-size:15px;color:var(--muted)}
+
+.real{background:var(--card);border:1px solid var(--line);border-radius:var(--r);margin:26px 0;overflow:hidden}
+.real-h{background:color-mix(in srgb,var(--teal) 12%,var(--card));border-bottom:1px solid var(--line);padding:8px 14px;font-size:12.5px;font-weight:700;color:var(--teal);display:flex;gap:8px;align-items:center}
+.real-b{padding:16px;font-size:14.5px}
+
+.btn{display:inline-flex;align-items:center;gap:6px;background:var(--btn-brick);color:#FFFFFF;border:none;border-radius:8px;padding:8px 16px;font-size:14.5px;font-weight:700;cursor:pointer;text-decoration:none}
+.btn:hover{filter:brightness(1.1)}
+.btn.sec{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+
+.steps{margin:28px 0;padding:0;list-style:none}
+.steps li{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px 20px;margin-bottom:12px;position:relative}
+.steps li b{display:block;font-size:16px;margin-bottom:4px;color:var(--brick)}
+
+.mission{background:color-mix(in srgb,var(--navy) 10%,var(--card));border:1px solid var(--navy);border-radius:var(--r);padding:20px;margin:28px 0}
+.mission h4{margin:0 0 10px;color:var(--navy);font-size:18px}
+.mission ol{margin:0;padding-left:22px;font-size:15.5px}
+.mission li{margin-bottom:8px}
+
+.code{background:#23211E;color:#F3EDE2;border-radius:8px;padding:14px 18px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13.5px;line-height:1.6;overflow-x:auto;position:relative;margin:12px 0}
+.code button{position:absolute;right:8px;top:8px;background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:4px;padding:4px 8px;font-size:11px;cursor:pointer}
+
+/* EP01 Widget Styles */
+.tone-box{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:12px}
+.tone-badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12.5px;font-weight:700;background:var(--btn-brick);color:#FFFFFF;margin-bottom:8px}
+.ban-chip{display:inline-block;background:color-mix(in srgb,var(--bad) 15%,var(--card));border:1px dashed var(--bad);color:var(--bad);padding:2px 8px;border-radius:6px;cursor:pointer;font-weight:700;margin:0 2px;transition:.2s}
+.ban-chip.fixed{background:color-mix(in srgb,var(--ok) 15%,var(--card));border:1px solid var(--ok);color:var(--ok)}
+.mat-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.mat-tab{padding:10px;border:1px solid var(--line);background:var(--paper);border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;text-align:center}
+.mat-tab.active{background:var(--btn-teal);color:#FFFFFF;color:#fff;border-color:var(--teal)}
+.spot-box{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:18px;margin:14px 0;font-size:15px;line-height:2}
+.spot-target{cursor:pointer;border-bottom:2px dashed var(--muted);padding:2px 4px;border-radius:4px;transition:background .2s}
+.spot-target:hover{background:var(--hl)}
+.spot-target.found{background:color-mix(in srgb,var(--bad) 20%,transparent);border-bottom:2px solid var(--bad);color:var(--bad);font-weight:700}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.form-row input,.form-row select{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink);font-size:14.5px}
+
+@media(max-width:680px){
+  .cast{grid-template-columns:1fr}
+  .mat-tabs{grid-template-columns:1fr}
+  .form-row{grid-template-columns:1fr}
+}
+
+/* === Universal Contrast & Visibility Safety Rules (Light & Dark Mode) === */
+:root {
+  color-scheme: light;
+  --btn-brick: #B5452F;
+  --btn-teal: #2F6F73;
+  --btn-ok: #2F7D4F;
+  --btn-bad: #B5452F;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme: dark;
+  --paper:#181614;--card:#221F1C;--ink:#F5EFE6;--muted:#C4BAA8;--line:#3E3830;
+  --brick:#F08A72;--teal:#7FD0D4;--ochre:#F0BE6E;--navy:#A8C4E8;--hl:#4A3D10;
+  --ok:#7CE0A3;--bad:#F08A72;--bubble-me:#1F332E;--bubble-you:#2A2622;
+  --btn-brick:#B5452F;--btn-teal:#245E62;--btn-ok:#256B42;--btn-bad:#B53824;
+}}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --paper:#181614;--card:#221F1C;--ink:#F5EFE6;--muted:#C4BAA8;--line:#3E3830;
+  --brick:#F08A72;--teal:#7FD0D4;--ochre:#F0BE6E;--navy:#A8C4E8;--hl:#4A3D10;
+  --ok:#7CE0A3;--bad:#F08A72;--bubble-me:#1F332E;--bubble-you:#2A2622;
+  --btn-brick:#B5452F;--btn-teal:#245E62;--btn-ok:#256B42;--btn-bad:#B53824;
+}
+:root[data-theme="light"]{
+  color-scheme: light;
+  --paper:#F7F1E5;--card:#FFFDF8;--ink:#24211C;--muted:#5C5449;--line:#E3D9C6;
+  --brick:#B5452F;--teal:#2F6F73;--ochre:#C98B2B;--navy:#1F3A5F;--hl:#FFE89A;
+  --ok:#2F7D4F;--bad:#B5452F;--bubble-me:#E7F0EE;--bubble-you:#FFFFFF;
+  --btn-brick:#B5452F;--btn-teal:#2F6F73;--btn-ok:#2F7D4F;--btn-bad:#B5452F;
+}
+
+/* Explicit foreground & background for all form controls and interactive elements */
+button, input, select, textarea, option {
+  font-family: inherit;
+  color: var(--ink);
+  background-color: var(--card);
+}
+input[type="text"], select, textarea {
+  color: var(--ink) !important;
+  background-color: var(--paper) !important;
+  border: 1px solid var(--line) !important;
+}
+option {
+  color: var(--ink);
+  background-color: var(--card);
+}
+
+/* Fix all custom buttons, tabs, cards to explicitly use var(--ink) on var(--paper)/var(--card) */
+.quiz-btn, .mat-tab, .token-btn, .tree-folder, .tpl-tab, .dpi-btn, .key-btn, .drill-tab, .v-tab, .diag-btn, .nav-pill, .sort-card, .desk-item, .faq-card, .gate-card, .mcp-row, .dict-row, .rpt-card {
+  color: var(--ink) !important;
+  background-color: var(--paper);
+}
+.quiz-btn, .sort-card, .nav-pill {
+  background-color: var(--card);
+}
+
+/* Fix active/selected/status states to use deep background + pure white #FFFFFF text */
+.btn, a.btn {
+  background-color: var(--btn-brick) !important;
+  color: #FFFFFF !important;
+}
+.btn.sec, a.btn.sec, button.btn.sec {
+  background-color: var(--card) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+}
+.mat-tab.active, .tree-folder.active, .dpi-btn.active, .key-btn.active, .diag-btn.active {
+  background-color: var(--btn-teal) !important;
+  color: #FFFFFF !important;
+  border-color: var(--btn-teal) !important;
+}
+.tpl-tab.active, .drill-tab.active, .v-tab.active, .nav-pill.active {
+  background-color: var(--btn-brick) !important;
+  color: #FFFFFF !important;
+  border-color: var(--btn-brick) !important;
+}
+.quiz-btn.correct {
+  background-color: var(--btn-ok) !important;
+  color: #FFFFFF !important;
+  border-color: var(--btn-ok) !important;
+}
+.quiz-btn.wrong {
+  background-color: var(--btn-bad) !important;
+  color: #FFFFFF !important;
+  border-color: var(--btn-bad) !important;
+}
+
+/* Fix messenger bubbles and dialogue bubbles in both light and dark modes */
+.say .bub {
+  background-color: var(--bubble-you) !important;
+  color: var(--ink) !important;
+}
+.say.me .bub {
+  background-color: var(--bubble-me) !important;
+  color: var(--ink) !important;
+}
+.say.claude .bub {
+  background-color: var(--card) !important;
+  color: var(--ink) !important;
+}
+.msgr .b {
+  background-color: var(--paper) !important;
+  color: var(--ink) !important;
+}
+.msgr .m.mine .b {
+  background-color: var(--bubble-me) !important;
+  color: var(--ink) !important;
+  border-color: var(--line) !important;
+}
+
+/* Fix .try-h, .var-tag, .ep-badge highlight backgrounds to always have readable text */
+.try-h, .var-tag, .ep-badge {
+  background-color: var(--hl) !important;
+  color: var(--ink) !important;
+}
+
+/* Fix .code blocks so dark terminal always has light text #F3EDE2 on #23211E */
+.code, .code pre {
+  background-color: #23211E !important;
+  color: #F3EDE2 !important;
+}
+.code button {
+  background-color: #3E3A35 !important;
+  color: #FFFFFF !important;
+  border: 1px solid #6E665A !important;
+}
+
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="wide in" style="height:auto;min-height:52px;padding:8px 16px;flex-wrap:wrap">
+    <b><a href="../index.html" style="color:var(--ink);margin-right:8px">☰ 포털 홈</a> | 01화 · 페르소나 설계</b>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <a href="../ep00/index.html" style="font-size:13px;color:var(--muted);">00화</a><a href="../ep01/index.html" style="font-size:13px;background:var(--btn-brick);color:#FFFFFF;padding:2px 8px;border-radius:999px;">01화</a><a href="../ep02/index.html" style="font-size:13px;color:var(--muted);">02화</a><a href="../ep03/index.html" style="font-size:13px;color:var(--muted);">03화</a><a href="../ep04/index.html" style="font-size:13px;color:var(--muted);">04화</a><a href="../ep05/index.html" style="font-size:13px;color:var(--muted);">05화</a><a href="../ep06/index.html" style="font-size:13px;color:var(--muted);">06화</a>
+      <a href="#try1" style="margin-left:4px">체험 ↓</a>
+      <button type="button" id="btnThemeToggle" style="font-size:12.5px;padding:3px 9px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-weight:700;cursor:pointer">🌙 어두운 화면</button>
+    </div>
+  </div>
+  <div class="prog" id="prog"></div>
+</div>
+
+<div class="wrap">
+
+  <div class="hero">
+    <img src="../assets/scene_office_pro.jpg" alt="15년 치 손글씨 가정통신문 철을 펼쳐 놓고 노트북에 말투 규칙을 입력하는 남궁 철 원장과 지유나" width="1376" height="768">
+  </div>
+
+  <div class="kicker">EPISODE 01 · PERSONA &amp; SYSTEM DESIGN</div>
+  <h1>"인공지능한테 제 말투를 가르치라고요?"</h1>
+  <p class="deck">문 사장님께 보낼 인쇄 발주서를 AI에게 맡겼더니 "존경하는 파트너사 귀하, 혁신적 시너지를..."라며 다단계 편지를 써냈다. 남궁 원장의 15년 손글씨 온기를 <code>CLAUDE.md</code> 한 장에 박제하는 기술.</p>
+
+  <div class="cast">
+    <div>
+      <img src="../assets/av-cheol.webp" alt="남궁 철 원장 아바타">
+      <b>남궁 철 (49세)</b>
+      <small>봄볕영어 원장</small>
+      학생 이름마다 칭찬 한 줄을 꼭 적던 손글씨 장인. AI가 뽑아낸 차가운 대기업 공문 말투에 경악한다.
+    </div>
+    <div>
+      <img src="../assets/av-yuna.webp" alt="지유나 아바타">
+      <b>지유나 (17세)</b>
+      <small>고2 수강생 · 방송부</small>
+      원장님의 옛날 가정통신문 3장을 스캔해 '말투 공식(Few-shot)'과 '금지어 사전'을 단숨에 뽑아낸다.
+    </div>
+    <div>
+      <img src="../assets/av-moon.webp" alt="문 사장 아바타">
+      <b>문 사장 (50대)</b>
+      <small>1층 문인쇄 대표</small>
+      아침부터 날아온 '혁신적 파트너십 제안' 카톡을 보고 남궁 원장이 해킹당한 줄 알고 달려올 뻔했다.
+    </div>
+  </div>
+
+  <div class="meta">
+    <span><b>난이도:</b> 초급 (프롬프트 설계)</span>
+    <span><b>소요 시간:</b> 약 25분</span>
+    <span><b>핵심 도구:</b> <code>CLAUDE.md</code>, Few-shot 예시</span>
+    <span><b>검증 일자:</b> 2026-10-12</span>
+  </div>
+
+  <ul class="toc">
+    <li><a href="#chap1">1장. "남궁 원장, 어디 다단계 들어갔어?"</a></li>
+    <li><a href="#chap2">2장. 15년 치 손글씨 가정통신문의 비밀</a></li>
+    <li><a href="#chap3">3장. 겉멋 든 마케팅 금지어 청소하기</a></li>
+    <li><a href="#chap4">4장. 학부모·인쇄소·학생은 받는 말이 다르다</a></li>
+    <li><a href="#chap5">5장. 봄볕영어 헌장 CLAUDE.md 완성</a></li>
+    <li><a href="#steps">실습 &amp; 미션</a></li>
+  </ul>
+
+  <!-- 1장 -->
+  <section class="chap" id="chap1">
+    <div class="no">CHAPTER 01</div>
+    <h2>"남궁 원장, 어디 다단계 들어갔어?"</h2>
+    <div class="place">12월 24일 (목) 오후 2시 10분 · 봄볕영어 교무실</div>
+
+    <p class="act">어젯밤 유나에게 4D 원칙을 배운 남궁 철 원장은 아침 일찍 출근해 의기양양하게 Claude를 켰다. 1층 문인쇄 문 사장에게 보낼 겨울특강 교재 제본 요청서와 학부모 안내문을 한 번에 뽑아볼 참이었다.</p>
+
+    <div class="say claude">
+      <div class="av-c">✳</div>
+      <div class="bub">
+        <b>남궁 철의 입력:</b><br>
+        2027년 1월 4일 개강하는 봄볕영어 겨울특강 안내문과 인쇄소 발주 메시지를 정중하고 격식 있게 써줘.
+      </div>
+    </div>
+
+    <p class="act">원장은 화면에 뜬 긴 문장을 제대로 읽지도 않고 복사해 문 사장의 카톡창에 붙여넣었다. 정확히 30초 뒤, 카톡 알림음이 기관총처럼 쏟아졌다.</p>
+
+    <div class="msgr">
+      <div class="msgr-h">
+        <span>문인쇄 문 사장 (30년 경력)</span>
+        <span>오후 2:12</span>
+      </div>
+      <div class="m mine">
+        <div class="b">존경하는 인쇄 비즈니스 파트너 문인쇄 귀하. 당사는 2027년 1월 4일 차세대 글로벌 리더십 함양을 위한 동계 인텐시브 커리큘럼을 런칭함에 따라 귀사와의 전략적 시너지를...</div>
+      </div>
+      <div class="m">
+        <img src="../assets/av-moon.webp" style="width:36px;height:36px;border-radius:50%" alt="문 사장">
+        <div class="b">??? 뭐야 이거 해킹당했어??</div>
+      </div>
+      <div class="m">
+        <img src="../assets/av-moon.webp" style="width:36px;height:36px;border-radius:50%" alt="문 사장">
+        <div class="b">남궁 원장, 자네 혹시 이상한 다단계 코인 같은 거 시작했나?! 평소엔 "문 사장님, 중3 단어장 30부 무선제본 부탁합니다" 하던 사람이 무슨 전략적 시너지야!!</div>
+      </div>
+      <div class="m mine">
+        <div class="b">아이고 문 사장님! 해킹 아닙니다! AI가 써준 걸 그대로 복붙했다가 그만...</div>
+      </div>
+    </div>
+
+    <p class="act">방과 후 자습을 하러 교무실 문을 열던 지유나가 원장의 시뻘게진 얼굴을 보고 피식 웃었다.</p>
+
+    <div class="say">
+      <img src="../assets/av-yuna.webp" class="av" alt="지유나">
+      <div class="bub">
+        원장님, 그거 미리보기로 안 읽고 바로 보내셨죠? AI한테 그냥 '격식 있게'라고만 하면 여의도 대기업 보도자료 말투로 뽑아준다니까요.
+      </div>
+    </div>
+
+    <div class="say me">
+      <img src="../assets/av-cheol.webp" class="av" alt="남궁 철">
+      <div class="bub">
+        아니, 기계가 내 15년 단골 인쇄소 말투랑 학부모님께 드리는 편지 말투를 어떻게 아냐? 결국 내가 다 다시 써야 하잖아!
+      </div>
+    </div>
+
+    <div class="say">
+      <img src="../assets/av-yuna.webp" class="av" alt="지유나">
+      <div class="bub">
+        모르니까 가르쳐야죠! 그걸 전문 용어로 <b>페르소나(Persona) 설정</b>이라고 해요. 말투 온도부터 한 번 직접 조절해 보실래요?
+      </div>
+    </div>
+
+    <!-- 체험 1: 말투 온도 슬라이더 -->
+    <div class="try" id="try1">
+      <div class="try-h">
+        <span>체험 1 · 페르소나 말투 온도 슬라이더</span>
+        <span id="toneStatus" style="font-size:12px;font-weight:400">슬라이더를 끝까지 옮겨보세요</span>
+      </div>
+      <div class="try-b">
+        <label style="display:block;font-size:14.5px;font-weight:700;margin-bottom:6px">
+          말투 온도 조절: <span id="toneLabel" style="color:var(--brick)">1단계 · 여의도 대기업 보도자료체</span>
+        </label>
+        <input type="range" id="rngTone" min="0" max="3" step="1" value="0" style="width:100%;accent-color:var(--brick)">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:4px">
+          <span>0: 차가운 AI체</span>
+          <span>1: 딱딱한 행정체</span>
+          <span>2: 일반 학원체</span>
+          <span>3: 봄볕 남궁원장체</span>
+        </div>
+
+        <div class="tone-box">
+          <span class="tone-badge" id="toneBadge">부적합 · 거부감 99%</span>
+          <p id="toneOutput" style="margin:6px 0 0;font-size:15.5px;line-height:1.75"></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="point">
+      <h4>📌 짚고 가기: 시스템 지침 (System Instructions)</h4>
+      <p>AI에게 매번 말투를 설명할 필요가 없습니다. 프로젝트 폴더의 <code>CLAUDE.md</code> 파일에 <b>"나는 15년 동안 일산에서 봄볕영어를 운영해 온 남궁 철 원장이다"</b>라고 정체성(Persona)을 한 번만 정의해 두면, 이후 모든 대화에서 그 인격과 온도를 일관되게 유지합니다.</p>
+    </div>
+  </section>
+
+  <!-- 2장 -->
+  <section class="chap" id="chap2">
+    <div class="no">CHAPTER 02</div>
+    <h2>15년 치 손글씨 가정통신문의 비밀</h2>
+    <div class="place">오후 2시 35분 · 교무실 책장 앞</div>
+
+    <p class="act">유나는 책장 맨 아래 칸에서 두꺼운 클리어파일 하나를 꺼내 왔다. 2012년부터 남궁 원장이 만년필로 직접 쓰고 복사해 나눠주던 가정통신문 모음집이었다.</p>
+
+    <div class="say">
+      <img src="../assets/av-yuna.webp" class="av" alt="지유나">
+      <div class="bub">
+        원장님, 여기 옛날 통신문 세 장만 읽어봐도 원장님 말투 공식이 딱 나와요. 첫째 줄엔 계절 안부나 아이 칭찬을 먼저 쓰시고, 둘째 줄엔 날짜와 일정을 숫자로 딱 적으시고, 마지막엔 <i>"언제든 학원 문은 열려 있습니다"</i>로 끝내시네요.
+      </div>
+    </div>
+
+    <div class="say me">
+      <img src="../assets/av-cheol.webp" class="av" alt="남궁 철">
+      <div class="bub">
+        허허, 내가 그랬나? 학부모님들이 바쁘시니까 핵심은 눈에 잘 띄게 적고, 그래도 아이 기 죽이지 않으려고 칭찬 한마디씩 먼저 적던 습관이지.
+      </div>
+    </div>
+
+    <div class="say">
+      <img src="../assets/av-yuna.webp" class="av" alt="지유나">
+      <div class="bub">
+        바로 그거예요! 말로만 "따뜻하게 써줘"라고 하는 대신, <b>원장님이 실제로 쓰셨던 좋은 예시 2~3개(Few-shot)</b>와 <b>절대 쓰면 안 되는 금지어(Negative Prompt)</b>를 같이 주는 거예요.
+      </div>
+    </div>
+
+    <!-- 체험 2: 금지어 필터기 -->
+    <div class="try" id="try2">
+      <div class="try-h">
+        <span>체험 2 · 공허한 마케팅 금지어 청소기</span>
+        <span id="banCount" style="font-size:12px;font-weight:400">교정: 0 / 4</span>
+      </div>
+      <div class="try-b">
+        <p style="margin:0 0 12px;font-size:14.5px;color:var(--muted)">아래 초안에 섞여 있는 <b>4개의 겉멋 든 마케팅 금지어(붉은 점선)</b>를 클릭하여 남궁 원장님의 진솔한 언어로 바꿔보세요.</p>
+        <div class="spot-box" style="line-height:2.1">
+          어머님, 날씨가 많이 추워졌습니다. 이번 겨울방학 봄볕영어에서는
+          <span class="ban-chip" data-idx="0" data-good="기초 문법이 흔들리는 아이들을 한 명씩 잡아주는">글로벌 초일류 리더를 양성하는 혁신적인</span>
+          겨울특강을 2027년 1월 4일(월)에 개강합니다.<br>
+          <span class="ban-chip" data-idx="1" data-good="제가 15년 동안 직접 만든 손필기 요약 노트로">차세대 AI 융합 빅데이터 인프라를 통해</span>
+          수업하며, 매 시간
+          <span class="ban-chip" data-idx="2" data-good="틀린 문제를 자기 입으로 설명할 때까지">압도적 1타 강사의 초격차 노하우로</span>
+          꼼꼼히 지도하겠습니다. 궁금하신 점은 언제든
+          <span class="ban-chip" data-idx="3" data-good="031-555-0142 학원 전화로 편히 연락 주십시오.">귀사의 CS 컨택센터로 문의 바랍니다.</span>
+        </div>
+        <div id="banFeedback" style="font-size:14px;font-weight:700;color:var(--muted);margin-top:10px">
+          붉은색 표현을 하나씩 클릭해 교정해 보세요.
+        </div>
+      </div>
+    </div>
+
+    <div class="point">
+      <h4>📌 짚고 가기: Few-shot Prompting &amp; 금지어 제약</h4>
+      <p>추상적인 지시어 10줄보다 <b>실제 좋은 문장 예시 2개(Few-shot)</b>와 <b>금지어 목록("혁신적인, 초격차, 글로벌 리더 사용 금지")</b>을 함께 제시할 때 AI의 문체 복제 정확도는 90% 이상으로 수직 상승합니다.</p>
+    </div>
+  </section>
+
+  <!-- 3장 -->
+  <section class="chap" id="chap3">
+    <div class="no">CHAPTER 03</div>
+    <h2>학부모·인쇄소·학생은 받는 말이 다르다</h2>
+    <div class="place">오후 3시 00분 · 교무실 화이트보드</div>
+
+    <p class="act">원장이 고개를 끄덕이다가 문득 손가락을 들었다.</p>
+
+    <div class="say me">
+      <img src="../assets/av-cheol.webp" class="av" alt="남궁 철">
+      <div class="bub">
+        잠깐만 유나야. 근데 학부모님한테 따뜻한 말투로 쓰라고 해놓으면, 이따가 1층 문 사장님한테 인쇄 맡길 때도 "문 사장님, 날씨가 추운데 손주분은 잘 크지요~" 이러면서 한 세월 걸리는 거 아니냐?
+      </div>
+    </div>
+
+    <div class="say">
+      <img src="../assets/av-yuna.webp" class="av" alt="지유나">
+      <div class="bub">
+        오, 원장님 이제 날카로우신데요! 맞아요. 그래서 <code>CLAUDE.md</code>에 <b>수신 대상별 분기 규칙(Target Matrix)</b>을 만들어 두는 거예요. 받는 사람이 누구냐에 따라 말투와 필수 항목이 자동으로 바뀌게요!
+      </div>
+    </div>
+
+    <!-- 체험 3: 페르소나 매트릭스 조립기 -->
+    <div class="try" id="try3">
+      <div class="try-h">
+        <span>체험 3 · 수신 대상별 페르소나 매트릭스 시뮬레이터</span>
+        <span id="matProgress" style="font-size:12px;font-weight:400">3가지 대상을 모두 확인하세요 (1/3)</span>
+      </div>
+      <div class="try-b">
+        <div class="mat-tabs">
+          <button type="button" class="mat-tab active" data-target="parent">① 학부모 안내문</button>
+          <button type="button" class="mat-tab" data-target="printer">② 문인쇄 발주톡</button>
+          <button type="button" class="mat-tab" data-target="student">③ 수강생 격려톡</button>
+        </div>
+        <div id="matDetail" class="tone-box">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4장 -->
+  <section class="chap" id="chap4">
+    <div class="no">CHAPTER 04</div>
+    <h2>지침을 어긴 가짜 원장님을 잡아라</h2>
+    <div class="place">오후 3시 25분 · 노트북 화면 앞</div>
+
+    <p class="act">유나는 노트북에서 테스트 문장 하나를 띄우더니 원장에게 마우스를 건넸다.</p>
+
+    <div class="say">
+      <img src="../assets/av-yuna.webp" class="av" alt="지유나">
+      <div class="bub">
+        자, 원장님! 아무리 규칙을 잘 세워도 마지막 검수는 사람 몫인 거 아시죠? 아래 안내문 중에 우리 봄볕영어 페르소나 규칙을 어긴 3군데를 직접 찾아내 보세요!
+      </div>
+    </div>
+
+    <!-- 체험 4: 틀린 페르소나 찾기 -->
+    <div class="try" id="try4">
+      <div class="try-h">
+        <span>체험 4 · 페르소나 지침 위반 3곳 색출하기</span>
+        <span id="errCount" style="font-size:12px;font-weight:400">발견: 0 / 3</span>
+      </div>
+      <div class="try-b">
+        <p style="margin:0 0 10px;font-size:14.5px;color:var(--muted)">봄볕영어 규칙(<b>① 아이 칭찬 우선, ② 과장 금지어 배제, ③ 정확한 학원 연락처 031-555-0142</b>)을 위반한 구절 3곳을 클릭하세요.</p>
+        <div class="spot-box">
+          민준이 어머님 안녕하세요, 봄볕영어 원장 남궁 철입니다.<br>
+          <span class="spot-target" data-err="1">민준이가 요즘 성적이 많이 떨어져서 큰일입니다. 당장 특강 안 들으면 따라가기 힘듭니다.</span><br>
+          이번 겨울특강은 2027년 1월 4일(월)부터 1월 29일(금)까지 월·수·금 반으로 진행되며,
+          <span class="spot-target" data-err="2">대한민국 최고의 초격차 1타 커리큘럼으로 성적 수직 상승을 100% 보장합니다.</span><br>
+          문의 사항은 <span class="spot-target" data-err="3">02-999-9999 대표 콜센터</span>로 연락 주시기 바랍니다. 감사합니다.
+        </div>
+        <div id="errFeedback" style="display:none;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px;margin-top:12px;font-size:14px"></div>
+      </div>
+    </div>
+
+    <div class="real">
+      <div class="real-h">
+        <span>🖥️ 실제 도구 검증 · CLAUDE.md 규칙 자동 적용 및 검증 로그</span>
+      </div>
+      <div class="real-b">
+        <p style="margin:0 0 10px">워크스페이스 루트에 배치된 <code>CLAUDE.md</code>가 실제로 금지어를 차단하고 팩트를 고정하는 터미널 검증 결과입니다.</p>
+        <div class="code">$ cat verified/CLAUDE.md | head -n 12
+# 봄볕영어 공식 페르소나 및 운영 지침 (CLAUDE.md)
+
+## 1. 학원 기본 팩트 (절대 변경 금지)
+- 학원명: 봄볕영어 (경기도 일산 소재)
+- 연락처: 031-555-0142
+- 특강 기간: 2027-01-04(월) ~ 2027-01-29(금) 월·수·금 반
+- 원장: 남궁 철 (15년 경력)
+
+## 2. 남궁 철 원장 어투 규칙
+- 문장 첫머리는 계절 인사나 아이의 구체적인 칭찬으로 시작한다.
+- 문장은 3~4줄 이내로 단정하고 따뜻하게 맺는다.
+- 금지어: "글로벌 리더", "혁신적", "차세대 인프라", "1타 강사", "최고의"</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5장 -->
+  <section class="chap" id="chap5">
+    <div class="no">CHAPTER 05</div>
+    <h2>봄볕영어 헌장 CLAUDE.md 완성</h2>
+    <div class="place">오후 3시 50분 · 1층 문인쇄소 카톡창</div>
+
+    <p class="act"><code>CLAUDE.md</code> 파일을 저장한 뒤 다시 뽑아낸 문인쇄 발주 메시지. 원장은 미리보기로 숫자와 규격을 꼼꼼히 확인하고 전송 버튼을 눌렀다.</p>
+
+    <div class="msgr">
+      <div class="msgr-h">
+        <span>문인쇄 문 사장 (30년 경력)</span>
+        <span>오후 3:52</span>
+      </div>
+      <div class="m mine">
+        <div class="b">문 사장님, 봄볕영어 남궁 원장입니다. [발주 규격] 2027 겨울특강 중3 단어장 / A4 양면 흑백(표지 청록 색지) / 무선제본 30부 / 납기: 12월 30일(수) 오후 2시. 첨부 PDF 재단여백 3mm 확인 완료했습니다!</div>
+      </div>
+      <div class="m">
+        <img src="../assets/av-moon.webp" style="width:36px;height:36px;border-radius:50%" alt="문 사장">
+        <div class="b">그래!! 이게 남궁 원장 말투지!! 판형, 부수, 색지, 납기일 한눈에 딱 들어오네!</div>
+      </div>
+      <div class="m">
+        <img src="../assets/av-moon.webp" style="width:36px;height:36px;border-radius:50%" alt="문 사장">
+        <div class="b">속이 다 시원하다. 이대로 제본기 바로 건다!</div>
+      </div>
+    </div>
+
+    <!-- 체험 5: 맞춤형 CLAUDE.md 생성기 -->
+    <div class="try" id="try5">
+      <div class="try-h">
+        <span>체험 5 · 우리 학원 맞춤형 CLAUDE.md 빌더</span>
+        <span style="font-size:12px;font-weight:400">입력 즉시 실시간 코드 생성</span>
+      </div>
+      <div class="try-b">
+        <div class="form-row">
+          <div>
+            <label style="font-size:13px;font-weight:700">학원명</label>
+            <input type="text" id="bName" value="봄볕영어">
+          </div>
+          <div>
+            <label style="font-size:13px;font-weight:700">원장 이름 및 경력</label>
+            <input type="text" id="bDirector" value="남궁 철 (15년 경력)">
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label style="font-size:13px;font-weight:700">공식 연락처</label>
+            <input type="text" id="bPhone" value="031-555-0142">
+          </div>
+          <div>
+            <label style="font-size:13px;font-weight:700">핵심 말투 철학</label>
+            <input type="text" id="bTone" value="아이의 구체적 칭찬을 첫 줄에 배치하고 4문장 이내로 단정하게 작성">
+          </div>
+        </div>
+        <div class="code">
+          <button type="button" id="btnCopyClaude">복사</button>
+          <pre id="outClaudeMd" style="margin:0;white-space:pre-wrap"></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="say">
+      <img src="../assets/av-yuna.webp" class="av" alt="지유나">
+      <div class="bub">
+        축하해요 원장님! 이제 AI가 원장님 말투는 완벽히 배웠어요. 근데 내일(02화) 진짜 큰 산이 남았거든요... 원장님 바탕화면에 있는 '새 폴더 (37)' 말이에요!
+      </div>
+    </div>
+  </section>
+
+  <!-- 실습 & 미션 -->
+  <section class="chap" id="steps">
+    <div class="no">HANDS-ON PRACTICE</div>
+    <h2>내 컴퓨터에서 직접 해 보기</h2>
+    <ul class="steps">
+      <li>
+        <b>1단계 · 체험 5에서 만든 CLAUDE.md 저장하기</b>
+        작업 폴더(<code>~/academy-auto</code>) 안에 오늘 설계한 페르소나 지침을 저장합니다.
+        <div class="code">nano ~/academy-auto/CLAUDE.md</div>
+      </li>
+      <li>
+        <b>2단계 · 대상별 출력 분기 테스트</b>
+        동일한 일정(2027-01-04 개강)을 학부모용과 인쇄소 발주용으로 각각 생성해 말투 차이를 비교합니다.
+        <div class="code">agy "CLAUDE.md 지침에 따라 2027-01-04 겨울특강 개강 안내를 1) 학부모 안부 문자, 2) 문인쇄 교재 발주 메시지로 각각 작성해줘."</div>
+      </li>
+    </ul>
+
+    <div class="mission">
+      <h4>🎯 01화 수료 미션 3가지</h4>
+      <ol>
+        <li>체험 1 슬라이더를 3단계(봄볕 원장체)까지 움직여 온도 차이 체감하기</li>
+        <li>체험 2와 체험 4에서 금지어 4개와 지침 위반 3곳을 모두 색출하기</li>
+        <li>체험 5 빌더로 우리 학원 전용 <code>CLAUDE.md</code>를 완성해 복사하기</li>
+      </ol>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:30px 0 60px;gap:12px;flex-wrap:wrap">
+      <a href="../ep00/index.html" class="btn sec">← 이전 화: 00화 오리엔테이션</a>
+      <a href="../ep02/index.html" class="btn" style="padding:12px 24px;font-size:16px">다음 화: 02화 드라이브 허브 만들기 →</a>
+    </div>
+  </section>
+
+</div>
+
+<script>
+window.addEventListener('scroll',()=>{
+  const d=document.documentElement;
+  const p=(d.scrollTop)/(d.scrollHeight-d.clientHeight)*100;
+  document.getElementById('prog').style.width=p+'%';
+});
+
+// Try 1: Tone Slider
+(function(){
+  const rng=document.getElementById('rngTone');
+  const lbl=document.getElementById('toneLabel');
+  const badge=document.getElementById('toneBadge');
+  const out=document.getElementById('toneOutput');
+  const status=document.getElementById('toneStatus');
+  const data=[
+    {t:"0단계 · 차가운 대기업 보도자료체", b:"부적합 · 다단계 의심 99%", c:"#B53824", m:"\"존경하는 고객 학부모님 귀하. 당 아카데미는 2027년 1월 4일 차세대 글로벌 역량 강화를 위한 동계 인텐시브 솔루션을 전격 런칭하오니 적극적인 참여를 촉구합니다.\""},
+    {t:"1단계 · 딱딱한 관공서 공문체", b:"아쉬움 · 거리감 느껴짐", c:"#9A6412", m:"\"2027년도 동계 특강 개강 안내의 건. 개강일: 2027.01.04(월). 대상: 중등부 재원생 전원. 기한 내 수강 신청서를 제출하여 주시기 바랍니다.\""},
+    {t:"2단계 · 평범한 상업 학원 단체문자", b:"보통 · 스팸 문자와 비슷함", c:"#245E62", m:"\"[봄볕영어] 겨울방학 특강 대개강! 1/4(월)~1/29(금) 월수금 집중반 모집 중! 이번 방학 영어 성적 역전의 기회를 놓치지 마세요! 문의 031-555-0142\""},
+    {t:"3단계 · 봄볕영어 남궁 철 원장체 (CLAUDE.md 적용)", b:"✓ 완벽 · 학부모 신뢰도 100%", c:"#256B42", m:"\"지훈이 어머님, 눈길에 옷깃을 여미게 되는 계절입니다. 지난주 지훈이가 오답 노트를 끝까지 스스로 채우는 모습을 보며 참 대견했습니다. 다가오는 1월 4일(월)부터 4주간 겨울특강(월·수·금)에서 문법의 빈틈을 차분히 메우려 합니다. 궁금하신 점은 언제든 031-555-0142로 편히 연락 주십시오.\""}
+  ];
+  function render(){
+    const idx=parseInt(rng.value,10);
+    const d=data[idx];
+    lbl.textContent=d.t;
+    badge.textContent=d.b;
+    badge.style.background=d.c;
+    out.textContent=d.m;
+    if(idx===3){
+      status.textContent="✓ 원장님 말투 학습 완료!";
+      status.style.color="var(--ok)";
+    }
+  }
+  rng.addEventListener('input',render);
+  render();
+})();
+
+// Try 2: Forbidden Word Filter
+(function(){
+  const chips=document.querySelectorAll('.ban-chip');
+  const cnt=document.getElementById('banCount');
+  const fb=document.getElementById('banFeedback');
+  let fixed=0;
+  chips.forEach(ch=>{
+    ch.addEventListener('click',()=>{
+      if(ch.classList.contains('fixed')) return;
+      ch.classList.add('fixed');
+      ch.textContent='✓ '+ch.dataset.good;
+      fixed++;
+      cnt.textContent=`교정: ${fixed} / 4`;
+      if(fixed===4){
+        fb.style.color='var(--ok)';
+        fb.textContent='🎉 모든 과장 광고 금지어를 남궁 원장님의 진솔한 언어로 교체했습니다!';
+      } else {
+        fb.textContent=`좋습니다! 남은 ${4-fixed}개의 금지어도 클릭해 교정해 보세요.`;
+      }
+    });
+  });
+})();
+
+// Try 3: Persona Matrix
+(function(){
+  const tabs=document.querySelectorAll('.mat-tab');
+  const detail=document.getElementById('matDetail');
+  const prog=document.getElementById('matProgress');
+  const visited=new Set(['parent']);
+  const views={
+    parent:{
+      role:"수신자: 학부모님 (가정통신문 / 안부톡)",
+      rule:"[핵심 규칙] 1) 아이의 구체적 관찰 칭찬 우선 2) 4문장 이내 따뜻한 경어 3) 학원 번호(031-555-0142) 명시",
+      sample:"\"서연이 어머님, 추운 날씨에 평안하신지요. 오늘 서연이가 관계대명사 구문 10문제를 막힘없이 풀어내어 교무실에서 함께 기뻐했습니다. 2027-01-04(월) 개강하는 겨울특강 안내표를 아이 편에 보냈으니 살펴보시고 031-555-0142로 편히 말씀 주십시오.\""
+    },
+    printer:{
+      role:"수신자: 1층 문인쇄 문 사장님 (업무 발주)",
+      rule:"[핵심 규칙] 1) 미사여구 생략, 규격·부수·납기일만 불릿으로 2) 재단선(3mm)·해상도(300DPI) 검수 여부 명시",
+      sample:"\"문 사장님, 봄볕영어 남궁 원장입니다. [교재 발주] • 품명: 2027 겨울특강 문법노트 • 규격: A4 양면 흑백(300DPI) / 표지 머스타드 색지 • 수량: 30부 무선제본 • 희망 납기: 12/30(수) 14:00. 미리보기 검수 완료했습니다!\""
+    },
+    student:{
+      role:"수신자: 재원생 (과제 독려 / 칭찬 알림)",
+      rule:"[핵심 규칙] 1) 다정하지만 명확한 선생님 톤 2) 오늘 완료할 분량만 숫자로 지정",
+      sample:"\"민준아, 오늘 단어 시험 48점 정말 장하다! 어제 늦게까지 외운 보람이 있네. 내일 수업을 위해 워크북 14~15쪽(총 10문제)만 저녁 먹고 가볍게 풀어서 오자. 내일 보자!\""
+    }
+  };
+  function render(key){
+    const v=views[key];
+    detail.innerHTML=`
+      <div style="font-weight:800;color:var(--teal);margin-bottom:6px">${v.role}</div>
+      <div style="font-size:13.5px;color:var(--muted);margin-bottom:10px">${v.rule}</div>
+      <div style="background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px;font-size:15px">${v.sample}</div>
+    `;
+    visited.add(key);
+    prog.textContent=`확인 완료: ${visited.size} / 3`+(visited.size===3?' ✓':'');
+  }
+  tabs.forEach(t=>{
+    t.addEventListener('click',()=>{
+      tabs.forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      render(t.dataset.target);
+    });
+  });
+  render('parent');
+})();
+
+// Try 4: Persona Violation Spotter
+(function(){
+  const targets=document.querySelectorAll('#try4 .spot-target');
+  const cnt=document.getElementById('errCount');
+  const fb=document.getElementById('errFeedback');
+  let found=0;
+  const msgs={
+    "1":"[위반 1 · 불안 조성 금지] 첫 줄부터 겁을 주면 남궁 원장님 철학에 어긋납니다. 아이가 노력한 점을 먼저 칭찬해야 합니다.",
+    "2":"[위반 2 · 과장 금지어 사용] '초격차 1타', '100% 보장'은 CLAUDE.md 금지어 목록에 등록된 허위·과장 표현입니다.",
+    "3":"[위반 3 · 연락처 환각] 봄볕영어 공식 번호는 031-555-0142입니다. 02-999-9999는 AI가 임의로 지어낸 가짜 번호입니다."
+  };
+  targets.forEach(t=>{
+    t.addEventListener('click',()=>{
+      if(t.classList.contains('found')) return;
+      t.classList.add('found');
+      found++;
+      cnt.textContent=`발견: ${found} / 3`;
+      fb.style.display='block';
+      fb.innerHTML+=`<div style="margin-bottom:6px">${msgs[t.dataset.err]}</div>`;
+      if(found===3){
+        fb.innerHTML+=`<div style="font-weight:700;color:var(--ok);margin-top:8px;border-top:1px solid var(--line);padding-top:8px">✓ 3대 페르소나 위반 사항을 모두 잡아냈습니다!</div>`;
+      }
+    });
+  });
+})();
+
+// Try 5: CLAUDE.md Builder
+(function(){
+  const bName=document.getElementById('bName');
+  const bDir=document.getElementById('bDirector');
+  const bPhone=document.getElementById('bPhone');
+  const bTone=document.getElementById('bTone');
+  const out=document.getElementById('outClaudeMd');
+  const btn=document.getElementById('btnCopyClaude');
+
+  function update(){
+    out.textContent=`# [${bName.value}] 공식 AI 페르소나 지침 (CLAUDE.md)
+
+## 1. 학원 고정 팩트 (절대 임의 변경 금지)
+- 학원명: ${bName.value}
+- 책임자: ${bDir.value}
+- 공식 연락처: ${bPhone.value}
+- 특강 일정: 2027-01-04(월) ~ 2027-01-29(금) 월·수·금 반
+
+## 2. 어투 및 문체 원칙
+- ${bTone.value}
+- 금지어: "글로벌 리더", "혁신적", "초격차", "1타 강사", "100% 보장"
+
+## 3. 수신 대상별 분기
+- [학부모]: 계절 인사 + 아이의 구체적 칭찬 + 명확한 일정 안내
+- [인쇄소]: 판형(A4 300DPI), 재단여백(3mm), 부수, 납기일만 간결히 기재
+- [수강생]: 다정한 격려 + 오늘 해야 할 분량을 숫자로 명확히 제시`;
+  }
+  [bName,bDir,bPhone,bTone].forEach(el=>el.addEventListener('input',update));
+  update();
+
+  btn.addEventListener('click',()=>{
+    navigator.clipboard.writeText(out.textContent).then(()=>{
+      btn.textContent='복사됨!';
+      setTimeout(()=>btn.textContent='복사',1500);
+    });
+  });
+})();
+
+// Theme Toggle (Light / Dark) synced via localStorage
+(function(){
+  const saved = localStorage.getItem("agy_theme") || "light";
+  document.documentElement.setAttribute("data-theme", saved);
+  const btn = document.getElementById("btnThemeToggle");
+  function updateBtn(t){
+    if(!btn) return;
+    btn.textContent = (t === "dark") ? "☀️ 밝은 화면" : "🌙 어두운 화면";
+  }
+  updateBtn(saved);
+  if(btn){
+    btn.addEventListener("click", ()=>{
+      const cur = document.documentElement.getAttribute("data-theme") || "light";
+      const next = (cur === "dark") ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      localStorage.setItem("agy_theme", next);
+      updateBtn(next);
+      const frame = document.getElementById("epFrame");
+      if(frame && frame.contentDocument && frame.contentDocument.documentElement){
+        frame.contentDocument.documentElement.setAttribute("data-theme", next);
+      }
+    });
+  }
+})();
+
+</script>
+</body>
+</html>

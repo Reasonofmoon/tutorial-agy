@@ -1,0 +1,745 @@
+<!doctype html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>06화 문 사장님의 경고: 비상 스위치는 어딨나 | 학원장 자동화 스토리 튜토리얼</title>
+<meta name="description" content="모든 자동화를 마치고 뿌듯해하는 남궁 원장에게 1층 문 사장이 던진 묵직한 질문. 인터넷이 끊겨도 멈추지 않는 비상 스위치(Fail-safe)와 백업 프로토콜, 그리고 최종 수료증 발급까지.">
+<style>
+:root{
+  --paper:#F7F1E5;--card:#FFFDF8;--ink:#24211C;--muted:#6E665A;--line:#E3D9C6;
+  --brick:#B5452F;--teal:#2F6F73;--ochre:#C98B2B;--navy:#1F3A5F;--hl:#FFE89A;
+  --ok:#2F7D4F;--bad:#B5452F;--r:14px;
+  --bubble-me:#E7F0EE;--bubble-you:#FFFFFF;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#1C1A17;--card:#25221E;--ink:#EDE6D8;--muted:#A89F90;--line:#3A352E;
+  --brick:#E07A62;--teal:#6FB3B6;--ochre:#E2AE5C;--navy:#9DB8DD;--hl:#5A4A12;
+  --ok:#6BC28E;--bad:#E07A62;--bubble-me:#22332F;--bubble-you:#2B2823;}}
+:root[data-theme="dark"]{
+  --paper:#1C1A17;--card:#25221E;--ink:#EDE6D8;--muted:#A89F90;--line:#3A352E;
+  --brick:#E07A62;--teal:#6FB3B6;--ochre:#E2AE5C;--navy:#9DB8DD;--hl:#5A4A12;
+  --ok:#6BC28E;--bad:#E07A62;--bubble-me:#22332F;--bubble-you:#2B2823;}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:Pretendard,"Pretendard Variable","NanumSquare Neo","Apple SD Gothic Neo","Noto Sans KR",sans-serif;font-size:17px;line-height:1.8;word-break:keep-all;overflow-wrap:break-word}
+img{max-width:100%;display:block}
+a{color:var(--teal)}
+.wrap{max-width:740px;margin:0 auto;padding:0 16px}
+.wide{max-width:1040px;margin:0 auto;padding:0 16px}
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.top .in{display:flex;justify-content:space-between;align-items:center;gap:12px;height:52px}
+.top b{font-size:14px}.top a{font-size:14px;font-weight:700;text-decoration:none;color:var(--brick);white-space:nowrap}
+.prog{position:absolute;left:0;bottom:-1px;height:3px;background:var(--brick);width:0}
+.hero{padding:28px 0 8px}
+.hero img{border-radius:18px;border:1px solid var(--line);aspect-ratio:16/9;object-fit:cover;width:100%}
+.kicker{font-size:13.5px;letter-spacing:.04em;color:var(--brick);font-weight:700;margin:26px 0 6px}
+h1{font-size:clamp(30px,6.5vw,50px);line-height:1.25;letter-spacing:-.02em;margin:0 0 16px}
+.deck{font-size:18.5px;color:var(--muted);margin:0}
+.cast{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:28px 0}
+.cast div{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;font-size:14.5px;line-height:1.6}
+.cast img{width:64px;height:64px;border-radius:50%;border:2px solid var(--line);margin-bottom:8px;object-fit:cover}
+.cast b{display:block;font-size:16px}.cast small{display:block;color:var(--muted);margin-bottom:6px}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:14px;color:var(--muted);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:12px 0;margin:8px 0 10px}
+.meta b{color:var(--ink)}
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0;padding:0;list-style:none}
+.toc a{display:inline-block;font-size:13.5px;text-decoration:none;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px 12px}
+.chap{padding:56px 0 10px}
+.chap .no{font-size:13px;font-weight:800;letter-spacing:.12em;color:var(--brick)}
+h2{font-size:clamp(24px,4.8vw,32px);line-height:1.3;margin:4px 0 18px;letter-spacing:-.01em}
+h3{font-size:20px;margin:28px 0 8px}
+
+.place{font-size:13px;color:var(--muted);letter-spacing:.06em;margin:22px 0 6px;text-transform:uppercase;font-weight:700}
+.act{color:var(--muted);font-style:italic;margin:10px 0}
+.say{display:flex;gap:12px;align-items:flex-start;margin:18px 0}
+.say .av{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);flex-shrink:0;object-fit:cover}
+.say .bub{background:var(--bubble-you);border:1px solid var(--line);border-radius:14px;border-top-left-radius:3px;padding:10px 14px;font-size:16px;max-width:580px;line-height:1.65}
+.say.me{flex-direction:row-reverse}
+.say.me .bub{background:var(--bubble-me);border-top-left-radius:14px;border-top-right-radius:3px}
+.say.claude .bub{background:var(--card);border-left:4px solid var(--brick);border-radius:8px;font-size:15px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+.say.claude .av-c{width:42px;height:42px;border-radius:50%;background:var(--btn-brick);color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;flex-shrink:0}
+
+.msgr{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin:24px 0}
+.msgr-h{font-size:13px;font-weight:700;color:var(--navy);border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:12px;display:flex;justify-content:space-between}
+.msgr .m{display:flex;gap:8px;margin:10px 0;align-items:flex-end}
+.msgr .m.mine{flex-direction:row-reverse}
+.msgr .b{background:var(--paper);border:1px solid var(--line);padding:8px 12px;border-radius:12px;font-size:14.5px;max-width:80%}
+.msgr .m.mine .b{background:#E7F0EE;border-color:#C1D7D1}
+
+.try{background:var(--card);border:2px solid var(--hl);border-radius:var(--r);margin:32px 0;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.03)}
+.try-h{background:var(--hl);padding:10px 16px;font-size:13.5px;font-weight:800;color:var(--ink);display:flex;justify-content:space-between;align-items:center}
+.try-b{padding:20px}
+
+.point{background:color-mix(in srgb,var(--ochre) 12%,var(--card));border-left:5px solid var(--ochre);border-radius:4px 12px 12px 4px;padding:16px 20px;margin:26px 0}
+.point h4{margin:0 0 6px;color:var(--ink);font-size:17px}
+.point p{margin:0;font-size:15px;color:var(--muted)}
+
+.real{background:var(--card);border:1px solid var(--line);border-radius:var(--r);margin:26px 0;overflow:hidden}
+.real-h{background:color-mix(in srgb,var(--teal) 12%,var(--card));border-bottom:1px solid var(--line);padding:8px 14px;font-size:12.5px;font-weight:700;color:var(--teal);display:flex;gap:8px;align-items:center}
+.real-b{padding:16px;font-size:14.5px}
+
+.btn{display:inline-flex;align-items:center;gap:6px;background:var(--btn-brick);color:#FFFFFF;border:none;border-radius:8px;padding:8px 16px;font-size:14.5px;font-weight:700;cursor:pointer;text-decoration:none}
+.btn:hover{filter:brightness(1.1)}
+.btn.sec{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+
+.steps{margin:28px 0;padding:0;list-style:none}
+.steps li{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px 20px;margin-bottom:12px;position:relative}
+.steps li b{display:block;font-size:16px;margin-bottom:4px;color:var(--brick)}
+
+.mission{background:color-mix(in srgb,var(--navy) 10%,var(--card));border:1px solid var(--navy);border-radius:var(--r);padding:20px;margin:28px 0}
+.mission h4{margin:0 0 10px;color:var(--navy);font-size:18px}
+.mission ol{margin:0;padding-left:22px;font-size:15.5px}
+.mission li{margin-bottom:8px}
+
+.code{background:#23211E;color:#F3EDE2;border-radius:8px;padding:14px 18px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13.5px;line-height:1.6;overflow-x:auto;position:relative;margin:12px 0}
+.code button{position:absolute;right:8px;top:8px;background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:4px;padding:4px 8px;font-size:11px;cursor:pointer}
+
+/* EP06 Widget Styles */
+.drill-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.drill-tab{padding:9px;border:1px solid var(--line);background:var(--paper);border-radius:8px;font-weight:700;cursor:pointer}
+.drill-tab.active{background:var(--btn-brick);color:#FFFFFF;border-color:var(--brick)}
+.faq-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.faq-card{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px;cursor:pointer;min-height:110px;transition:.2s}
+.faq-card.flipped{background:color-mix(in srgb,var(--teal) 12%,var(--card));border-color:var(--teal)}
+.cert-box{background:var(--paper);border:3px double var(--brick);border-radius:14px;padding:24px;text-align:center;margin-top:14px}
+.chk-item{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:14.5px;cursor:pointer}
+.chk-item input{width:18px;height:18px;accent-color:var(--brick)}
+
+@media(max-width:680px){
+  .cast{grid-template-columns:1fr}
+  .drill-tabs{grid-template-columns:1fr}
+  .faq-grid{grid-template-columns:1fr}
+}
+
+/* === Universal Contrast & Visibility Safety Rules (Light & Dark Mode) === */
+:root {
+  color-scheme: light;
+  --btn-brick: #B5452F;
+  --btn-teal: #2F6F73;
+  --btn-ok: #2F7D4F;
+  --btn-bad: #B5452F;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme: dark;
+  --paper:#181614;--card:#221F1C;--ink:#F5EFE6;--muted:#C4BAA8;--line:#3E3830;
+  --brick:#F08A72;--teal:#7FD0D4;--ochre:#F0BE6E;--navy:#A8C4E8;--hl:#4A3D10;
+  --ok:#7CE0A3;--bad:#F08A72;--bubble-me:#1F332E;--bubble-you:#2A2622;
+  --btn-brick:#B5452F;--btn-teal:#245E62;--btn-ok:#256B42;--btn-bad:#B53824;
+}}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --paper:#181614;--card:#221F1C;--ink:#F5EFE6;--muted:#C4BAA8;--line:#3E3830;
+  --brick:#F08A72;--teal:#7FD0D4;--ochre:#F0BE6E;--navy:#A8C4E8;--hl:#4A3D10;
+  --ok:#7CE0A3;--bad:#F08A72;--bubble-me:#1F332E;--bubble-you:#2A2622;
+  --btn-brick:#B5452F;--btn-teal:#245E62;--btn-ok:#256B42;--btn-bad:#B53824;
+}
+:root[data-theme="light"]{
+  color-scheme: light;
+  --paper:#F7F1E5;--card:#FFFDF8;--ink:#24211C;--muted:#5C5449;--line:#E3D9C6;
+  --brick:#B5452F;--teal:#2F6F73;--ochre:#C98B2B;--navy:#1F3A5F;--hl:#FFE89A;
+  --ok:#2F7D4F;--bad:#B5452F;--bubble-me:#E7F0EE;--bubble-you:#FFFFFF;
+  --btn-brick:#B5452F;--btn-teal:#2F6F73;--btn-ok:#2F7D4F;--btn-bad:#B5452F;
+}
+
+/* Explicit foreground & background for all form controls and interactive elements */
+button, input, select, textarea, option {
+  font-family: inherit;
+  color: var(--ink);
+  background-color: var(--card);
+}
+input[type="text"], select, textarea {
+  color: var(--ink) !important;
+  background-color: var(--paper) !important;
+  border: 1px solid var(--line) !important;
+}
+option {
+  color: var(--ink);
+  background-color: var(--card);
+}
+
+/* Fix all custom buttons, tabs, cards to explicitly use var(--ink) on var(--paper)/var(--card) */
+.quiz-btn, .mat-tab, .token-btn, .tree-folder, .tpl-tab, .dpi-btn, .key-btn, .drill-tab, .v-tab, .diag-btn, .nav-pill, .sort-card, .desk-item, .faq-card, .gate-card, .mcp-row, .dict-row, .rpt-card {
+  color: var(--ink) !important;
+  background-color: var(--paper);
+}
+.quiz-btn, .sort-card, .nav-pill {
+  background-color: var(--card);
+}
+
+/* Fix active/selected/status states to use deep background + pure white #FFFFFF text */
+.btn, a.btn {
+  background-color: var(--btn-brick) !important;
+  color: #FFFFFF !important;
+}
+.btn.sec, a.btn.sec, button.btn.sec {
+  background-color: var(--card) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+}
+.mat-tab.active, .tree-folder.active, .dpi-btn.active, .key-btn.active, .diag-btn.active {
+  background-color: var(--btn-teal) !important;
+  color: #FFFFFF !important;
+  border-color: var(--btn-teal) !important;
+}
+.tpl-tab.active, .drill-tab.active, .v-tab.active, .nav-pill.active {
+  background-color: var(--btn-brick) !important;
+  color: #FFFFFF !important;
+  border-color: var(--btn-brick) !important;
+}
+.quiz-btn.correct {
+  background-color: var(--btn-ok) !important;
+  color: #FFFFFF !important;
+  border-color: var(--btn-ok) !important;
+}
+.quiz-btn.wrong {
+  background-color: var(--btn-bad) !important;
+  color: #FFFFFF !important;
+  border-color: var(--btn-bad) !important;
+}
+
+/* Fix messenger bubbles and dialogue bubbles in both light and dark modes */
+.say .bub {
+  background-color: var(--bubble-you) !important;
+  color: var(--ink) !important;
+}
+.say.me .bub {
+  background-color: var(--bubble-me) !important;
+  color: var(--ink) !important;
+}
+.say.claude .bub {
+  background-color: var(--card) !important;
+  color: var(--ink) !important;
+}
+.msgr .b {
+  background-color: var(--paper) !important;
+  color: var(--ink) !important;
+}
+.msgr .m.mine .b {
+  background-color: var(--bubble-me) !important;
+  color: var(--ink) !important;
+  border-color: var(--line) !important;
+}
+
+/* Fix .try-h, .var-tag, .ep-badge highlight backgrounds to always have readable text */
+.try-h, .var-tag, .ep-badge {
+  background-color: var(--hl) !important;
+  color: var(--ink) !important;
+}
+
+/* Fix .code blocks so dark terminal always has light text #F3EDE2 on #23211E */
+.code, .code pre {
+  background-color: #23211E !important;
+  color: #F3EDE2 !important;
+}
+.code button {
+  background-color: #3E3A35 !important;
+  color: #FFFFFF !important;
+  border: 1px solid #6E665A !important;
+}
+
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="wide in" style="height:auto;min-height:52px;padding:8px 16px;flex-wrap:wrap">
+    <b><a href="../index.html" style="color:var(--ink);margin-right:8px">☰ 포털 홈</a> | 06화 · 비상 스위치</b>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <a href="../ep00/index.html" style="font-size:13px;color:var(--muted);">00화</a><a href="../ep01/index.html" style="font-size:13px;color:var(--muted);">01화</a><a href="../ep02/index.html" style="font-size:13px;color:var(--muted);">02화</a><a href="../ep03/index.html" style="font-size:13px;color:var(--muted);">03화</a><a href="../ep04/index.html" style="font-size:13px;color:var(--muted);">04화</a><a href="../ep05/index.html" style="font-size:13px;color:var(--muted);">05화</a><a href="../ep06/index.html" style="font-size:13px;background:var(--btn-brick);color:#FFFFFF;padding:2px 8px;border-radius:999px;">06화</a>
+      <a href="#try1" style="margin-left:4px">체험 ↓</a>
+      <button type="button" id="btnThemeToggle" style="font-size:12.5px;padding:3px 9px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-weight:700;cursor:pointer">🌙 어두운 화면</button>
+    </div>
+  </div>
+  <div class="prog" id="prog"></div>
+</div>
+
+<div class="wrap">
+
+  <div class="hero">
+    <img src="../assets/hero.webp" alt="남궁 철 원장과 지유나, 문 사장이 함께 봄볕영어 자동화 운영 수첩과 수료증을 완성하는 모습" width="1376" height="768">
+  </div>
+
+  <div class="kicker">EPISODE 06 · FINALE: FAIL-SAFE, AUDIT &amp; CERTIFICATION</div>
+  <h1>"문 사장님의 경고: 비상 스위치는 어딨나"</h1>
+  <p class="deck">모든 세팅을 끝내고 만세를 부르던 남궁 원장 앞에 1층 문 사장이 종이컵 커피 두 잔을 들고 나타났다. "원장, 인터넷 끊기면 학원 문 닫을 거야? 비상 스위치 만들어 뒀어?" 자동화의 진정한 완성은 '멈출 수 있는 안전장치(Fail-safe)'에 있다.</p>
+
+  <div class="cast">
+    <div>
+      <img src="../assets/av-cheol.webp" alt="남궁 철 원장 아바타">
+      <b>남궁 철 (49세)</b>
+      <small>봄볕영어 원장</small>
+      이제 복붙 지옥에서 해방되었다고 안심하다가, 문 사장의 '비상 정지 스위치' 질문에 마지막 퍼즐을 깨닫는다.
+    </div>
+    <div>
+      <img src="../assets/av-yuna.webp" alt="지유나 아바타">
+      <b>지유나 (17세)</b>
+      <small>고2 수강생 · 방송부</small>
+      생방송 사고에도 3초 만에 백업 음원을 트는 방송부 프로토콜을 봄볕영어 비상 매뉴얼로 이식한다.
+    </div>
+    <div>
+      <img src="../assets/av-moon.webp" alt="문 사장 아바타">
+      <b>문 사장 (50대)</b>
+      <small>1층 문인쇄 대표</small>
+      시리즈 최초로 메신저가 아닌 2층 교무실에 직접 등장! 30년 인쇄 장인의 안전 철학을 전수한다.
+    </div>
+  </div>
+
+  <div class="meta">
+    <span><b>난이도:</b> 완결편 (운영·백업·거버넌스)</span>
+    <span><b>소요 시간:</b> 약 25분</span>
+    <span><b>핵심 도구:</b> Git 백업, Fail-safe 프로토콜, Human Gate</span>
+    <span><b>검증 일자:</b> 2026-10-12</span>
+  </div>
+
+  <ul class="toc">
+    <li><a href="#chap1">1장. 2층 교무실에 직접 올라온 문 사장</a></li>
+    <li><a href="#chap2">2장. 3대 비상 상황 모의훈련 (Fail-safe)</a></li>
+    <li><a href="#chap3">3장. 사람 관문(Human Gate) 최종 판정</a></li>
+    <li><a href="#chap4">4장. 학원장 실무 FAQ 카드 플리퍼</a></li>
+    <li><a href="#chap5">5장. 봄볕영어 자동화 1기 수료식</a></li>
+    <li><a href="#steps">실습 &amp; 미션</a></li>
+  </ul>
+
+  <!-- 1장 -->
+  <section class="chap" id="chap1">
+    <div class="no">CHAPTER 01</div>
+    <h2>2층 교무실에 직접 올라온 문 사장</h2>
+    <div class="place">1월 29일 (금) 오후 4시 00분 · 봄볕영어 교무실</div>
+
+    <p class="act">겨울특강 마지막 날 오후, 교무실 문이 열리더니 잉크 묻은 앞치마에 라벤더색 조끼를 입은 1층 문인쇄 문 사장이 김이 모락모락 나는 믹스커피 두 잔을 들고 들어왔다.</p>
+
+    <div class="say">
+      <img src="../assets/av-moon.webp" class="av" alt="문 사장">
+      <div class="bub">
+        남궁 원장, 그리고 유나 학생! 이번 한 달 동안 보내준 인쇄 파일들은 30년 인쇄쟁이인 내가 봐도 기가 막히게 깔끔했어. 근데 말이야, 내가 꼭 물어볼 게 있어서 올라왔네.
+      </div>
+    </div>
+
+    <div class="say me">
+      <img src="../assets/av-cheol.webp" class="av" alt="남궁 철">
+      <div class="bub">
+        어서 오십시오 문 사장님! 뭘 또 그렇게 심각하게 물어보시려고요?
+      </div>
+    </div>
+
+    <div class="say">
+      <img src="../assets/av-moon.webp" class="av" alt="문 사장">
+      <div class="bub">
+        우리 인쇄소 윤전기에는 손바닥만 한 빨간색 <b>비상 정지 스위치</b>가 세 개나 붙어 있어. 종이가 한 장이라도 씹히면 그 자리에서 기계를 멈추고 수동으로 빼내야 하거든. 원장 컴퓨터에는 그 비상 스위치가 어딨나? 내일 당장 인터넷이 끊기거나 유나가 대학 가서 졸업하면 학원 멈추는 거 아니야?
+      </div>
+    </div>
+
+    <div class="say">
+      <img src="../assets/av-yuna.webp" class="av" alt="지유나">
+      <div class="bub">
+        역시 문 사장님! 제가 오늘 마지막 수업으로 준비한 게 바로 그 <b>비상 대응 매뉴얼(Fail-safe)과 인수인계 수첩</b>이에요!
+      </div>
+    </div>
+  </section>
+
+  <!-- 2장 -->
+  <section class="chap" id="chap2">
+    <div class="no">CHAPTER 02</div>
+    <h2>3대 비상 상황 모의훈련 (Fail-safe)</h2>
+    <div class="place">오후 4시 15분 · 비상 대응 훈련판</div>
+
+    <!-- 체험 1: 장애 상황 시뮬레이터 -->
+    <div class="try" id="try1">
+      <div class="try-h">
+        <span>체험 1 · 학원 장애 상황 대응 모의훈련 시뮬레이터</span>
+        <span id="drillProg" style="font-size:12px;font-weight:400">3가지 비상 상황을 모두 해결하세요 (0/3)</span>
+      </div>
+      <div class="try-b">
+        <div class="drill-tabs">
+          <button type="button" class="drill-tab active" data-d="net">상황 1: 오후 5시 인터넷 단절</button>
+          <button type="button" class="drill-tab" data-d="del">상황 2: 출결 CSV 실수 삭제</button>
+          <button type="button" class="drill-tab" data-d="api">상황 3: AI 서버 일시 점검</button>
+        </div>
+        <div id="drillBox" style="background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:16px"></div>
+      </div>
+    </div>
+
+    <div class="point">
+      <h4>📌 짚고 가기: 3-2-1 백업과 오프라인 폴백(Fallback)</h4>
+      <p>안전한 자동화는 클라우드나 인터넷 하나에 모든 것을 걸지 않습니다. ① 모든 원생·출결 데이터는 내 컴퓨터 로컬 CSV로 보관하고, ② 매일 저녁 Git 스냅샷으로 변경 이력을 남기며, ③ 비상용 오프라인 파이썬 템플릿과 종이 출석부 1부를 항상 비치해야 합니다.</p>
+    </div>
+  </section>
+
+  <!-- 3장 -->
+  <section class="chap" id="chap3">
+    <div class="no">CHAPTER 03</div>
+    <h2>사람 관문(Human Gate) 최종 판정</h2>
+    <div class="place">오후 4시 30분 · 운영 규칙 판정표</div>
+
+    <!-- 체험 2: 사람 관문 판정기 -->
+    <div class="try" id="try2">
+      <div class="try-h">
+        <span>체험 2 · 완전 자동화(Auto) vs 사람 관문(Human Gate) 판정기</span>
+        <span id="hgScore" style="font-size:12px;font-weight:400">판정: 0 / 4</span>
+      </div>
+      <div class="try-b">
+        <p style="margin:0 0 10px;font-size:14.5px;color:var(--muted)">각 업무가 <b>AI/스크립트 자동 실행(Auto)</b>이 가능한지, 반드시 <b>원장님 육안 승인(Human Gate)</b>을 거쳐야 하는지 판정하세요.</p>
+        <div id="hgList"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4장 -->
+  <section class="chap" id="chap4">
+    <div class="no">CHAPTER 04</div>
+    <h2>학원장 실무 FAQ 카드 플리퍼</h2>
+    <div class="place">오후 4시 45분 · 비상 수첩 Q&amp;A</div>
+
+    <div class="say me">
+      <img src="../assets/av-cheol.webp" class="av" alt="남궁 철">
+      <div class="bub">
+        유나야, 네가 내년에 수능 보러 가고 나 혼자 남았을 때 당황하지 않도록 자주 생기는 질문 4가지만 카드에 적어주렴!
+      </div>
+    </div>
+
+    <!-- 체험 3: FAQ 카드 플리퍼 -->
+    <div class="try" id="try3">
+      <div class="try-h">
+        <span>체험 3 · 운영 FAQ 4대 비상 카드 플리퍼</span>
+        <span id="faqCount" style="font-size:12px;font-weight:400">카드를 클릭해 뒤집어 보세요 (0/4)</span>
+      </div>
+      <div class="try-b">
+        <div class="faq-grid" id="faqGrid">
+          <div class="faq-card" data-q="Q1. 원생이 중도 퇴원하거나 반을 옮기면?" data-a="✓ 절대 행을 그냥 지우지 마세요! 01_students 마스터 표에서 status 열만 '퇴원(2027-01-20)'으로 바꾸면 과거 성적 기록은 보존되면서 일일 발송 대상에서만 안전하게 제외됩니다.">
+            <b>Q1. 원생이 중도 퇴원하거나 반을 옮기면?</b><br><small style="color:var(--muted)">클릭하여 해결책 보기 ↻</small>
+          </div>
+          <div class="faq-card" data-q="Q2. 교무실 노트북을 새 컴퓨터로 바꾸면?" data-a="✓ 걱정 마세요! ~/spring-hub 폴더 하나만 외장하드나 Git으로 옮기면 CLAUDE.md 지침과 모든 스크립트, CSV 데이터가 5분 만에 그대로 복원됩니다.">
+            <b>Q2. 교무실 노트북을 새 컴퓨터로 바꾸면?</b><br><small style="color:var(--muted)">클릭하여 해결책 보기 ↻</small>
+          </div>
+          <div class="faq-card" data-q="Q3. 갑자기 AI가 또 대기업 말투로 글을 쓰면?" data-a="✓ 현재 터미널 위치가 ~/spring-hub 바깥(예: 바탕화면)인지 확인하세요! CLAUDE.md 파일이 있는 허브 폴더 안에서 실행해야 원장님 페르소나가 적용됩니다.">
+            <b>Q3. 갑자기 AI가 또 대기업 말투로 글을 쓰면?</b><br><small style="color:var(--muted)">클릭하여 해결책 보기 ↻</small>
+          </div>
+          <div class="faq-card" data-q="Q4. 잘못된 안내문이 이미 발송되었을 때는?" data-a="✓ 즉시 자동 스크립트를 멈추고, 5분 이내에 '[정정 안내] 제가 표기 확인 중 실수가 있었습니다'라고 원장님 실명으로 정직하고 정중한 정정 문자를 직접 보냅니다.">
+            <b>Q4. 잘못된 안내문이 이미 발송되었을 때는?</b><br><small style="color:var(--muted)">클릭하여 해결책 보기 ↻</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="real">
+      <div class="real-h">
+        <span>🖥️ 실제 도구 검증 · 일일 Git 스냅샷 백업 및 감사 로그 확인</span>
+      </div>
+      <div class="real-b">
+        <p style="margin:0 0 10px">파일이 실수로 지워져도 1초 만에 어제 상태로 되돌리는 로컬 Git 백업 검증 결과입니다.</p>
+        <div class="code">$ git status -s verified/
+ M verified/CLAUDE.md
+ M verified/schema.json
+ M verified/spring-hub/02_attendance/20270104_중3A_출결현황_원본.csv
+# 실수로 삭제 시 즉시 복구 명령:
+$ git checkout -- verified/spring-hub/02_attendance/</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5장 -->
+  <section class="chap" id="chap5">
+    <div class="no">CHAPTER 05</div>
+    <h2>봄볕영어 자동화 1기 수료식</h2>
+    <div class="place">오후 5시 00분 · 봄볕영어 교무실</div>
+
+    <!-- 체험 4: 최종 점검 체크리스트 -->
+    <div class="try" id="try4">
+      <div class="try-h">
+        <span>체험 4 · 학원 자동화 마스터 최종 6대 봉인 해제 점검표</span>
+        <span id="finalChkCnt" style="font-size:12px;font-weight:400">체크: 0 / 6</span>
+      </div>
+      <div class="try-b">
+        <p style="margin:0 0 10px;font-size:14.5px;color:var(--muted)">00화부터 06화까지 배운 6대 안전 수칙을 모두 체크하면 아래 수료증이 봉인 해제됩니다.</p>
+        <div id="finalChkList">
+          <label class="chk-item"><input type="checkbox" class="f-chk"> [00화] 반복 집계는 AI에게 위임하고, 상담과 최종 승인은 원장이 직접 맡는다.</label>
+          <label class="chk-item"><input type="checkbox" class="f-chk"> [01화] <code>CLAUDE.md</code>에 학원 팩트와 따뜻한 말투, 금지어 사전을 고정한다.</label>
+          <label class="chk-item"><input type="checkbox" class="f-chk"> [02화] 격리된 허브 폴더(<code>~/spring-hub/</code>)와 <code>YYYYMMDD_반_종류</code> 파일명을 지킨다.</label>
+          <label class="chk-item"><input type="checkbox" class="f-chk"> [03화] 연락처 등 민감정보(PII)는 마스킹하고 발송 전 반드시 눈으로 검수한다.</label>
+          <label class="chk-item"><input type="checkbox" class="f-chk"> [04화] 인쇄물은 300 DPI 벡터 PDF와 재단 여백을 미리보기로 확인 후 넘긴다.</label>
+          <label class="chk-item"><input type="checkbox" class="f-chk"> [05~06화] 고유 학번(<code>student_id</code>)과 일일 백업, 비상 수동 전환 스위치를 유지한다.</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- 체험 5: 수료증 & 비상 수첩 발급기 -->
+    <div class="try" id="try5">
+      <div class="try-h">
+        <span>체험 5 · 학원장 AI 자동화 마스터 수료증 &amp; 비상 수첩 발급기</span>
+        <span id="certLock" style="font-size:12px;font-weight:700">🎓 실시간 발급 가능</span>
+      </div>
+      <div class="try-b">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+          <div>
+            <label style="font-size:13px;font-weight:700">수료 학원명</label>
+            <input type="text" id="certAcademy" value="봄볕영어" style="width:100%;padding:8px;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink)">
+          </div>
+          <div>
+            <label style="font-size:13px;font-weight:700">수료 원장님 성함</label>
+            <input type="text" id="certDirector" value="남궁 철" style="width:100%;padding:8px;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink)">
+          </div>
+        </div>
+        <div class="cert-box" id="certDisplay"></div>
+        <div style="text-align:center;margin-top:12px">
+          <button type="button" class="btn" id="btnCopyCert">수료증 &amp; 비상 수첩 텍스트 복사</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="say">
+      <img src="../assets/av-yuna.webp" class="av" alt="지유나">
+      <div class="bub">
+        원장님, 00화부터 06화까지 완주하시느라 정말 고생 많으셨어요! 이제 밤 11시 야근은 영원히 안녕이에요!
+      </div>
+    </div>
+
+    <div class="say">
+      <img src="../assets/av-moon.webp" class="av" alt="문 사장">
+      <div class="bub">
+        남궁 원장, 이 수료증은 내가 1층 내려가서 제일 두꺼운 금박 상장 용지에 300 DPI로 멋지게 인쇄해서 액자에 끼워 줄게. 축하하네!!
+      </div>
+    </div>
+
+    <div class="say me">
+      <img src="../assets/av-cheol.webp" class="av" alt="남궁 철">
+      <div class="bub">
+        고맙다 유나야, 고맙습니다 문 사장님! 기계가 일을 대신해 준 덕분에, 나는 오늘부터 아이들 눈을 한 번 더 맞추고 이야기를 들어주는 진짜 선생님으로 돌아가렵니다!
+      </div>
+    </div>
+  </section>
+
+  <!-- 실습 & 미션 -->
+  <section class="chap" id="steps">
+    <div class="no">HANDS-ON PRACTICE</div>
+    <h2>내 컴퓨터에서 직접 해 보기</h2>
+    <ul class="steps">
+      <li>
+        <b>1단계 · 허브 폴더에 Git 타임머신(백업) 초기화</b>
+        실수로 파일을 지워도 언제든 복구할 수 있도록 로컬 저장소를 초기화합니다.
+        <div class="code">cd ~/spring-hub &amp;&amp; git init &amp;&amp; git add . &amp;&amp; git commit -m "봄볕영어 자동화 1기 초기 세팅 완료"</div>
+      </li>
+      <li>
+        <b>2단계 · 비상 수첩을 인쇄하여 교무실 모니터 옆에 부착</b>
+        체험 5에서 발급받은 비상 수첩을 출력해 네트워크 장애 시에도 당황하지 않도록 비치합니다.
+      </li>
+    </ul>
+
+    <div class="mission">
+      <h4>🎯 06화 최종 수료 미션 3가지</h4>
+      <ol>
+        <li>체험 1과 체험 2에서 3대 장애 대응 절차와 Human Gate 기준 완수하기</li>
+        <li>체험 3에서 4장의 실무 FAQ 카드를 모두 뒤집어 해결책 숙지하기</li>
+        <li>체험 4와 체험 5에서 6대 안전 수칙을 체크하고 나만의 자동화 마스터 수료증 발급받기</li>
+      </ol>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:30px 0 60px;gap:12px;flex-wrap:wrap">
+      <a href="../ep05/index.html" class="btn sec">← 이전 화: 05화 시뮬레이션 &amp; 데이터 사전</a>
+      <a href="../index.html" class="btn" style="padding:12px 24px;font-size:16px">🎓 시리즈 전체 포털로 돌아가기 →</a>
+    </div>
+  </section>
+
+</div>
+
+<script>
+window.addEventListener('scroll',()=>{
+  const d=document.documentElement;
+  const p=(d.scrollTop)/(d.scrollHeight-d.clientHeight)*100;
+  document.getElementById('prog').style.width=p+'%';
+});
+
+// Try 1: Fail-safe Drill
+(function(){
+  const tabs=document.querySelectorAll('#try1 .drill-tab');
+  const box=document.getElementById('drillBox');
+  const prog=document.getElementById('drillProg');
+  const solved=new Set();
+  const drills={
+    net:{
+      q:"[비상 상황 1] 오후 4시 55분, 동네 인터넷 회선 공사로 와이파이가 끊겼습니다! AI 클라우드 연결이 안 될 때 출결 알림톡은 어떻게 처리할까요?",
+      good:"로컬 파이썬 스크립트(offline_attendance.py)로 고정 템플릿 문구를 즉시 생성한 뒤 스마트폰 테더링/문자앱으로 발송한다.",
+      bad:"인터넷이 복구될 때까지 밤 10시까지 아무 연락도 하지 않고 기다린다."
+    },
+    del:{
+      q:"[비상 상황 2] 원장님이 실수로 오늘 자 '20270129_중3A_출결현황.csv' 내용을 다 지우고 저장해 버렸습니다!",
+      good:"당황하지 않고 터미널에서 'git checkout -- 02_attendance/' 명령으로 직전 스냅샷을 1초 만에 복원한다.",
+      bad:"학생 30명에게 일일이 전화해서 몇 시에 왔었는지 다시 물어본다."
+    },
+    api:{
+      q:"[비상 상황 3] 금요일 밤 주간 리포트 생성 중 AI 서버가 1시간 동안 정기 점검에 들어갔습니다!",
+      good:"04화에서 만들어 둔 점수 구간별 조건부 코멘트 규칙(파이썬 내장 사전)으로 즉시 전환해 300DPI PDF를 차질 없이 뽑아낸다.",
+      bad:"문 사장님께 이번 주 성적표 인쇄를 포기하겠다고 연락한다."
+    }
+  };
+  function render(k){
+    const d=drills[k];
+    box.innerHTML=`
+      <div style="font-weight:700;margin-bottom:10px">${d.q}</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button type="button" class="btn" style="background:var(--btn-teal);color:#FFFFFF;text-align:left" data-ok="true">A. ${d.good}</button>
+        <button type="button" class="btn sec" style="text-align:left" data-ok="false">B. ${d.bad}</button>
+      </div>
+      <div class="drill-res" style="margin-top:10px;font-size:14px;font-weight:700"></div>
+    `;
+    const res=box.querySelector('.drill-res');
+    box.querySelectorAll('button').forEach(b=>{
+      b.addEventListener('click',()=>{
+        if(b.dataset.ok==='true'){
+          res.style.color='var(--ok)';
+          res.textContent='✓ 정답! 비상 스위치(Fail-safe) 프로토콜이 완벽히 작동했습니다.';
+          solved.add(k);
+          prog.textContent=`해결 완료: ${solved.size} / 3`+(solved.size===3?' ✓':'');
+        } else {
+          res.style.color='var(--bad)';
+          res.textContent='✗ 위험합니다! 인터넷이나 AI가 멈춰도 로컬 스크립트와 백업으로 즉시 전환해야 합니다.';
+        }
+      });
+    });
+  }
+  tabs.forEach(t=>{
+    t.addEventListener('click',()=>{
+      tabs.forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      render(t.dataset.d);
+    });
+  });
+  render('net');
+})();
+
+// Try 2: Human Gate Judge
+(function(){
+  const tasks=[
+    {t:"1. 주간 단어시험 CSV 점수 평균 계산 및 그래프 이미지 생성", gate:false, w:"단순 계산과 시각화는 스크립트 자동 처리(Auto)가 가장 정확합니다."},
+    {t:"2. 학부모 30명에게 실제 알림톡/문자 최종 발송 버튼 누르기", gate:true, w:"외부 발송 전에는 반드시 원장님 육안 승인(Human Gate)을 거쳐야 합니다."},
+    {t:"3. 성적이 급락한 학생의 퇴원 위기 심층 학부모 면담", gate:true, w:"정서적 교감과 교육적 판단은 오직 원장님만 할 수 있는 고유 영역입니다."},
+    {t:"4. 전화번호 가운데 4자리를 별표(****)로 가리는 PII 마스킹 처리", gate:false, w:"정규식 필터가 데이터 로드 시점에 100% 자동(Auto)으로 수행해야 안전합니다."}
+  ];
+  const wrap=document.getElementById('hgList');
+  const sc=document.getElementById('hgScore');
+  let cnt=0;
+  tasks.forEach(item=>{
+    const row=document.createElement('div');
+    row.style.cssText='background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:8px';
+    row.innerHTML=`
+      <div style="font-weight:700;font-size:14.5px;margin-bottom:8px">${item.t}</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <button type="button" class="btn" style="background:var(--btn-teal);color:#FFFFFF;padding:5px 12px;font-size:13px" data-g="false">🤖 자동 실행 (Auto)</button>
+        <button type="button" class="btn" style="background:var(--brick);padding:5px 12px;font-size:13px" data-g="true">👤 원장님 승인 필수 (Human Gate)</button>
+        <span class="hg-msg" style="font-size:13px;font-weight:700"></span>
+      </div>
+    `;
+    const msg=row.querySelector('.hg-msg');
+    const btns=row.querySelectorAll('button');
+    btns.forEach(b=>{
+      b.addEventListener('click',()=>{
+        const isGate=(b.dataset.g==='true');
+        if(isGate===item.gate){
+          msg.style.color='var(--ok)';
+          msg.textContent='✓ '+item.w;
+          btns.forEach(x=>x.disabled=true);
+          cnt++;
+          sc.textContent=`판정: ${cnt} / 4`;
+        } else {
+          msg.style.color='var(--bad)';
+          msg.textContent='✗ 다시 생각해 보세요! 실수했을 때 되돌릴 수 없는 대외 발송·상담인지 확인하세요.';
+        }
+      });
+    });
+    wrap.appendChild(row);
+  });
+})();
+
+// Try 3: FAQ Flipper
+(function(){
+  const cards=document.querySelectorAll('#faqGrid .faq-card');
+  const cntLbl=document.getElementById('faqCount');
+  const flipped=new Set();
+  cards.forEach((c,i)=>{
+    c.addEventListener('click',()=>{
+      const isFlip=c.classList.toggle('flipped');
+      if(isFlip){
+        c.innerHTML=`<b style="color:var(--teal)">${c.dataset.q}</b><div style="font-size:14px;margin-top:6px">${c.dataset.a}</div>`;
+        flipped.add(i);
+        cntLbl.textContent=`확인 완료: ${flipped.size} / 4`+(flipped.size===4?' ✓':'');
+      } else {
+        c.innerHTML=`<b>${c.dataset.q}</b><br><small style="color:var(--muted)">클릭하여 해결책 보기 ↻</small>`;
+      }
+    });
+  });
+})();
+
+// Try 4 & 5: Final Checklist & Certificate
+(function(){
+  const chks=document.querySelectorAll('#finalChkList .f-chk');
+  const chkLbl=document.getElementById('finalChkCnt');
+  const lock=document.getElementById('certLock');
+  const aca=document.getElementById('certAcademy');
+  const dir=document.getElementById('certDirector');
+  const disp=document.getElementById('certDisplay');
+  const btnCopy=document.getElementById('btnCopyCert');
+
+  function renderCert(){
+    const n=Array.from(chks).filter(x=>x.checked).length;
+    chkLbl.textContent=`체크: ${n} / 6`;
+    if(n===6){
+      lock.textContent='🎉 6대 봉인 해제 완료! 정식 마스터 수료증';
+      lock.style.color='var(--ok)';
+    }
+    const aName=aca.value.trim()||'봄볕영어';
+    const dName=dir.value.trim()||'남궁 철';
+    disp.innerHTML=`
+      <div style="font-size:13px;letter-spacing:.15em;color:var(--brick);font-weight:800">CERTIFICATE OF AI AUTOMATION MASTERY</div>
+      <h3 style="margin:8px 0;font-size:24px">학원 자동화 마스터 수료증</h3>
+      <p style="margin:6px 0;font-size:16px"><b>소속:</b> ${aName} | <b>성명:</b> ${dName} 원장</p>
+      <p style="font-size:14.5px;color:var(--muted);max-width:520px;margin:10px auto">
+        위 분은 <b>"원장은 결정하고, AI는 처리하고, 사람은 검수한다"</b>는 원칙 아래 페르소나 설계(CLAUDE.md), 로컬 허브 격리, PII 마스킹, 300DPI 리포트 자동화, 데이터 사전 및 비상 스위치(Fail-safe) 전 과정을 완주하였기에 이 증서를 수여합니다.
+      </p>
+      <div style="font-size:13px;font-weight:700;margin-top:12px">2027년 1월 29일 · 봄볕영어(031-555-0142) · 코치 지유나 &amp; 문인쇄 대표 문 사장 날인 💮</div>
+    `;
+  }
+  chks.forEach(c=>c.addEventListener('change',renderCert));
+  aca.addEventListener('input',renderCert);
+  dir.addEventListener('input',renderCert);
+  renderCert();
+
+  btnCopy.addEventListener('click',()=>{
+    const txt=`[학원 자동화 마스터 수료증 & 비상 수첩]
+학원명: ${aca.value} | 책임자: ${dir.value} 원장
+1. 작업 폴더 진입: cd ~/spring-hub && agy
+2. 파일 삭제 시 즉시 복구: git checkout -- .
+3. 3대 철칙: 고유학번(Primary Key) 유지 / 전화번호 마스킹 / 인쇄·발송 전 미리보기(Human Gate)`;
+    navigator.clipboard.writeText(txt).then(()=>{
+      btnCopy.textContent='복사됨!';
+      setTimeout(()=>btnCopy.textContent='수료증 & 비상 수첩 텍스트 복사',1500);
+    });
+  });
+})();
+
+// Theme Toggle (Light / Dark) synced via localStorage
+(function(){
+  const saved = localStorage.getItem("agy_theme") || "light";
+  document.documentElement.setAttribute("data-theme", saved);
+  const btn = document.getElementById("btnThemeToggle");
+  function updateBtn(t){
+    if(!btn) return;
+    btn.textContent = (t === "dark") ? "☀️ 밝은 화면" : "🌙 어두운 화면";
+  }
+  updateBtn(saved);
+  if(btn){
+    btn.addEventListener("click", ()=>{
+      const cur = document.documentElement.getAttribute("data-theme") || "light";
+      const next = (cur === "dark") ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      localStorage.setItem("agy_theme", next);
+      updateBtn(next);
+      const frame = document.getElementById("epFrame");
+      if(frame && frame.contentDocument && frame.contentDocument.documentElement){
+        frame.contentDocument.documentElement.setAttribute("data-theme", next);
+      }
+    });
+  }
+})();
+
+</script>
+</body>
+</html>

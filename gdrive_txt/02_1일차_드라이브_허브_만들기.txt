@@ -1,0 +1,5 @@
+# 02강 · 1일차 - 드라이브 허브 만들기
+업그레이드 제목: "바탕화면에 새 폴더 (37) 은 이제 그만"
+핵심 개념: MCP Local Filesystem, Root Isolation, Directory Tree, File Naming Convention
+실제 도구: filesystem-mcp 설정, Bash 디렉터리 표준화 스크립트
+인페이지 위젯: ① 폴더 난맥상 틀린 곳 찾기 ② MCP 경로 승인 시뮬레이터 ③ 파일 명명 규칙 조립기 ④ 허브 디렉터리 트리 탐색기 ⑤ 원클릭 허브 생성 스크립터

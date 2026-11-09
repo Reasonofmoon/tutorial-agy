@@ -1,0 +1,718 @@
+<!doctype html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>05화 동명이인 김민준 둘이 성적이 바뀌었다 | 학원장 자동화 스토리 튜토리얼</title>
+<meta name="description" content="개강 전날 모의 시뮬레이션 중 중2 김민준과 중3 김민준의 성적표가 뒤바뀌는 아찔한 사고 발생! 고유 식별자(Primary Key)와 데이터 사전(Data Dictionary)으로 무결성을 확보한다.">
+<style>
+:root{
+  --paper:#F7F1E5;--card:#FFFDF8;--ink:#24211C;--muted:#6E665A;--line:#E3D9C6;
+  --brick:#B5452F;--teal:#2F6F73;--ochre:#C98B2B;--navy:#1F3A5F;--hl:#FFE89A;
+  --ok:#2F7D4F;--bad:#B5452F;--r:14px;
+  --bubble-me:#E7F0EE;--bubble-you:#FFFFFF;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#1C1A17;--card:#25221E;--ink:#EDE6D8;--muted:#A89F90;--line:#3A352E;
+  --brick:#E07A62;--teal:#6FB3B6;--ochre:#E2AE5C;--navy:#9DB8DD;--hl:#5A4A12;
+  --ok:#6BC28E;--bad:#E07A62;--bubble-me:#22332F;--bubble-you:#2B2823;}}
+:root[data-theme="dark"]{
+  --paper:#1C1A17;--card:#25221E;--ink:#EDE6D8;--muted:#A89F90;--line:#3A352E;
+  --brick:#E07A62;--teal:#6FB3B6;--ochre:#E2AE5C;--navy:#9DB8DD;--hl:#5A4A12;
+  --ok:#6BC28E;--bad:#E07A62;--bubble-me:#22332F;--bubble-you:#2B2823;}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:Pretendard,"Pretendard Variable","NanumSquare Neo","Apple SD Gothic Neo","Noto Sans KR",sans-serif;font-size:17px;line-height:1.8;word-break:keep-all;overflow-wrap:break-word}
+img{max-width:100%;display:block}
+a{color:var(--teal)}
+.wrap{max-width:740px;margin:0 auto;padding:0 16px}
+.wide{max-width:1040px;margin:0 auto;padding:0 16px}
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.top .in{display:flex;justify-content:space-between;align-items:center;gap:12px;height:52px}
+.top b{font-size:14px}.top a{font-size:14px;font-weight:700;text-decoration:none;color:var(--brick);white-space:nowrap}
+.prog{position:absolute;left:0;bottom:-1px;height:3px;background:var(--brick);width:0}
+.hero{padding:28px 0 8px}
+.hero img{border-radius:18px;border:1px solid var(--line);aspect-ratio:16/9;object-fit:cover;width:100%}
+.kicker{font-size:13.5px;letter-spacing:.04em;color:var(--brick);font-weight:700;margin:26px 0 6px}
+h1{font-size:clamp(30px,6.5vw,50px);line-height:1.25;letter-spacing:-.02em;margin:0 0 16px}
+.deck{font-size:18.5px;color:var(--muted);margin:0}
+.cast{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:28px 0}
+.cast div{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;font-size:14.5px;line-height:1.6}
+.cast img{width:64px;height:64px;border-radius:50%;border:2px solid var(--line);margin-bottom:8px;object-fit:cover}
+.cast b{display:block;font-size:16px}.cast small{display:block;color:var(--muted);margin-bottom:6px}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:14px;color:var(--muted);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:12px 0;margin:8px 0 10px}
+.meta b{color:var(--ink)}
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0;padding:0;list-style:none}
+.toc a{display:inline-block;font-size:13.5px;text-decoration:none;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px 12px}
+.chap{padding:56px 0 10px}
+.chap .no{font-size:13px;font-weight:800;letter-spacing:.12em;color:var(--brick)}
+h2{font-size:clamp(24px,4.8vw,32px);line-height:1.3;margin:4px 0 18px;letter-spacing:-.01em}
+h3{font-size:20px;margin:28px 0 8px}
+
+.place{font-size:13px;color:var(--muted);letter-spacing:.06em;margin:22px 0 6px;text-transform:uppercase;font-weight:700}
+.act{color:var(--muted);font-style:italic;margin:10px 0}
+.say{display:flex;gap:12px;align-items:flex-start;margin:18px 0}
+.say .av{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);flex-shrink:0;object-fit:cover}
+.say .bub{background:var(--bubble-you);border:1px solid var(--line);border-radius:14px;border-top-left-radius:3px;padding:10px 14px;font-size:16px;max-width:580px;line-height:1.65}
+.say.me{flex-direction:row-reverse}
+.say.me .bub{background:var(--bubble-me);border-top-left-radius:14px;border-top-right-radius:3px}
+.say.claude .bub{background:var(--card);border-left:4px solid var(--brick);border-radius:8px;font-size:15px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+.say.claude .av-c{width:42px;height:42px;border-radius:50%;background:var(--btn-brick);color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;flex-shrink:0}
+
+.msgr{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin:24px 0}
+.msgr-h{font-size:13px;font-weight:700;color:var(--navy);border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:12px;display:flex;justify-content:space-between}
+.msgr .m{display:flex;gap:8px;margin:10px 0;align-items:flex-end}
+.msgr .m.mine{flex-direction:row-reverse}
+.msgr .b{background:var(--paper);border:1px solid var(--line);padding:8px 12px;border-radius:12px;font-size:14.5px;max-width:80%}
+.msgr .m.mine .b{background:#E7F0EE;border-color:#C1D7D1}
+
+.try{background:var(--card);border:2px solid var(--hl);border-radius:var(--r);margin:32px 0;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.03)}
+.try-h{background:var(--hl);padding:10px 16px;font-size:13.5px;font-weight:800;color:var(--ink);display:flex;justify-content:space-between;align-items:center}
+.try-b{padding:20px}
+
+.point{background:color-mix(in srgb,var(--ochre) 12%,var(--card));border-left:5px solid var(--ochre);border-radius:4px 12px 12px 4px;padding:16px 20px;margin:26px 0}
+.point h4{margin:0 0 6px;color:var(--ink);font-size:17px}
+.point p{margin:0;font-size:15px;color:var(--muted)}
+
+.real{background:var(--card);border:1px solid var(--line);border-radius:var(--r);margin:26px 0;overflow:hidden}
+.real-h{background:color-mix(in srgb,var(--teal) 12%,var(--card));border-bottom:1px solid var(--line);padding:8px 14px;font-size:12.5px;font-weight:700;color:var(--teal);display:flex;gap:8px;align-items:center}
+.real-b{padding:16px;font-size:14.5px}
+
+.btn{display:inline-flex;align-items:center;gap:6px;background:var(--btn-brick);color:#FFFFFF;border:none;border-radius:8px;padding:8px 16px;font-size:14.5px;font-weight:700;cursor:pointer;text-decoration:none}
+.btn:hover{filter:brightness(1.1)}
+.btn.sec{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+
+.steps{margin:28px 0;padding:0;list-style:none}
+.steps li{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px 20px;margin-bottom:12px;position:relative}
+.steps li b{display:block;font-size:16px;margin-bottom:4px;color:var(--brick)}
+
+.mission{background:color-mix(in srgb,var(--navy) 10%,var(--card));border:1px solid var(--navy);border-radius:var(--r);padding:20px;margin:28px 0}
+.mission h4{margin:0 0 10px;color:var(--navy);font-size:18px}
+.mission ol{margin:0;padding-left:22px;font-size:15.5px}
+.mission li{margin-bottom:8px}
+
+.code{background:#23211E;color:#F3EDE2;border-radius:8px;padding:14px 18px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13.5px;line-height:1.6;overflow-x:auto;position:relative;margin:12px 0}
+.code button{position:absolute;right:8px;top:8px;background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:4px;padding:4px 8px;font-size:11px;cursor:pointer}
+
+/* EP05 Widget Styles */
+.key-switch{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.key-btn{padding:10px;border:1px solid var(--line);background:var(--paper);border-radius:8px;font-weight:700;cursor:pointer}
+.key-btn.active{background:var(--btn-teal);color:#FFFFFF;color:#fff;border-color:var(--teal)}
+.dict-row{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:8px;flex-wrap:wrap}
+.sim-btns{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
+.mine-cell{cursor:pointer;border-bottom:2px dashed var(--bad);padding:1px 4px;border-radius:4px}
+.mine-cell.found{background:color-mix(in srgb,var(--ok) 20%,transparent);border-bottom:2px solid var(--ok);color:var(--ok);font-weight:700}
+
+@media(max-width:680px){
+  .cast{grid-template-columns:1fr}
+  .key-switch{grid-template-columns:1fr}
+  .sim-btns{grid-template-columns:1fr}
+}
+
+/* === Universal Contrast & Visibility Safety Rules (Light & Dark Mode) === */
+:root {
+  color-scheme: light;
+  --btn-brick: #B5452F;
+  --btn-teal: #2F6F73;
+  --btn-ok: #2F7D4F;
+  --btn-bad: #B5452F;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme: dark;
+  --paper:#181614;--card:#221F1C;--ink:#F5EFE6;--muted:#C4BAA8;--line:#3E3830;
+  --brick:#F08A72;--teal:#7FD0D4;--ochre:#F0BE6E;--navy:#A8C4E8;--hl:#4A3D10;
+  --ok:#7CE0A3;--bad:#F08A72;--bubble-me:#1F332E;--bubble-you:#2A2622;
+  --btn-brick:#B5452F;--btn-teal:#245E62;--btn-ok:#256B42;--btn-bad:#B53824;
+}}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --paper:#181614;--card:#221F1C;--ink:#F5EFE6;--muted:#C4BAA8;--line:#3E3830;
+  --brick:#F08A72;--teal:#7FD0D4;--ochre:#F0BE6E;--navy:#A8C4E8;--hl:#4A3D10;
+  --ok:#7CE0A3;--bad:#F08A72;--bubble-me:#1F332E;--bubble-you:#2A2622;
+  --btn-brick:#B5452F;--btn-teal:#245E62;--btn-ok:#256B42;--btn-bad:#B53824;
+}
+:root[data-theme="light"]{
+  color-scheme: light;
+  --paper:#F7F1E5;--card:#FFFDF8;--ink:#24211C;--muted:#5C5449;--line:#E3D9C6;
+  --brick:#B5452F;--teal:#2F6F73;--ochre:#C98B2B;--navy:#1F3A5F;--hl:#FFE89A;
+  --ok:#2F7D4F;--bad:#B5452F;--bubble-me:#E7F0EE;--bubble-you:#FFFFFF;
+  --btn-brick:#B5452F;--btn-teal:#2F6F73;--btn-ok:#2F7D4F;--btn-bad:#B5452F;
+}
+
+/* Explicit foreground & background for all form controls and interactive elements */
+button, input, select, textarea, option {
+  font-family: inherit;
+  color: var(--ink);
+  background-color: var(--card);
+}
+input[type="text"], select, textarea {
+  color: var(--ink) !important;
+  background-color: var(--paper) !important;
+  border: 1px solid var(--line) !important;
+}
+option {
+  color: var(--ink);
+  background-color: var(--card);
+}
+
+/* Fix all custom buttons, tabs, cards to explicitly use var(--ink) on var(--paper)/var(--card) */
+.quiz-btn, .mat-tab, .token-btn, .tree-folder, .tpl-tab, .dpi-btn, .key-btn, .drill-tab, .v-tab, .diag-btn, .nav-pill, .sort-card, .desk-item, .faq-card, .gate-card, .mcp-row, .dict-row, .rpt-card {
+  color: var(--ink) !important;
+  background-color: var(--paper);
+}
+.quiz-btn, .sort-card, .nav-pill {
+  background-color: var(--card);
+}
+
+/* Fix active/selected/status states to use deep background + pure white #FFFFFF text */
+.btn, a.btn {
+  background-color: var(--btn-brick) !important;
+  color: #FFFFFF !important;
+}
+.btn.sec, a.btn.sec, button.btn.sec {
+  background-color: var(--card) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+}
+.mat-tab.active, .tree-folder.active, .dpi-btn.active, .key-btn.active, .diag-btn.active {
+  background-color: var(--btn-teal) !important;
+  color: #FFFFFF !important;
+  border-color: var(--btn-teal) !important;
+}
+.tpl-tab.active, .drill-tab.active, .v-tab.active, .nav-pill.active {
+  background-color: var(--btn-brick) !important;
+  color: #FFFFFF !important;
+  border-color: var(--btn-brick) !important;
+}
+.quiz-btn.correct {
+  background-color: var(--btn-ok) !important;
+  color: #FFFFFF !important;
+  border-color: var(--btn-ok) !important;
+}
+.quiz-btn.wrong {
+  background-color: var(--btn-bad) !important;
+  color: #FFFFFF !important;
+  border-color: var(--btn-bad) !important;
+}
+
+/* Fix messenger bubbles and dialogue bubbles in both light and dark modes */
+.say .bub {
+  background-color: var(--bubble-you) !important;
+  color: var(--ink) !important;
+}
+.say.me .bub {
+  background-color: var(--bubble-me) !important;
+  color: var(--ink) !important;
+}
+.say.claude .bub {
+  background-color: var(--card) !important;
+  color: var(--ink) !important;
+}
+.msgr .b {
+  background-color: var(--paper) !important;
+  color: var(--ink) !important;
+}
+.msgr .m.mine .b {
+  background-color: var(--bubble-me) !important;
+  color: var(--ink) !important;
+  border-color: var(--line) !important;
+}
+
+/* Fix .try-h, .var-tag, .ep-badge highlight backgrounds to always have readable text */
+.try-h, .var-tag, .ep-badge {
+  background-color: var(--hl) !important;
+  color: var(--ink) !important;
+}
+
+/* Fix .code blocks so dark terminal always has light text #F3EDE2 on #23211E */
+.code, .code pre {
+  background-color: #23211E !important;
+  color: #F3EDE2 !important;
+}
+.code button {
+  background-color: #3E3A35 !important;
+  color: #FFFFFF !important;
+  border: 1px solid #6E665A !important;
+}
+
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="wide in" style="height:auto;min-height:52px;padding:8px 16px;flex-wrap:wrap">
+    <b><a href="../index.html" style="color:var(--ink);margin-right:8px">☰ 포털 홈</a> | 05화 · 데이터 사전</b>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <a href="../ep00/index.html" style="font-size:13px;color:var(--muted);">00화</a><a href="../ep01/index.html" style="font-size:13px;color:var(--muted);">01화</a><a href="../ep02/index.html" style="font-size:13px;color:var(--muted);">02화</a><a href="../ep03/index.html" style="font-size:13px;color:var(--muted);">03화</a><a href="../ep04/index.html" style="font-size:13px;color:var(--muted);">04화</a><a href="../ep05/index.html" style="font-size:13px;background:var(--btn-brick);color:#FFFFFF;padding:2px 8px;border-radius:999px;">05화</a><a href="../ep06/index.html" style="font-size:13px;color:var(--muted);">06화</a>
+      <a href="#try1" style="margin-left:4px">체험 ↓</a>
+      <button type="button" id="btnThemeToggle" style="font-size:12.5px;padding:3px 9px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-weight:700;cursor:pointer">🌙 어두운 화면</button>
+    </div>
+  </div>
+  <div class="prog" id="prog"></div>
+</div>
+
+<div class="wrap">
+
+  <div class="hero">
+    <img src="../assets/charsheet.webp" alt="동명이인 김민준 충돌 사고를 모의 시뮬레이션으로 잡아내는 남궁 철 원장과 지유나, 문 사장" width="1376" height="768">
+  </div>
+
+  <div class="kicker">EPISODE 05 · DAY 4: SIMULATION &amp; DATA DICTIONARY</div>
+  <h1>"동명이인 김민준 둘이 성적이 바뀌었다"</h1>
+  <p class="deck">개강 전날 밤 가상 데이터로 돌려본 리허설에서 중2 김민준과 중3 김민준의 성적표가 서로 뒤바뀌었다! 실제 발송 전이었기에 망정이지 하마터면 학원 문을 닫을 뻔한 아찔한 순간. 고유 식별자(Primary Key)와 데이터 사전(Data Dictionary)으로 완벽한 방어막을 친다.</p>
+
+  <div class="cast">
+    <div>
+      <img src="../assets/av-cheol.webp" alt="남궁 철 원장 아바타">
+      <b>남궁 철 (49세)</b>
+      <small>봄볕영어 원장</small>
+      엑셀 VLOOKUP을 항상 '학생 이름'으로만 걸어 쓰다가 동명이인 김민준 함정에 빠져 식은땀을 흘린다.
+    </div>
+    <div>
+      <img src="../assets/av-yuna.webp" alt="지유나 아바타">
+      <b>지유나 (17세)</b>
+      <small>고2 수강생 · 방송부</small>
+      개강 전날 모의 시뮬레이션을 제안해 대참사를 막아낸 일등공신. <code>STD-2027-012</code> 학번 체계를 도입한다.
+    </div>
+    <div>
+      <img src="../assets/av-moon.webp" alt="문 사장 아바타">
+      <b>문 사장 (50대)</b>
+      <small>1층 문인쇄 대표</small>
+      성적표 봉투 겉면에도 이름 옆에 고유 학번 끝 3자리를 같이 인쇄해야 봉투가 안 바뀐다고 조언한다.
+    </div>
+  </div>
+
+  <div class="meta">
+    <span><b>난이도:</b> 중급 (데이터 무결성 &amp; 스키마)</span>
+    <span><b>소요 시간:</b> 약 25분</span>
+    <span><b>핵심 도구:</b> <code>schema.json</code>, Primary Key, 스트레스 테스트</span>
+    <span><b>검증 일자:</b> 2026-10-12</span>
+  </div>
+
+  <ul class="toc">
+    <li><a href="#chap1">1장. 개강 전날 밤의 비명: 두 명의 김민준</a></li>
+    <li><a href="#chap2">2장. 데이터 사전(Data Dictionary)이라는 헌법</a></li>
+    <li><a href="#chap3">3장. 극한의 스트레스 테스트: 999점과 빈칸을 막아라</a></li>
+    <li><a href="#chap4">4장. 불량 데이터 지뢰찾기</a></li>
+    <li><a href="#chap5">5장. 무결성 검증 스키마 완성</a></li>
+    <li><a href="#steps">실습 &amp; 미션</a></li>
+  </ul>
+
+  <!-- 1장 -->
+  <section class="chap" id="chap1">
+    <div class="no">CHAPTER 01</div>
+    <h2>개강 전날 밤의 비명: 두 명의 김민준</h2>
+    <div class="place">1월 3일 (일) 밤 9시 30분 · 봄볕영어 교무실</div>
+
+    <p class="act">"으아아악!!" 교무실이 떠나가라 남궁 원장이 비명을 질렀다. 내일 개강을 앞두고 유나가 시킨 대로 가상 데이터 30명분을 넣어 모의 실행을 돌리던 중이었다.</p>
+
+    <div class="say me">
+      <img src="../assets/av-cheol.webp" class="av" alt="남궁 철">
+      <div class="bub">
+        유나야 큰일 났다!! 중3 김민준(94점) 성적표에 중2 김민준(68점) 어머님 전화번호가 찍혀 나왔어! 이거 진짜로 발송했으면 어머님 두 분 다 학원 뒤집어엎으셨을 거다!!
+      </div>
+    </div>
+
+    <div class="say">
+      <img src="../assets/av-yuna.webp" class="av" alt="지유나">
+      <div class="bub">
+        휴, 그래서 제가 개강 전날 밤에 반드시 <b>모의 시뮬레이션(Dry Run)</b>부터 돌려봐야 한다고 한 거예요! 원장님, 컴퓨터한테 '이름(<code>name</code>)'으로 줄 세우라고 하면 대한민국에서 제일 흔한 이름인 김민준, 이서준은 무조건 충돌해요.
+      </div>
+    </div>
+
+    <div class="say">
+      <img src="../assets/av-yuna.webp" class="av" alt="지유나">
+      <div class="bub">
+        오늘부터 봄볕영어의 모든 표는 이름이 아니라 절대로 겹치지 않는 <b>고유 학번(<code>STD-2027-012</code>)</b>을 기준으로 묶어야 해요!
+      </div>
+    </div>
+
+    <!-- 체험 1: 동명이인 디버거 -->
+    <div class="try" id="try1">
+      <div class="try-h">
+        <span>체험 1 · 동명이인 김민준 충돌 디버거</span>
+        <span id="pkStatus" style="font-size:12px;font-weight:400">안전한 기준 키로 전환해 보세요</span>
+      </div>
+      <div class="try-b">
+        <div class="key-switch">
+          <button type="button" class="key-btn active" data-mode="name">❌ 이름(name) 기준 병합</button>
+          <button type="button" class="key-btn" data-mode="id">✓ 고유 학번(student_id) 기준 병합</button>
+        </div>
+        <div id="pkView" style="background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px;font-size:14.5px"></div>
+      </div>
+    </div>
+
+    <div class="point">
+      <h4>📌 짚고 가기: 기본키 (Primary Key)의 절대 원칙</h4>
+      <p>사람의 이름은 고유하지 않습니다. 학원 자동화에서 모든 CSV와 리포트 파일은 반드시 <b>유일무이한 식별자(예: <code>STD-2027-012</code>)</b>를 첫 번째 열(Primary Key)로 삼아야 동명이인 오발송 사고를 100% 예방할 수 있습니다.</p>
+    </div>
+  </section>
+
+  <!-- 2장 -->
+  <section class="chap" id="chap2">
+    <div class="no">CHAPTER 02</div>
+    <h2>데이터 사전(Data Dictionary)이라는 헌법</h2>
+    <div class="place">밤 9시 55분 · 노트북 스키마 설계창</div>
+
+    <div class="say me">
+      <img src="../assets/av-cheol.webp" class="av" alt="남궁 철">
+      <div class="bub">
+        그런데 유나야, 내가 급하게 엑셀 치다 보면 날짜를 어떤 날은 <code>2027/1/4</code>라고 치고 어떤 날은 <code>1월 4일</code>이라고 치거든. 그것도 문제가 되냐?
+      </div>
+    </div>
+
+    <div class="say">
+      <img src="../assets/av-yuna.webp" class="av" alt="지유나">
+      <div class="bub">
+        엄청 큰 문제가 되죠! 그래서 어떤 칸에 어떤 모양의 글자만 들어갈 수 있는지 적어둔 약속장, 즉 <b>데이터 사전(Data Dictionary)</b>을 만들어 둘 거예요.
+      </div>
+    </div>
+
+    <!-- 체험 2: 데이터 사전 검사기 -->
+    <div class="try" id="try2">
+      <div class="try-h">
+        <span>체험 2 · 봄볕영어 데이터 사전 규격 매칭기</span>
+        <span id="dictScore" style="font-size:12px;font-weight:400">일치: 0 / 4</span>
+      </div>
+      <div class="try-b">
+        <p style="margin:0 0 10px;font-size:14.5px;color:var(--muted)">각 칼럼(열)에 알맞은 데이터 규격을 드롭다운에서 선택하고 [규격 검증]을 눌러보세요.</p>
+        <div class="dict-row">
+          <b>1. <code>student_id</code> (고유 학번)</b>
+          <select class="dict-sel" data-ans="id">
+            <option value="">-- 규격 선택 --</option>
+            <option value="id">STD-2027-세자리숫자 (필수·고유값)</option>
+            <option value="date">YYYY-MM-DD 날짜 형식</option>
+          </select>
+        </div>
+        <div class="dict-row">
+          <b>2. <code>test_date</code> (응시 일자)</b>
+          <select class="dict-sel" data-ans="date">
+            <option value="">-- 규격 선택 --</option>
+            <option value="score">0 ~ 100 사이 정수</option>
+            <option value="date">YYYY-MM-DD (예: 2027-01-04)</option>
+          </select>
+        </div>
+        <div class="dict-row">
+          <b>3. <code>vocab_score</code> (단어 점수)</b>
+          <select class="dict-sel" data-ans="score">
+            <option value="">-- 규격 선택 --</option>
+            <option value="score">0 ~ 100 사이 정수 (음수·초과 불가)</option>
+            <option value="phone">010-XXXX-XXXX 연락처 형식</option>
+          </select>
+        </div>
+        <div class="dict-row">
+          <b>4. <code>parent_phone</code> (보호자 연락처)</b>
+          <select class="dict-sel" data-ans="phone">
+            <option value="">-- 규격 선택 --</option>
+            <option value="id">STD-2027-세자리숫자</option>
+            <option value="phone">010-XXXX-XXXX (발송 전 마스킹 대상)</option>
+          </select>
+        </div>
+        <button type="button" class="btn" id="btnCheckDict">데이터 사전 규격 검증 ✓</button>
+        <span id="dictFeedback" style="margin-left:10px;font-size:14px;font-weight:700"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3장 -->
+  <section class="chap" id="chap3">
+    <div class="no">CHAPTER 03</div>
+    <h2>극한의 스트레스 테스트: 999점과 빈칸을 막아라</h2>
+    <div class="place">밤 10시 15분 · 모의 시뮬레이터</div>
+
+    <div class="say">
+      <img src="../assets/av-yuna.webp" class="av" alt="지유나">
+      <div class="bub">
+        규칙을 세웠으면 일부러 고장 난 데이터를 넣어서 경보기가 제대로 울리는지 시험해 봐야 해요. 원장님이 실수로 95점을 950점으로 오타 냈을 때 시스템이 알아서 멈추는지 눌러보세요!
+      </div>
+    </div>
+
+    <!-- 체험 3: 스트레스 테스트 러너 -->
+    <div class="try" id="try3">
+      <div class="try-h">
+        <span>체험 3 · 가상 엣지 케이스 스트레스 테스트 러너</span>
+        <span id="simCount" style="font-size:12px;font-weight:400">테스트 실행: 0 / 4</span>
+      </div>
+      <div class="try-b">
+        <div class="sim-btns" id="simBtns">
+          <button type="button" class="key-btn" data-case="0">① 정상 데이터 30건</button>
+          <button type="button" class="key-btn" data-case="1">② 점수 오타 (950점 입력)</button>
+          <button type="button" class="key-btn" data-case="2">③ 결시생 점수 빈칸(NULL)</button>
+          <button type="button" class="key-btn" data-case="3">④ 동명이인 학번 중복</button>
+        </div>
+        <div class="code" id="simLog" style="white-space:pre-wrap">위의 시나리오 버튼을 눌러 스트레스 테스트를 가동하세요.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4장 -->
+  <section class="chap" id="chap4">
+    <div class="no">CHAPTER 04</div>
+    <h2>불량 데이터 지뢰찾기</h2>
+    <div class="place">밤 10시 35분 · CSV 검수 화면</div>
+
+    <!-- 체험 4: 틀린 데이터 지뢰찾기 -->
+    <div class="try" id="try4">
+      <div class="try-h">
+        <span>체험 4 · 불량 CSV 데이터 지뢰 3곳 색출하기</span>
+        <span id="mineScore" style="font-size:12px;font-weight:400">발견: 0 / 3</span>
+      </div>
+      <div class="try-b">
+        <p style="margin:0 0 10px;font-size:14.5px;color:var(--muted)">아래 CSV 데이터에서 데이터 사전 규격을 어긴 <b>불량 데이터 3곳(붉은 점선)</b>을 클릭해 교정하세요.</p>
+        <div style="background:var(--paper);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:14px 18px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13.5px;line-height:1.8;margin:12px 0">
+student_id,name,test_date,vocab_score<br>
+STD-2027-012,김민준,2027-01-04,94<br>
+<span class="mine-cell" data-fix="STD-2027-015">학번없음_이서준</span>,이서준,2027-01-04,82<br>
+STD-2027-019,김민준,<span class="mine-cell" data-fix="2027-01-04">2027년1월4일</span>,88<br>
+STD-2027-021,최유진,2027-01-04,<span class="mine-cell" data-fix="98">980</span>
+        </div>
+        <div id="mineMsg" style="font-size:14px;font-weight:700;color:var(--muted);margin-top:8px">규격 위반 항목을 클릭해 바로잡으세요.</div>
+      </div>
+    </div>
+
+    <div class="real">
+      <div class="real-h">
+        <span>🖥️ 실제 도구 검증 · schema.json 기반 무결성 검증 스크립트</span>
+      </div>
+      <div class="real-b">
+        <p style="margin:0 0 10px">워크스페이스의 <code>verified/schema.json</code>과 실제 출결 데이터를 대조하여 동명이인 김민준 2명을 고유 학번으로 완벽히 분리 식별한 결과입니다.</p>
+        <div class="code">$ cat verified/schema.json
+{
+  "schema_version": "1.0.0",
+  "academy": "봄볕영어 (031-555-0142)",
+  "primary_key": "student_id",
+  "id_pattern": "^STD-2027-[0-9]{3}$",
+  "date_format": "YYYY-MM-DD",
+  "required_fields": ["student_id", "name", "grade", "status", "parent_phone"]
+}</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5장 -->
+  <section class="chap" id="chap5">
+    <div class="no">CHAPTER 05</div>
+    <h2>무결성 검증 스키마 완성</h2>
+    <div class="place">밤 11시 00분 · 문인쇄 카톡창</div>
+
+    <div class="msgr">
+      <div class="msgr-h">
+        <span>문인쇄 문 사장 (30년 경력)</span>
+        <span>오후 11:02</span>
+      </div>
+      <div class="m">
+        <img src="../assets/av-moon.webp" style="width:36px;height:36px;border-radius:50%" alt="문 사장">
+        <div class="b">남궁 원장! 성적표 우측 상단에 <code>[STD-2027-012 | 중3A 김민준]</code> 이렇게 학번이 같이 찍혀 있으니까 봉투에 넣을 때 동명이인이 절대 안 섞이네!</div>
+      </div>
+      <div class="m mine">
+        <div class="b">유나 덕분에 데이터 사전이랑 고유 학번 체계를 세웠습니다. 이제 김민준이 5명 들어와도 끄떡없습니다!</div>
+      </div>
+    </div>
+
+    <!-- 체험 5: 스키마 JSON 생성기 -->
+    <div class="try" id="try5">
+      <div class="try-h">
+        <span>체험 5 · 우리 학원 무결성 검증 schema.json 생성기</span>
+        <span style="font-size:12px;font-weight:400">즉시 복사 가능</span>
+      </div>
+      <div class="try-b">
+        <label style="display:block;font-size:14px;font-weight:700;margin-bottom:6px">학번 접두사 코드 (예: STD-2027-):</label>
+        <input type="text" id="iptPrefix" value="STD-2027-" style="width:100%;padding:8px 12px;border:1px solid var(--line);border-radius:6px;font-size:15px;margin-bottom:10px;background:var(--paper);color:var(--ink)">
+        <div class="code">
+          <button type="button" id="btnCopySchema">복사</button>
+          <pre id="outSchemaJson" style="margin:0;white-space:pre-wrap"></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 실습 & 미션 -->
+  <section class="chap" id="steps">
+    <div class="no">HANDS-ON PRACTICE</div>
+    <h2>내 컴퓨터에서 직접 해 보기</h2>
+    <ul class="steps">
+      <li>
+        <b>1단계 · 원생 마스터 CSV 첫 번째 열에 student_id 부여</b>
+        모든 학생에게 <code>STD-2027-001</code>부터 고유 번호를 부여합니다.
+      </li>
+      <li>
+        <b>2단계 · 발송 및 인쇄 전 무결성 검증 스크립트 실행</b>
+        날짜 형식이나 점수 범위를 벗어난 행이 있으면 발송 전에 자동으로 멈추게 합니다.
+      </li>
+    </ul>
+
+    <div class="mission">
+      <h4>🎯 05화 수료 미션 3가지</h4>
+      <ol>
+        <li>체험 1에서 고유 학번(<code>student_id</code>) 기준 병합으로 동명이인 충돌 해결하기</li>
+        <li>체험 2와 체험 3에서 데이터 사전 4개 규격 매칭 및 엣지 케이스 4종 테스트 완료하기</li>
+        <li>체험 4에서 불량 CSV 데이터 지뢰 3곳을 모두 찾아 교정하기</li>
+      </ol>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:30px 0 60px;gap:12px;flex-wrap:wrap">
+      <a href="../ep04/index.html" class="btn sec">← 이전 화: 04화 주간·월간 리포트 자동화</a>
+      <a href="../ep06/index.html" class="btn" style="padding:12px 24px;font-size:16px">다음 화: 06화 운영 규칙과 비상 스위치 →</a>
+    </div>
+  </section>
+
+</div>
+
+<script>
+window.addEventListener('scroll',()=>{
+  const d=document.documentElement;
+  const p=(d.scrollTop)/(d.scrollHeight-d.clientHeight)*100;
+  document.getElementById('prog').style.width=p+'%';
+});
+
+// Try 1: Homonym Debugger
+(function(){
+  const btns=document.querySelectorAll('#try1 .key-btn');
+  const view=document.getElementById('pkView');
+  const st=document.getElementById('pkStatus');
+  function render(mode){
+    if(mode==='name'){
+      view.innerHTML=`
+        <div style="color:var(--bad);font-weight:800;margin-bottom:6px">🚨 충돌 경보! '김민준' 이름이 2명이라 데이터가 뒤섞였습니다!</div>
+        <div>• 중3A 김민준 (94점) → 수신번호: <b>010-****-5502 (중2 김민준 어머님 번호로 오배정!)</b></div>
+        <div>• 중2B 김민준 (68점) → 성적표 누락 발생</div>
+      `;
+    } else {
+      view.innerHTML=`
+        <div style="color:var(--ok);font-weight:800;margin-bottom:6px">✓ 고유 학번(Primary Key) 분리 완료! 오발송 위험 0%</div>
+        <div>• <code>STD-2027-012</code> | 김민준 (중3A · 94점) → 수신: 010-****-3391 (정확히 일치)</div>
+        <div>• <code>STD-2027-019</code> | 김민준 (중2B · 68점) → 수신: 010-****-5502 (정확히 일치)</div>
+      `;
+      st.textContent='✓ 동명이인 분리 해결!';
+      st.style.color='var(--ok)';
+    }
+  }
+  btns.forEach(b=>{
+    b.addEventListener('click',()=>{
+      btns.forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      render(b.dataset.mode);
+    });
+  });
+  render('name');
+})();
+
+// Try 2: Data Dictionary Matcher
+(function(){
+  const sels=document.querySelectorAll('#try2 .dict-sel');
+  const btn=document.getElementById('btnCheckDict');
+  const sc=document.getElementById('dictScore');
+  const fb=document.getElementById('dictFeedback');
+  btn.addEventListener('click',()=>{
+    let ok=0;
+    sels.forEach(s=>{if(s.value===s.dataset.ans) ok++;});
+    sc.textContent=`일치: ${ok} / 4`;
+    if(ok===4){
+      fb.style.color='var(--ok)';
+      fb.textContent='✓ 완벽합니다! 봄볕영어 데이터 사전 4대 규격이 확립되었습니다.';
+    } else {
+      fb.style.color='var(--bad)';
+      fb.textContent=`현재 ${ok}/4개 일치. 각 칼럼에 맞는 형식을 다시 선택해 보세요.`;
+    }
+  });
+})();
+
+// Try 3: Stress Test Runner
+(function(){
+  const btns=document.querySelectorAll('#simBtns .key-btn');
+  const log=document.getElementById('simLog');
+  const cnt=document.getElementById('simCount');
+  const runSet=new Set();
+  const logs=[
+    "[PASS] 정상 데이터 30건 검증 완료 (0.04초 소요)\n- 모든 학번 고유성 확인 완료\n- 날짜 형식(YYYY-MM-DD) 및 점수 범위(0~100) 이상 없음.",
+    "[BLOCKED · 이상치 탐지!] 행 #14 (STD-2027-021 최유진): vocab_score = 950\n-> 허용 범위(0~100) 초과 오타 감지! 성적표 생성을 자동 중단하고 원장님께 알림을 보냈습니다.",
+    "[HANDLED · 결측치 보호!] 행 #08 (STD-2027-018 정하윤): vocab_score = NULL (병결)\n-> 0점 처리하는 대신 '병결(보충예정)' 전용 안내 템플릿으로 안전하게 분기했습니다.",
+    "[BLOCKED · 중복키 차단!] student_id 'STD-2027-012'가 2번 등장했습니다!\n-> 마스터 명부 등록 단계에서 중복 학번 생성을 즉시 차단했습니다."
+  ];
+  btns.forEach(b=>{
+    b.addEventListener('click',()=>{
+      btns.forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      const idx=parseInt(b.dataset.case,10);
+      log.textContent=logs[idx];
+      runSet.add(idx);
+      cnt.textContent=`테스트 실행: ${runSet.size} / 4`+(runSet.size===4?' ✓':'');
+    });
+  });
+})();
+
+// Try 4: Bad Data Minefinder
+(function(){
+  const cells=document.querySelectorAll('#try4 .mine-cell');
+  const sc=document.getElementById('mineScore');
+  const msg=document.getElementById('mineMsg');
+  let found=0;
+  cells.forEach(c=>{
+    c.addEventListener('click',()=>{
+      if(c.classList.contains('found')) return;
+      c.classList.add('found');
+      c.textContent=c.dataset.fix;
+      found++;
+      sc.textContent=`발견: ${found} / 3`;
+      if(found===3){
+        msg.style.color='var(--ok)';
+        msg.textContent='🎉 학번 누락, 날짜 포맷 불일치, 980점 오타를 모두 바로잡았습니다!';
+      }
+    });
+  });
+})();
+
+// Try 5: Schema JSON Generator
+(function(){
+  const ipt=document.getElementById('iptPrefix');
+  const out=document.getElementById('outSchemaJson');
+  const btn=document.getElementById('btnCopySchema');
+  function update(){
+    const p=ipt.value.trim()||'STD-2027-';
+    out.textContent=JSON.stringify({
+      schema_version: "1.0.0",
+      primary_key: "student_id",
+      id_pattern: `^${p}[0-9]{3}$`,
+      date_format: "YYYY-MM-DD",
+      score_range: [0, 100],
+      on_validation_error: "HALT_AND_NOTIFY_DIRECTOR"
+    }, null, 2);
+  }
+  ipt.addEventListener('input',update);
+  update();
+  btn.addEventListener('click',()=>{
+    navigator.clipboard.writeText(out.textContent).then(()=>{
+      btn.textContent='복사됨!';
+      setTimeout(()=>btn.textContent='복사',1500);
+    });
+  });
+})();
+
+// Theme Toggle (Light / Dark) synced via localStorage
+(function(){
+  const saved = localStorage.getItem("agy_theme") || "light";
+  document.documentElement.setAttribute("data-theme", saved);
+  const btn = document.getElementById("btnThemeToggle");
+  function updateBtn(t){
+    if(!btn) return;
+    btn.textContent = (t === "dark") ? "☀️ 밝은 화면" : "🌙 어두운 화면";
+  }
+  updateBtn(saved);
+  if(btn){
+    btn.addEventListener("click", ()=>{
+      const cur = document.documentElement.getAttribute("data-theme") || "light";
+      const next = (cur === "dark") ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      localStorage.setItem("agy_theme", next);
+      updateBtn(next);
+      const frame = document.getElementById("epFrame");
+      if(frame && frame.contentDocument && frame.contentDocument.documentElement){
+        frame.contentDocument.documentElement.setAttribute("data-theme", next);
+      }
+    });
+  }
+})();
+
+</script>
+</body>
+</html>

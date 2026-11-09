@@ -1,0 +1,982 @@
+<!doctype html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>00화 원장님, 매번 밤 11시에 퇴근하실 거예요? | 학원장 자동화 스토리 튜토리얼</title>
+<meta name="description" content="15년 차 손글씨 전단 원장님, 엑셀 30개 시트에 갇혀 밤 11시까지 퇴근하지 못하다. 방송부 유나가 Claude와 4D 원칙으로 학원 업무를 하나씩 해방시키는 법을 가르쳐 준다.">
+<style>
+:root{
+  --paper:#F7F1E5;--card:#FFFDF8;--ink:#24211C;--muted:#6E665A;--line:#E3D9C6;
+  --brick:#B5452F;--teal:#2F6F73;--ochre:#C98B2B;--navy:#1F3A5F;--hl:#FFE89A;
+  --ok:#2F7D4F;--bad:#B5452F;--r:14px;
+  --bubble-me:#E7F0EE;--bubble-you:#FFFFFF;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#1C1A17;--card:#25221E;--ink:#EDE6D8;--muted:#A89F90;--line:#3A352E;
+  --brick:#E07A62;--teal:#6FB3B6;--ochre:#E2AE5C;--navy:#9DB8DD;--hl:#5A4A12;
+  --ok:#6BC28E;--bad:#E07A62;--bubble-me:#22332F;--bubble-you:#2B2823;}}
+:root[data-theme="dark"]{
+  --paper:#1C1A17;--card:#25221E;--ink:#EDE6D8;--muted:#A89F90;--line:#3A352E;
+  --brick:#E07A62;--teal:#6FB3B6;--ochre:#E2AE5C;--navy:#9DB8DD;--hl:#5A4A12;
+  --ok:#6BC28E;--bad:#E07A62;--bubble-me:#22332F;--bubble-you:#2B2823;}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:Pretendard,"Pretendard Variable","NanumSquare Neo","Apple SD Gothic Neo","Noto Sans KR",sans-serif;font-size:17px;line-height:1.8;word-break:keep-all;overflow-wrap:break-word}
+img{max-width:100%;display:block}
+a{color:var(--teal)}
+.wrap{max-width:740px;margin:0 auto;padding:0 16px}
+.wide{max-width:1040px;margin:0 auto;padding:0 16px}
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.top .in{display:flex;justify-content:space-between;align-items:center;gap:12px;height:52px}
+.top b{font-size:14px}.top a{font-size:14px;font-weight:700;text-decoration:none;color:var(--brick);white-space:nowrap}
+.prog{position:absolute;left:0;bottom:-1px;height:3px;background:var(--brick);width:0}
+.hero{padding:28px 0 8px}
+.hero img{border-radius:18px;border:1px solid var(--line);aspect-ratio:16/9;object-fit:cover;width:100%}
+.kicker{font-size:13.5px;letter-spacing:.04em;color:var(--brick);font-weight:700;margin:26px 0 6px}
+h1{font-size:clamp(30px,6.5vw,50px);line-height:1.25;letter-spacing:-.02em;margin:0 0 16px}
+.deck{font-size:18.5px;color:var(--muted);margin:0}
+.cast{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:28px 0}
+.cast div{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;font-size:14.5px;line-height:1.6}
+.cast img{width:64px;height:64px;border-radius:50%;border:2px solid var(--line);margin-bottom:8px;object-fit:cover}
+.cast b{display:block;font-size:16px}.cast small{display:block;color:var(--muted);margin-bottom:6px}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:14px;color:var(--muted);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:12px 0;margin:8px 0 10px}
+.meta b{color:var(--ink)}
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0;padding:0;list-style:none}
+.toc a{display:inline-block;font-size:13.5px;text-decoration:none;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px 12px}
+.chap{padding:56px 0 10px}
+.chap .no{font-size:13px;font-weight:800;letter-spacing:.12em;color:var(--brick)}
+h2{font-size:clamp(24px,4.8vw,32px);line-height:1.3;margin:4px 0 18px;letter-spacing:-.01em}
+h3{font-size:20px;margin:28px 0 8px}
+
+.place{font-size:13px;color:var(--muted);letter-spacing:.06em;margin:22px 0 6px;text-transform:uppercase;font-weight:700}
+.act{color:var(--muted);font-style:italic;margin:10px 0}
+.say{display:flex;gap:12px;align-items:flex-start;margin:18px 0}
+.say .av{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);flex-shrink:0;object-fit:cover}
+.say .bub{background:var(--bubble-you);border:1px solid var(--line);border-radius:14px;border-top-left-radius:3px;padding:10px 14px;font-size:16px;max-width:580px;line-height:1.65}
+.say.me{flex-direction:row-reverse}
+.say.me .bub{background:var(--bubble-me);border-top-left-radius:14px;border-top-right-radius:3px}
+.say.claude .bub{background:var(--card);border-left:4px solid var(--brick);border-radius:8px;font-size:15px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+.say.claude .av-c{width:42px;height:42px;border-radius:50%;background:var(--btn-brick);color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;flex-shrink:0}
+
+.msgr{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin:24px 0}
+.msgr-h{font-size:13px;font-weight:700;color:var(--navy);border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:12px;display:flex;justify-content:space-between}
+.msgr .m{display:flex;gap:8px;margin:10px 0;align-items:flex-end}
+.msgr .m.mine{flex-direction:row-reverse}
+.msgr .b{background:var(--paper);border:1px solid var(--line);padding:8px 12px;border-radius:12px;font-size:14.5px;max-width:80%}
+.msgr .m.mine .b{background:#E7F0EE;border-color:#C1D7D1}
+
+.try{background:var(--card);border:2px solid var(--hl);border-radius:var(--r);margin:32px 0;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.03)}
+.try-h{background:var(--hl);padding:10px 16px;font-size:13.5px;font-weight:800;color:var(--ink);display:flex;justify-content:space-between;align-items:center}
+.try-b{padding:20px}
+
+.point{background:color-mix(in srgb,var(--ochre) 12%,var(--card));border-left:5px solid var(--ochre);border-radius:4px 12px 12px 4px;padding:16px 20px;margin:26px 0}
+.point h4{margin:0 0 6px;color:var(--ink);font-size:17px}
+.point p{margin:0;font-size:15px;color:var(--muted)}
+
+.real{background:var(--card);border:1px solid var(--line);border-radius:var(--r);margin:26px 0;overflow:hidden}
+.real-h{background:color-mix(in srgb,var(--teal) 12%,var(--card));border-bottom:1px solid var(--line);padding:8px 14px;font-size:12.5px;font-weight:700;color:var(--teal);display:flex;gap:8px;align-items:center}
+.real-b{padding:16px;font-size:14.5px}
+
+.btn{display:inline-flex;align-items:center;gap:6px;background:var(--btn-brick);color:#FFFFFF;border:none;border-radius:8px;padding:8px 16px;font-size:14.5px;font-weight:700;cursor:pointer;text-decoration:none}
+.btn:hover{filter:brightness(1.1)}
+.btn.sec{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+
+.steps{margin:28px 0;padding:0;list-style:none}
+.steps li{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px 20px;margin-bottom:12px;position:relative}
+.steps li b{display:block;font-size:16px;margin-bottom:4px;color:var(--brick)}
+
+.mission{background:color-mix(in srgb,var(--navy) 10%,var(--card));border:1px solid var(--navy);border-radius:var(--r);padding:20px;margin:28px 0}
+.mission h4{margin:0 0 10px;color:var(--navy);font-size:18px}
+.mission ol{margin:0;padding-left:22px;font-size:15.5px}
+.mission li{margin-bottom:8px}
+
+.code{background:#23211E;color:#F3EDE2;border-radius:8px;padding:14px 18px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13.5px;line-height:1.6;overflow-x:auto;position:relative;margin:12px 0}
+.code button{position:absolute;right:8px;top:8px;background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:4px;padding:4px 8px;font-size:11px;cursor:pointer}
+
+/* Try 1: Sorting */
+.sort-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}
+.sort-zone{background:var(--paper);border:2px dashed var(--line);border-radius:10px;min-height:180px;padding:10px}
+.sort-zone.over{border-color:var(--teal);background:color-mix(in srgb,var(--teal) 8%,var(--paper))}
+.sort-card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 12px;margin-bottom:8px;font-size:14px;cursor:grab;user-select:none;box-shadow:0 2px 4px rgba(0,0,0,.04)}
+.sort-card.selected{border-color:var(--brick);outline:2px solid var(--brick)}
+
+/* Try 2: ROI Slider */
+.calc-box{background:var(--paper);border-radius:12px;padding:16px;margin:12px 0}
+.calc-res{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center;margin-top:16px}
+.calc-res div{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 6px}
+.calc-res b{display:block;font-size:22px;color:var(--brick);line-height:1.2}
+.calc-res small{font-size:12px;color:var(--muted)}
+
+/* Try 3: OX Quiz */
+.quiz-q{border-bottom:1px solid var(--line);padding:14px 0}
+.quiz-opts{display:flex;gap:10px;margin-top:8px}
+.quiz-btn{flex:1;padding:10px;border:1px solid var(--line);background:var(--card);border-radius:8px;font-weight:700;cursor:pointer}
+.quiz-btn.correct{background:var(--btn-ok);color:#FFFFFF;color:#fff;border-color:var(--ok)}
+.quiz-btn.wrong{background:var(--btn-bad);color:#FFFFFF;color:#fff;border-color:var(--bad)}
+
+/* Try 4: Mistake Spotter */
+.spot-box{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:18px;margin:14px 0;font-size:15px;line-height:2}
+.spot-target{cursor:pointer;border-bottom:2px dashed var(--muted);padding:2px 4px;border-radius:4px;transition:background .2s}
+.spot-target:hover{background:var(--hl)}
+.spot-target.found{background:color-mix(in srgb,var(--bad) 20%,transparent);border-bottom:2px solid var(--bad);color:var(--bad);font-weight:700}
+
+/* Try 5: Checklist & Generator */
+.chk-item{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:14.5px;cursor:pointer}
+.chk-item input{width:18px;height:18px;accent-color:var(--brick)}
+
+@media(max-width:680px){
+  .cast{grid-template-columns:1fr}
+  .sort-grid{grid-template-columns:1fr}
+  .calc-res{grid-template-columns:1fr}
+}
+
+/* === Universal Contrast & Visibility Safety Rules (Light & Dark Mode) === */
+:root {
+  color-scheme: light;
+  --btn-brick: #B5452F;
+  --btn-teal: #2F6F73;
+  --btn-ok: #2F7D4F;
+  --btn-bad: #B5452F;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme: dark;
+  --paper:#181614;--card:#221F1C;--ink:#F5EFE6;--muted:#C4BAA8;--line:#3E3830;
+  --brick:#F08A72;--teal:#7FD0D4;--ochre:#F0BE6E;--navy:#A8C4E8;--hl:#4A3D10;
+  --ok:#7CE0A3;--bad:#F08A72;--bubble-me:#1F332E;--bubble-you:#2A2622;
+  --btn-brick:#B5452F;--btn-teal:#245E62;--btn-ok:#256B42;--btn-bad:#B53824;
+}}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --paper:#181614;--card:#221F1C;--ink:#F5EFE6;--muted:#C4BAA8;--line:#3E3830;
+  --brick:#F08A72;--teal:#7FD0D4;--ochre:#F0BE6E;--navy:#A8C4E8;--hl:#4A3D10;
+  --ok:#7CE0A3;--bad:#F08A72;--bubble-me:#1F332E;--bubble-you:#2A2622;
+  --btn-brick:#B5452F;--btn-teal:#245E62;--btn-ok:#256B42;--btn-bad:#B53824;
+}
+:root[data-theme="light"]{
+  color-scheme: light;
+  --paper:#F7F1E5;--card:#FFFDF8;--ink:#24211C;--muted:#5C5449;--line:#E3D9C6;
+  --brick:#B5452F;--teal:#2F6F73;--ochre:#C98B2B;--navy:#1F3A5F;--hl:#FFE89A;
+  --ok:#2F7D4F;--bad:#B5452F;--bubble-me:#E7F0EE;--bubble-you:#FFFFFF;
+  --btn-brick:#B5452F;--btn-teal:#2F6F73;--btn-ok:#2F7D4F;--btn-bad:#B5452F;
+}
+
+/* Explicit foreground & background for all form controls and interactive elements */
+button, input, select, textarea, option {
+  font-family: inherit;
+  color: var(--ink);
+  background-color: var(--card);
+}
+input[type="text"], select, textarea {
+  color: var(--ink) !important;
+  background-color: var(--paper) !important;
+  border: 1px solid var(--line) !important;
+}
+option {
+  color: var(--ink);
+  background-color: var(--card);
+}
+
+/* Fix all custom buttons, tabs, cards to explicitly use var(--ink) on var(--paper)/var(--card) */
+.quiz-btn, .mat-tab, .token-btn, .tree-folder, .tpl-tab, .dpi-btn, .key-btn, .drill-tab, .v-tab, .diag-btn, .nav-pill, .sort-card, .desk-item, .faq-card, .gate-card, .mcp-row, .dict-row, .rpt-card {
+  color: var(--ink) !important;
+  background-color: var(--paper);
+}
+.quiz-btn, .sort-card, .nav-pill {
+  background-color: var(--card);
+}
+
+/* Fix active/selected/status states to use deep background + pure white #FFFFFF text */
+.btn, a.btn {
+  background-color: var(--btn-brick) !important;
+  color: #FFFFFF !important;
+}
+.btn.sec, a.btn.sec, button.btn.sec {
+  background-color: var(--card) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+}
+.mat-tab.active, .tree-folder.active, .dpi-btn.active, .key-btn.active, .diag-btn.active {
+  background-color: var(--btn-teal) !important;
+  color: #FFFFFF !important;
+  border-color: var(--btn-teal) !important;
+}
+.tpl-tab.active, .drill-tab.active, .v-tab.active, .nav-pill.active {
+  background-color: var(--btn-brick) !important;
+  color: #FFFFFF !important;
+  border-color: var(--btn-brick) !important;
+}
+.quiz-btn.correct {
+  background-color: var(--btn-ok) !important;
+  color: #FFFFFF !important;
+  border-color: var(--btn-ok) !important;
+}
+.quiz-btn.wrong {
+  background-color: var(--btn-bad) !important;
+  color: #FFFFFF !important;
+  border-color: var(--btn-bad) !important;
+}
+
+/* Fix messenger bubbles and dialogue bubbles in both light and dark modes */
+.say .bub {
+  background-color: var(--bubble-you) !important;
+  color: var(--ink) !important;
+}
+.say.me .bub {
+  background-color: var(--bubble-me) !important;
+  color: var(--ink) !important;
+}
+.say.claude .bub {
+  background-color: var(--card) !important;
+  color: var(--ink) !important;
+}
+.msgr .b {
+  background-color: var(--paper) !important;
+  color: var(--ink) !important;
+}
+.msgr .m.mine .b {
+  background-color: var(--bubble-me) !important;
+  color: var(--ink) !important;
+  border-color: var(--line) !important;
+}
+
+/* Fix .try-h, .var-tag, .ep-badge highlight backgrounds to always have readable text */
+.try-h, .var-tag, .ep-badge {
+  background-color: var(--hl) !important;
+  color: var(--ink) !important;
+}
+
+/* Fix .code blocks so dark terminal always has light text #F3EDE2 on #23211E */
+.code, .code pre {
+  background-color: #23211E !important;
+  color: #F3EDE2 !important;
+}
+.code button {
+  background-color: #3E3A35 !important;
+  color: #FFFFFF !important;
+  border: 1px solid #6E665A !important;
+}
+
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="wide in" style="height:auto;min-height:52px;padding:8px 16px;flex-wrap:wrap">
+    <b><a href="../index.html" style="color:var(--ink);margin-right:8px">☰ 포털 홈</a> | 00화 · 오리엔테이션</b>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <a href="../ep00/index.html" style="font-size:13px;background:var(--btn-brick);color:#FFFFFF;padding:2px 8px;border-radius:999px;">00화</a><a href="../ep01/index.html" style="font-size:13px;color:var(--muted);">01화</a><a href="../ep02/index.html" style="font-size:13px;color:var(--muted);">02화</a><a href="../ep03/index.html" style="font-size:13px;color:var(--muted);">03화</a><a href="../ep04/index.html" style="font-size:13px;color:var(--muted);">04화</a><a href="../ep05/index.html" style="font-size:13px;color:var(--muted);">05화</a><a href="../ep06/index.html" style="font-size:13px;color:var(--muted);">06화</a>
+      <a href="#try1" style="margin-left:4px">체험 ↓</a>
+      <button type="button" id="btnThemeToggle" style="font-size:12.5px;padding:3px 9px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-weight:700;cursor:pointer">🌙 어두운 화면</button>
+    </div>
+  </div>
+  <div class="prog" id="prog"></div>
+</div>
+
+<div class="wrap">
+
+  <div class="hero">
+    <img src="../assets/hero.webp" alt="눈 내리는 겨울밤 교무실에서 노트북을 보는 남궁 철 원장과 지유나" width="1376" height="768">
+  </div>
+
+  <div class="kicker">EPISODE 00 · ORIENTATION</div>
+  <h1>"원장님, 매번 밤 11시에 퇴근하실 거예요?"</h1>
+  <p class="deck">15년 차 손글씨 전단 원장님, 엑셀 30개 시트와 복붙의 늪에 빠지다. 방송부 고2 수강생 유나가 건네는 AI 자동화의 진짜 비밀: 4D 프레임워크와 위임의 기술.</p>
+
+  <div class="cast">
+    <div>
+      <img src="../assets/av-cheol.webp" alt="남궁 철 원장 아바타">
+      <b>남궁 철 (49세)</b>
+      <small>봄볕영어 원장</small>
+      15년 동안 손글씨 전단과 시험지를 손수 썼다. 컴퓨터는 "엑셀까지만". 자동화는 남의 이야기인 줄 안다.
+    </div>
+    <div>
+      <img src="../assets/av-yuna.webp" alt="지유나 아바타">
+      <b>지유나 (17세)</b>
+      <small>고2 수강생 · 방송부</small>
+      말이 짧고 뼈를 때린다. 입버릇은 <i>"그거 미리보기로 봤어요?"</i>. 원장님의 엉터리 명령을 바로잡는 실세.
+    </div>
+    <div>
+      <img src="../assets/av-moon.webp" alt="문 사장 아바타">
+      <b>문 사장 (50대)</b>
+      <small>1층 문인쇄 대표</small>
+      30년 인쇄 장인. 메신저로만 등장. "비상 스위치 없는 기계는 안 돌린다"는 원칙을 고수하는 잔소리 폭격기.
+    </div>
+  </div>
+
+  <div class="meta">
+    <span><b>난이도:</b> 입문 (누구나 가능)</span>
+    <span><b>소요 시간:</b> 약 20분</span>
+    <span><b>환경:</b> 브라우저 (오프라인 완결)</span>
+    <span><b>검증 일자:</b> 2026-10-12</span>
+  </div>
+
+  <ul class="toc">
+    <li><a href="#chap1">1장. 밤 10시 45분의 엑셀 지옥</a></li>
+    <li><a href="#chap2">2장. 1층 인쇄소 문 사장의 독촉 카톡</a></li>
+    <li><a href="#chap3">3장. 칠판에 적힌 '원장과 AI의 역할 분담'</a></li>
+    <li><a href="#chap4">4장. 첫 번째 명령과 유나의 빨간 펜</a></li>
+    <li><a href="#chap5">5장. 문 사장의 확인 도장과 퇴근길</a></li>
+    <li><a href="#steps">실습 & 미션</a></li>
+  </ul>
+
+  <!-- 1장 -->
+  <section class="chap" id="chap1">
+    <div class="no">CHAPTER 01</div>
+    <h2>밤 10시 45분, 퇴근하지 못하는 원장</h2>
+    <div class="place">12월 23일 (수) 밤 10시 45분 · 봄볕영어 교무실</div>
+    
+    <p class="act">난로 위에 올려둔 보리차 주전자가 덜컹거린다. 창밖에는 소복이 눈이 쌓이고 있지만, 남궁 철 원장은 돋보기를 고쳐 쓰며 엑셀 창 4개를 번갈아 띄우고 있다.</p>
+
+    <div class="say me">
+      <img src="../assets/av-cheol.webp" class="av" alt="남궁 철">
+      <div class="bub">
+        민준이 어머님한테는 '이번 주 숙제 80% 완료' 문자를 보내야 하고... 서준이는 단어 재시험 대상자고... 이걸 언제 30명한테 하나하나 복사해서 붙여넣고 있냐...
+      </div>
+    </div>
+
+    <p class="act">원장은 큰맘 먹고 얼마 전 가입한 AI 챗봇 창을 열었다. 그리고 검색창에 치듯 키보드를 두드렸다.</p>
+
+    <div class="say claude">
+      <div class="av-c">✳</div>
+      <div class="bub">
+        <b>남궁 철의 입력:</b><br>
+        학원 학부모 안내문 멋지게 써줘.
+      </div>
+    </div>
+
+    <div class="say claude">
+      <div class="av-c">✳</div>
+      <div class="bub">
+        <b>Claude의 출력:</b><br>
+        "존경하는 학부모님 귀하, 글로벌 혁신 리더를 양성하는 본 아카데미에서는 차세대 융합 교육 인프라를 바탕으로 미래 지향적 역량을 강화하고자..."
+      </div>
+    </div>
+
+    <div class="say me">
+      <img src="../assets/av-cheol.webp" class="av" alt="남궁 철">
+      <div class="bub">
+        에휴, 그럼 그렇지! 글로벌 혁신 리더는 무슨... 동네 중학교 기말고사 대비반인데! 역시 컴퓨터는 겉멋만 들었어. 그냥 손으로 치고 새벽 1시에 퇴근하자.
+      </div>
+    </div>
+
+    <p class="act">그때, 방송실 마이크 케이블을 정리하고 나가려던 지유나가 교무실 문틈으로 빼꼼 고개를 내밀었다. 목에는 하얀색 오버이어 헤드폰을 걸치고 있었다.</p>
+
+    <div class="say">
+      <img src="../assets/av-yuna.webp" class="av" alt="지유나">
+      <div class="bub">
+        원장님, 매번 복붙하시느라 밤 11시까지 퇴근 못 하시는 거... AI가 멍청한 게 아니라 원장님이 일을 엉뚱하게 넘겨서 그런 건데요.
+      </div>
+    </div>
+
+    <div class="say me">
+      <img src="../assets/av-cheol.webp" class="av" alt="남궁 철">
+      <div class="bub">
+        뭐? 내가 뭘 엉뚱하게 넘겼다고 그래! 멋지게 써달라고 정중하게 부탁했구만!
+      </div>
+    </div>
+
+    <div class="say">
+      <img src="../assets/av-yuna.webp" class="av" alt="지유나">
+      <div class="bub">
+        그게요, 원장님. 인공지능한테 '알아서 다 해줘'라고 던지는 건 위임(Delegation)이 아니라 그냥 방치예요. AI한테 시킬 일과 원장님이 직접 쥐고 있어야 할 일부터 나누셔야죠.
+      </div>
+    </div>
+
+    <!-- 해 보기 1 -->
+    <div class="try" id="try1">
+      <div class="try-h">
+        <span>체험 1 · 학원 업무 위임 분류기</span>
+        <span style="font-size:12px;font-weight:400">카드를 눌러 올바른 칸에 배치하세요</span>
+      </div>
+      <div class="try-b">
+        <p style="margin:0 0 12px;font-size:14.5px;color:var(--muted)">남궁 원장의 하루 업무 6가지입니다. <b>AI에게 위임할 일</b>과 <b>원장이 끝까지 지켜야 할 일</b>로 분리해 보세요.</p>
+        
+        <div id="cardPool" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">
+          <div class="sort-card" data-id="1" data-target="ai">① 일일 단어시험 채점 결과 집계</div>
+          <div class="sort-card" data-id="2" data-target="human">② 성적 하락 학생 심층 대면 상담</div>
+          <div class="sort-card" data-id="3" data-target="ai">③ 출결·숙제 알림톡 발송 초안 생성</div>
+          <div class="sort-card" data-id="4" data-target="human">④ 최종 학부모 전송 버튼 클릭 및 승인</div>
+          <div class="sort-card" data-id="5" data-target="ai">⑥ 주간 엑셀 데이터 취합 및 HTML 변환</div>
+          <div class="sort-card" data-id="6" data-target="human">⑤ 학생별 성향에 맞춘 수업 진도 결정</div>
+        </div>
+
+        <div class="sort-grid">
+          <div class="sort-zone" id="zoneAi">
+            <b style="color:var(--teal);display:block;margin-bottom:8px">🤖 AI에게 위임할 일 (초안·집계·반복)</b>
+          </div>
+          <div class="sort-zone" id="zoneHuman">
+            <b style="color:var(--brick);display:block;margin-bottom:8px">👤 원장이 직접 할 일 (판단·상담·최종승인)</b>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
+          <button type="button" class="btn" id="btnSortCheck">유나의 생각 보기 ✓</button>
+          <span id="sortResult" style="font-size:14px;font-weight:700"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="point">
+      <h4>📌 짚고 가기: 4D 프레임워크 제1원칙 — Delegation (위임의 기술)</h4>
+      <p>Anthropic AI Fluency Framework에 따르면, 뛰어난 실무자는 모든 것을 AI에게 떠넘기지 않습니다. <b>"정형화된 반복 데이터 처리, 초안 생성, 형식 변환"</b>은 AI에게 과감히 넘기고, <b>"가치 판단, 정서적 교감, 최종 승인"</b>은 사람이 직접 통제하는 것, 이것이 안전한 자동화의 첫걸음입니다.</p>
+    </div>
+  </section>
+
+  <!-- 2장 -->
+  <section class="chap" id="chap2">
+    <div class="no">CHAPTER 02</div>
+    <h2>1층 인쇄소 문 사장의 독촉 카톡</h2>
+    <div class="place">밤 11시 05분 · 카카오톡 메신저</div>
+
+    <p class="act">그때 남궁 원장의 스마트폰이 요란하게 울린다. 화면에는 '1층 문인쇄 문 사장'의 이름이 떠올랐다.</p>
+
+    <div class="msgr">
+      <div class="msgr-h">
+        <span>문인쇄 문 사장 (30년 경력)</span>
+        <span>오후 11:05</span>
+      </div>
+      <div class="m">
+        <img src="../assets/av-moon.webp" style="width:36px;height:36px;border-radius:50%" alt="문 사장">
+        <div class="b">남궁 원장! 1월 겨울특강 전단 원고 아직도 안 보내?</div>
+      </div>
+      <div class="m">
+        <img src="../assets/av-moon.webp" style="width:36px;height:36px;border-radius:50%" alt="문 사장">
+        <div class="b">내일 오전까지 인쇄용 규격으로 파일 안 넘기면 이번 방학 윤전기 못 돌려! 나 퇴근한다!</div>
+      </div>
+      <div class="m mine">
+        <div class="b">문 사장님 ㅠㅠ 제가 지금 문구 다듬는 중이라 조금만 기다려 주십쇼...</div>
+      </div>
+      <div class="m">
+        <img src="../assets/av-moon.webp" style="width:36px;height:36px;border-radius:50%" alt="문 사장">
+        <div class="b">매번 똑같은 소리! 일일이 손으로 치다 날 새지 말고 규격 맞춰 딱 넘겨!</div>
+      </div>
+    </div>
+
+    <div class="say me">
+      <img src="../assets/av-cheol.webp" class="av" alt="남궁 철">
+      <div class="bub">
+        으악! 문 사장님까지 저러시네... 유나야, 근데 내가 이 나이에 자동화인지 뭔지 배워서 정말 시간이 절약되긴 하는 거냐? 배우는 시간이 더 걸리는 거 아니야?
+      </div>
+    </div>
+
+    <div class="say">
+      <img src="../assets/av-yuna.webp" class="av" alt="지유나">
+      <div class="bub">
+        원장님, 계산기 두드려 드릴게요. 직접 눈으로 보세요. 원장님이 매주 길바닥에 버리고 있는 시간이 얼마인지.
+      </div>
+    </div>
+
+    <!-- 해 보기 2 -->
+    <div class="try" id="try2">
+      <div class="try-h">
+        <span>체험 2 · 자동화 ROI 시간 계산기</span>
+        <span style="font-size:12px;font-weight:400">슬라이더를 움직여 보세요</span>
+      </div>
+      <div class="try-b">
+        <div class="calc-box">
+          <label style="display:block;font-size:14.5px;font-weight:700;margin-bottom:4px">
+            우리 학원 학생 수: <span id="lblStudents" style="color:var(--brick)">30</span>명
+          </label>
+          <input type="range" id="rngStudents" min="10" max="100" step="5" value="30" style="width:100%;accent-color:var(--brick)">
+        </div>
+
+        <div class="calc-res">
+          <div>
+            <b><span id="resWeekly">8.5</span>시간</b>
+            <small>주당 절약 시간</small>
+          </div>
+          <div>
+            <b><span id="resMonthly">34</span>시간</b>
+            <small>한 달 절약 시간</small>
+          </div>
+          <div>
+            <b><span id="resMoney">68</span>만 원</b>
+            <small>확보되는 교육 가치</small>
+          </div>
+        </div>
+        <p style="margin:14px 0 0;font-size:13.5px;color:var(--muted);text-align:center">
+          * 출결 알림톡 매일 30분, 단어 채점 집계 40분, 주간 리포트 3시간 기준 산출
+        </p>
+      </div>
+    </div>
+
+    <div class="say me">
+      <img src="../assets/av-cheol.webp" class="av" alt="남궁 철">
+      <div class="bub">
+        한 달에 34시간...? 거의 일주일 근무 시간을 꼬박 복붙에 쓰고 있었단 말이야?!
+      </div>
+    </div>
+
+    <div class="point">
+      <h4>📌 짚고 가기: 4D 프레임워크 제2원칙 — Description (설명하기)</h4>
+      <p>시간을 아끼려면 AI에게 <b>"모호한 형용사"</b> 대신 <b>"명확한 사실(Facts)과 규격(Specifications)"</b>을 전달해야 합니다. "멋진 안내문"은 실패하지만, "A4 인쇄용 300DPI, 2027년 1월 4일 개강, 봄볕영어 특강"처럼 사실 정보를 분리해 설명하면 10초 만에 완벽한 결과물을 얻을 수 있습니다.</p>
+    </div>
+  </section>
+
+  <!-- 3장 -->
+  <section class="chap" id="chap3">
+    <div class="no">CHAPTER 03</div>
+    <h2>칠판에 적힌 '원장과 AI의 역할 분담'</h2>
+    <div class="place">밤 11시 20분 · 봄볕영어 제1강의실</div>
+
+    <p class="act">유나가 칠판 앞으로 걸어가 분필을 쥐었다. 분필이 칠판을 딱딱 때리며 흰 가루를 날렸다.</p>
+
+    <div style="background:#2C3B30;color:#F0F6F2;border-radius:12px;padding:24px;margin:20px 0;box-shadow:inset 0 0 20px rgba(0,0,0,.5);font-family:'NanumSquare Neo',sans-serif">
+      <div style="font-size:13px;letter-spacing:.1em;color:#A3D9B1;margin-bottom:8px">SPRING SUNLIGHT ACADEMY PROTOCOL</div>
+      <div style="font-size:22px;font-weight:800;line-height:1.5;margin-bottom:12px">
+        "원장은 <span style="color:#FFE89A">결정</span>하고,<br>
+        Claude는 <span style="color:#FFE89A">처리</span>하고,<br>
+        유나는 <span style="color:#FFE89A">검수</span>한다."
+      </div>
+      <div style="font-size:14px;color:#C1D7C7;border-top:1px dashed #4C6552;padding-top:10px">
+        규칙 1: 없는 정보는 지어내지 않는다 (No Hallucination)<br>
+        규칙 2: 사람을 거치지 않는 발송은 없다 (Human Gate)<br>
+        규칙 3: 미리보기(Preview)로 확인하기 전엔 인쇄하지 않는다
+      </div>
+    </div>
+
+    <div class="say">
+      <img src="../assets/av-yuna.webp" class="av" alt="지유나">
+      <div class="bub">
+        원장님, 이 칠판 규칙만 머리에 넣으시면 코딩 몰라도 돼요. 많은 사람들이 착각하는 네 가지 지뢰가 있거든요. 직접 밟아보실래요?
+      </div>
+    </div>
+
+    <!-- 해 보기 3 -->
+    <div class="try" id="try3">
+      <div class="try-h">
+        <span>체험 3 · AI 자동화 착각 탈출 OX 퀴즈</span>
+        <span id="quizScore" style="font-size:12px;font-weight:400">진행: 0 / 4</span>
+      </div>
+      <div class="try-b" id="quizContainer">
+        <!-- JS generates questions -->
+      </div>
+    </div>
+
+    <div class="real">
+      <div class="real-h">
+        <span>🖥️ 실제 환경 확인 · 터미널 진단 도구</span>
+      </div>
+      <div class="real-b">
+        <p style="margin:0 0 10px">봄볕영어의 자동화는 화려한 웹 서비스 대신 내 컴퓨터의 <b>터미널과 정적 파일</b> 위에서 가장 안전하게 동작합니다.</p>
+        <div class="code">
+          $ agy --version
+          antigravity 2.1 (Google DeepMind Agentic CLI)
+          $ python3 --version
+          Python 3.14.4
+          $ ls -la ~/spring-english/
+          drwxr-xr-x  students/     # 학생별 성적 CSV (로컬 보관)
+          drwxr-xr-x  templates/    # 학부모 알림톡 서식
+          -rw-r--r--  CLAUDE.md     # 봄볕영어 원장님 전용 행동 지침서
+        </div>
+      </div>
+    </div>
+
+    <div class="point">
+      <h4>📌 짚고 가기: 4D 프레임워크 제3원칙 — Discernment (분별하기)</h4>
+      <p>AI가 아무리 그럴듯한 문장을 내놓아도, 날짜가 틀렸거나 전화번호가 한 자리 바뀌면 학부모의 신뢰는 바닥으로 떨어집니다. AI의 결과물을 <b>"완성품"이 아닌 "초안"</b>으로 바라보고, 오류를 짚어내는 날카로운 눈(Discernment)을 갖추어야 비로소 진정한 주인이 됩니다.</p>
+    </div>
+  </section>
+
+  <!-- 4장 -->
+  <section class="chap" id="chap4">
+    <div class="no">CHAPTER 04</div>
+    <h2>첫 번째 명령과 유나의 빨간 펜</h2>
+    <div class="place">밤 11시 40분 · 노트북 모니터 앞</div>
+
+    <p class="act">남궁 원장은 칠판에 적힌 공식을 보며 침을 꼴깍 삼켰다. 그리고 키보드 위에 손을 올렸다.</p>
+
+    <div class="say me">
+      <img src="../assets/av-cheol.webp" class="av" alt="남궁 철">
+      <div class="bub">
+        좋아, 이번엔 나도 facts(사실)라는 걸 넣어서 제대로 써봤다! 유나야, 이 정도면 통과냐?
+      </div>
+    </div>
+
+    <!-- 해 보기 4 -->
+    <div class="try" id="try4">
+      <div class="try-h">
+        <span>체험 4 · 틀린 프롬프트 찾기 & 함정 색출</span>
+        <span id="spotCount" style="font-size:12px;font-weight:400">발견: 0 / 3</span>
+      </div>
+      <div class="try-b">
+        <p style="margin:0 0 10px;font-size:14.5px;color:var(--muted)">원장님이 작성한 프롬프트입니다. <b>AI가 거짓말을 하거나 엉뚱한 결과</b>를 내게 만드는 3군데 함정을 본문에서 찾아 클릭하세요.</p>
+        
+        <div class="spot-box" id="spotBox">
+          이번 겨울방학에 개강하는 중등부 영어특강 학부모 안내문을 써줘.
+          수업은 <span class="spot-target" data-err="1">이번 겨울방학 언제쯤</span> 월수금에 열리고,
+          강사진은 <span class="spot-target" data-err="2">대치동 1타 강사 출신 원장 직강이라고 알아서 포장해서</span> 써줘.
+          출력 형식은 <span class="spot-target" data-err="3">보기 좋게 잘 작성해줘.</span>
+        </div>
+
+        <div id="spotFeedback" style="background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px;display:none;margin-top:12px;font-size:14px">
+        </div>
+      </div>
+    </div>
+
+    <div class="say">
+      <img src="../assets/av-yuna.webp" class="av" alt="지유나">
+      <div class="bub">
+        원장님! <i>'언제쯤'</i>이라니요, 2027년 1월 4일 월요일 개강이라고 정확한 날짜를 박아야죠! 그리고 대치동 출신도 아니시면서 지어내라고 하시면 어떡해요!
+      </div>
+    </div>
+
+    <div class="say me">
+      <img src="../assets/av-cheol.webp" class="av" alt="남궁 철">
+      <div class="bub">
+        으... 찔리네. 15년 동안 일산에서 손글씨 쓰던 게 내 진짜 자부심인데, 겉멋 부릴 뻔했구만.
+      </div>
+    </div>
+
+    <div class="point">
+      <h4>📌 짚고 가기: 4D 프레임워크 제4원칙 — Diligence (책임과 성실성)</h4>
+      <p>자동화 시스템에서 발생하는 오류의 90%는 프롬프트에 없는 정보를 채우려다 생기는 환각(Hallucination)입니다. <b>"없는 정보는 절대 지어내지 말고 비워 둔 뒤 나에게 되물어라"</b>라는 제약 조건을 부여하는 것이 인간의 성실성(Diligence)입니다.</p>
+    </div>
+  </section>
+
+  <!-- 5장 -->
+  <section class="chap" id="chap5">
+    <div class="no">CHAPTER 05</div>
+    <h2>문 사장의 확인 도장과 퇴근길</h2>
+    <div class="place">밤 11시 58분 · 1층 문인쇄소 앞</div>
+
+    <p class="act">유나의 빨간 펜 코칭을 받아 완성된 프롬프트로 생성된 단정한 전단 시안. 원장은 이를 PDF로 저장해 1층 문인쇄소 메신저로 전송했다.</p>
+
+    <div class="msgr">
+      <div class="msgr-h">
+        <span>문인쇄 문 사장 (30년 경력)</span>
+        <span>오후 11:58</span>
+      </div>
+      <div class="m">
+        <img src="../assets/av-moon.webp" style="width:36px;height:36px;border-radius:50%" alt="문 사장">
+        <div class="b">어라? 남궁 원장, 웬일이야? 날짜 정확하고, 글자 안 삐져나왔고, 재단 여백 3mm 딱 맞네?</div>
+      </div>
+      <div class="m">
+        <img src="../assets/av-moon.webp" style="width:36px;height:36px;border-radius:50%" alt="문 사장">
+        <div class="b">오케이! 이 규격이면 내일 아침 9시에 첫 판 바로 찍어낼 수 있어. 인쇄 승인 도장 쾅 찍었다!</div>
+      </div>
+      <div class="m mine">
+        <div class="b">감사합니다 문 사장님! 내일 아침에 뵙겠습니다!</div>
+      </div>
+    </div>
+
+    <!-- 해 보기 5 -->
+    <div class="try" id="try5">
+      <div class="try-h">
+        <span>체험 5 · 내 학원 자동화 진단표 & 1일차 선언문</span>
+        <span id="chkCount" style="font-size:12px;font-weight:400">준비: 0 / 5</span>
+      </div>
+      <div class="try-b">
+        <p style="margin:0 0 12px;font-size:14.5px;color:var(--muted)">다음 화(01화 페르소나 설계)로 넘어가기 위한 5가지 기본 준비 태세입니다. 모두 체크해 보세요.</p>
+        
+        <div id="chkList">
+          <label class="chk-item"><input type="checkbox" class="chk-box"> 1. 일일 반복 업무(채점·문자·취합)를 AI에게 위임할 용기가 있는가</label>
+          <label class="chk-item"><input type="checkbox" class="chk-box"> 2. 최종 전송과 학부모 상담은 내가 직접 통제할 것인가 (Human Gate)</label>
+          <label class="chk-item"><input type="checkbox" class="chk-box"> 3. 모호한 부탁 대신 명확한 사실(Facts)과 규격을 분리할 준비가 되었는가</label>
+          <label class="chk-item"><input type="checkbox" class="chk-box"> 4. 인쇄 전 미리보기(Preview)로 글자 깨짐과 날짜를 검수할 것인가</label>
+          <label class="chk-item"><input type="checkbox" class="chk-box"> 5. 내 학원만의 진솔한 철학을 시스템 프롬프트로 주입할 준비가 되었는가</label>
+        </div>
+
+        <div id="genBox" style="display:none;margin-top:18px;border-top:1px solid var(--line);padding-top:16px">
+          <label style="display:block;font-size:14px;font-weight:700;margin-bottom:6px">내 학원 이름:</label>
+          <input type="text" id="iptAcademy" value="봄볕영어" style="width:100%;padding:8px 12px;border:1px solid var(--line);border-radius:6px;font-size:15px;margin-bottom:12px">
+          
+          <div class="code">
+            <button type="button" id="btnCopyManifesto">복사</button>
+            <pre id="txtManifesto" style="margin:0"></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="act">자정이 막 지난 시각, 남궁 철 원장은 교무실 형광등을 끄고 학원 철문을 내렸다. 15년 만에 처음으로 가벼운 발걸음이었다.</p>
+
+    <div class="say">
+      <img src="../assets/av-yuna.webp" class="av" alt="지유나">
+      <div class="bub">
+        원장님, 고생하셨어요. 내일 01화에서는 원장님 말투를 Claude한테 완벽하게 학습시키는 '페르소나 설계' 들어갈 거니까 지각하지 마세요!
+      </div>
+    </div>
+
+    <div class="say me">
+      <img src="../assets/av-cheol.webp" class="av" alt="남궁 철">
+      <div class="bub">
+        허허, 그래. 유나야 고맙다. 원장은 결정하고, Claude는 처리하고, 유나는 검수한다... 아주 입에 착착 붙는구나!
+      </div>
+    </div>
+  </section>
+
+  <!-- 실습 & 미션 -->
+  <section class="chap" id="steps">
+    <div class="no">HANDS-ON PRACTICE</div>
+    <h2>내 컴퓨터에서 직접 해 보기</h2>
+    <p>오프라인 튜토리얼을 읽는 것에 그치지 않고, 오늘 배운 4D 프레임워크를 내 컴퓨터 터미널에 즉시 세팅해 봅니다.</p>
+
+    <ul class="steps">
+      <li>
+        <b>1단계 · 전용 작업 폴더 생성</b>
+        개인정보가 섞이지 않도록 바탕화면 대신 깨끗한 전용 디렉터리를 만듭니다.
+        <div class="code">
+          mkdir -p ~/academy-auto && cd ~/academy-auto
+        </div>
+      </li>
+      <li>
+        <b>2단계 · 학원 헌장 CLAUDE.md 파일 생성</b>
+        AI가 엉뚱한 거짓말을 하지 못하도록 기본 규칙 파일을 폴더에 심어둡니다.
+        <div class="code">
+          cat &gt; CLAUDE.md &lt;&lt;'EOF'
+# 학원 자동화 운영 원칙 (봄볕영어 · 031-555-0142)
+1. 원장은 결정하고 AI는 초안을 작성한다.
+2. 사실(Facts)에 없는 일정(2027-01-04 개강), 전화번호(031-555-0142), 금액은 절대 지어내지 않는다.
+3. 모든 출력물은 사람이 직접 눈으로 확인하기 전까지 배포하지 않는다.
+EOF
+        </div>
+      </li>
+      <li>
+        <b>3단계 · 첫 번째 안전 프롬프트 테스트</b>
+        <div class="code">
+          agy "CLAUDE.md 규칙을 준수하여, 2027-01-04 개강하는 겨울특강 안내문 초안 3줄을 작성해줘."
+        </div>
+      </li>
+    </ul>
+
+    <div class="mission">
+      <h4>🎯 00화 수료 미션 3가지</h4>
+      <ol>
+        <li>체험 1에서 6가지 업무를 올바르게 분리하고 4D 위임 기준 확인하기</li>
+        <li>체험 2에서 우리 학원 원생 수에 맞춘 한 달 절약 시간 확인하기</li>
+        <li>체험 5에서 5개 점검표를 모두 체크하고 나만의 학원 자동화 선언문 복사하기</li>
+      </ol>
+    </div>
+
+    <div style="border-top:1px solid var(--line);padding:28px 0;margin-top:40px;font-size:14px;color:var(--muted)">
+      <b>공식 출처 및 참고 문헌:</b><br>
+      • Anthropic AI Fluency Framework: 4D Capabilities (Delegation, Description, Discernment, Diligence)<br>
+      • Claude Prompt Engineering Best Practices (Platform Documentation)<br>
+      • Model Context Protocol (MCP) Architecture Specification
+    </div>
+
+    <div style="text-align:center;padding:30px 0 60px">
+      <a href="../ep01/index.html" class="btn" style="padding:12px 24px;font-size:16px">다음 화: 01화 페르소나와 자동화 설계 보러가기 →</a>
+    </div>
+
+  </section>
+
+</div>
+
+<script>
+// Progress Bar
+window.addEventListener('scroll',()=>{
+  const d=document.documentElement;
+  const p=(d.scrollTop)/(d.scrollHeight-d.clientHeight)*100;
+  document.getElementById('prog').style.width=p+'%';
+});
+
+// Try 1: Sorting
+(function(){
+  const pool=document.getElementById('cardPool');
+  const zAi=document.getElementById('zoneAi');
+  const zHum=document.getElementById('zoneHuman');
+  const btn=document.getElementById('btnSortCheck');
+  const res=document.getElementById('sortResult');
+  let selected=null;
+
+  pool.querySelectorAll('.sort-card').forEach(c=>{
+    c.addEventListener('click',()=>{
+      if(selected===c){c.classList.remove('selected');selected=null;return;}
+      if(selected) selected.classList.remove('selected');
+      selected=c;c.classList.add('selected');
+    });
+  });
+
+  [zAi,zHum].forEach(z=>{
+    z.addEventListener('click',()=>{
+      if(!selected) return;
+      z.appendChild(selected);
+      selected.classList.remove('selected');
+      selected=null;
+    });
+  });
+
+  btn.addEventListener('click',()=>{
+    let ok=0;
+    zAi.querySelectorAll('.sort-card').forEach(c=>{if(c.dataset.target==='ai') ok++;});
+    zHum.querySelectorAll('.sort-card').forEach(c=>{if(c.dataset.target==='human') ok++;});
+    if(ok===6){
+      res.style.color='var(--ok)';
+      res.textContent='✓ 완벽합니다! 유나가 엄지를 치켜세웁니다.';
+    } else {
+      res.style.color='var(--bad)';
+      res.textContent=`현재 ${ok}/6개 맞음. 카드를 다시 확인해 보세요.`;
+    }
+  });
+})();
+
+// Try 2: ROI Calc
+(function(){
+  const rng=document.getElementById('rngStudents');
+  const lbl=document.getElementById('lblStudents');
+  const w=document.getElementById('resWeekly');
+  const m=document.getElementById('resMonthly');
+  const mon=document.getElementById('resMoney');
+
+  function update(){
+    const s=parseInt(rng.value,10);
+    lbl.textContent=s;
+    const weekly=(s*0.28).toFixed(1);
+    const monthly=Math.round(weekly*4);
+    const money=Math.round(monthly*20000/10000);
+    w.textContent=weekly;
+    m.textContent=monthly;
+    mon.textContent=money;
+  }
+  rng.addEventListener('input',update);
+  update();
+})();
+
+// Try 3: OX Quiz
+(function(){
+  const qData=[
+    {q:"AI에게 자동화를 맡기면 원장은 결과를 일일이 검수하지 않아도 된다?", a:false, r:"X! 검수(Discernment) 없는 자동화는 오발송 사고로 이어집니다."},
+    {q:"최신 AI 모델은 우리 학원의 수강료와 특강 날짜를 알아서 맞춘다?", a:false, r:"X! 학원 고유의 사실 정보(Facts)는 반드시 사람이 입력해야 합니다."},
+    {q:"자동화를 시작하려면 최소 6개월 이상 파이썬 코딩을 배워야 한다?", a:false, r:"X! 자연어로 된 시스템 지침(CLAUDE.md)만으로도 즉시 업무를 자동화할 수 있습니다."},
+    {q:"학생 이름과 전화번호가 든 원본 명부는 검증 없이 바로 공개 프롬프트에 넣으면 안 된다?", a:true, r:"O! 개인정보 보호와 로컬 격리는 학원 운영의 핵심입니다."}
+  ];
+  const c=document.getElementById('quizContainer');
+  const scoreLbl=document.getElementById('quizScore');
+  let solved=0;
+
+  qData.forEach((item,idx)=>{
+    const box=document.createElement('div');
+    box.className='quiz-q';
+    box.innerHTML=`
+      <div style="font-weight:700;font-size:15px;margin-bottom:6px">Q${idx+1}. ${item.q}</div>
+      <div class="quiz-opts">
+        <button type="button" class="quiz-btn" data-val="true">O (그렇다)</button>
+        <button type="button" class="quiz-btn" data-val="false">X (아니다)</button>
+      </div>
+      <div class="quiz-exp" style="display:none;margin-top:8px;font-size:13.5px;color:var(--muted)"></div>
+    `;
+    const exp=box.querySelector('.quiz-exp');
+    box.querySelectorAll('.quiz-btn').forEach(b=>{
+      b.addEventListener('click',()=>{
+        const val=(b.dataset.val==='true');
+        if(val===item.a){
+          b.classList.add('correct');
+          exp.style.color='var(--ok)';
+        } else {
+          b.classList.add('wrong');
+          exp.style.color='var(--bad)';
+        }
+        exp.textContent=item.r;
+        exp.style.display='block';
+        box.querySelectorAll('.quiz-btn').forEach(btn=>btn.disabled=true);
+        solved++;
+        scoreLbl.textContent=`완료: ${solved} / 4`;
+      });
+    });
+    c.appendChild(box);
+  });
+})();
+
+// Try 4: Mistake Spotter
+(function(){
+  const targets=document.querySelectorAll('.spot-target');
+  const fb=document.getElementById('spotFeedback');
+  const cnt=document.getElementById('spotCount');
+  let found=0;
+  const messages={
+    "1":"[함정 1 색출] '언제쯤' 같은 모호한 표현은 AI의 날짜 환각을 유발합니다. 정확한 연월일(2027-01-04)을 명시해야 합니다.",
+    "2":"[함정 2 색출] '알아서 대치동 출신으로 포장해달라'는 지시는 명백한 거짓 정보를 유발합니다. 학원의 진짜 강점을 입력해야 합니다.",
+    "3":"[함정 3 색출] '보기 좋게 잘 써줘'는 형식이 없습니다. 문자 알림톡인지, A4 전단인지 글자 수와 출력 형식을 지정해야 합니다."
+  };
+
+  targets.forEach(t=>{
+    t.addEventListener('click',()=>{
+      if(t.classList.contains('found')) return;
+      t.classList.add('found');
+      found++;
+      cnt.textContent=`발견: ${found} / 3`;
+      fb.style.display='block';
+      fb.innerHTML+=`<div style="margin-bottom:6px">${messages[t.dataset.err]}</div>`;
+      if(found===3){
+        fb.innerHTML+=`<div style="font-weight:700;color:var(--ok);margin-top:10px;border-top:1px solid var(--line);padding-top:8px">🎉 3대 함정을 모두 찾아냈습니다! 유나가 프롬프트를 깨끗하게 교정했습니다.</div>`;
+      }
+    });
+  });
+})();
+
+// Try 5: Checklist & Manifesto
+(function(){
+  const chks=document.querySelectorAll('.chk-box');
+  const box=document.getElementById('genBox');
+  const count=document.getElementById('chkCount');
+  const ipt=document.getElementById('iptAcademy');
+  const out=document.getElementById('txtManifesto');
+  const btnCopy=document.getElementById('btnCopyManifesto');
+
+  function render(){
+    const name=ipt.value.trim()||'우리 학원';
+    out.textContent=`# [${name}] 자동화 1일차 헌장
+
+1. 원장은 결정하고, Claude는 처리하고, 검수자는 최종 승인한다.
+2. facts에 없는 수강료, 날짜, 연락처는 1글자도 지어내지 않는다.
+3. 매주 8.5시간의 단순 복붙 시간을 회수하여 학생 상담에 투자한다.
+4. 모든 문서는 미리보기(Preview)로 확인한 후 배포한다.
+
+작성일: 2026-10-12 | 책임자: ${name} 원장`;
+  }
+
+  chks.forEach(c=>{
+    c.addEventListener('change',()=>{
+      const n=Array.from(chks).filter(x=>x.checked).length;
+      count.textContent=`준비: ${n} / 5`;
+      if(n===5){
+        box.style.display='block';
+        render();
+      } else {
+        box.style.display='none';
+      }
+    });
+  });
+
+  ipt.addEventListener('input',render);
+
+  btnCopy.addEventListener('click',()=>{
+    navigator.clipboard.writeText(out.textContent).then(()=>{
+      btnCopy.textContent='복사됨!';
+      setTimeout(()=>btnCopy.textContent='복사',1500);
+    });
+  });
+})();
+
+// Theme Toggle (Light / Dark) synced via localStorage
+(function(){
+  const saved = localStorage.getItem("agy_theme") || "light";
+  document.documentElement.setAttribute("data-theme", saved);
+  const btn = document.getElementById("btnThemeToggle");
+  function updateBtn(t){
+    if(!btn) return;
+    btn.textContent = (t === "dark") ? "☀️ 밝은 화면" : "🌙 어두운 화면";
+  }
+  updateBtn(saved);
+  if(btn){
+    btn.addEventListener("click", ()=>{
+      const cur = document.documentElement.getAttribute("data-theme") || "light";
+      const next = (cur === "dark") ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      localStorage.setItem("agy_theme", next);
+      updateBtn(next);
+      const frame = document.getElementById("epFrame");
+      if(frame && frame.contentDocument && frame.contentDocument.documentElement){
+        frame.contentDocument.documentElement.setAttribute("data-theme", next);
+      }
+    });
+  }
+})();
+
+</script>
+
+</body>
+</html>

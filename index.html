@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>봄볕영어 학원장 AI 자동화 스토리 튜토리얼 시리즈 (00~06화 전편 통합 포털)</title>
+<meta name="description" content="엑셀만 하던 49세 남궁 철 원장의 1인 학원 AI 자동화 정복기. 방송부 유나, 1층 문인쇄 문 사장과 함께하는 7편의 스토리와 35개 인터랙티브 실습 위젯.">
+<style>
+:root{
+  --paper:#F7F1E5;--card:#FFFDF8;--ink:#24211C;--muted:#6E665A;--line:#E3D9C6;
+  --brick:#B5452F;--teal:#2F6F73;--ochre:#C98B2B;--navy:#1F3A5F;--hl:#FFE89A;
+  --ok:#2F7D4F;--bad:#B5452F;--r:14px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#1C1A17;--card:#25221E;--ink:#EDE6D8;--muted:#A89F90;--line:#3A352E;
+  --brick:#E07A62;--teal:#6FB3B6;--ochre:#E2AE5C;--navy:#9DB8DD;--hl:#5A4A12;
+  --ok:#6BC28E;--bad:#E07A62;}}
+:root[data-theme="dark"]{
+  --paper:#1C1A17;--card:#25221E;--ink:#EDE6D8;--muted:#A89F90;--line:#3A352E;
+  --brick:#E07A62;--teal:#6FB3B6;--ochre:#E2AE5C;--navy:#9DB8DD;--hl:#5A4A12;
+  --ok:#6BC28E;--bad:#E07A62;}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:Pretendard,"Pretendard Variable","NanumSquare Neo","Apple SD Gothic Neo","Noto Sans KR",sans-serif;font-size:17px;line-height:1.75;word-break:keep-all;overflow-wrap:break-word}
+img{max-width:100%;display:block}
+a{color:var(--teal)}
+.wrap{max-width:960px;margin:0 auto;padding:0 16px}
+.top{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--paper) 94%,transparent);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.top .in{display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:54px;max-width:960px;margin:0 auto;padding:8px 16px;flex-wrap:wrap}
+.top b{font-size:14px}
+.nav-pills{display:flex;gap:6px;flex-wrap:wrap}
+.nav-pill{padding:5px 11px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:13px;font-weight:700;cursor:pointer;text-decoration:none}
+.nav-pill.active{background:var(--btn-brick);color:#FFFFFF;border-color:var(--brick)}
+
+.hero{padding:28px 0 8px}
+.hero img{border-radius:18px;border:1px solid var(--line);aspect-ratio:16/9;object-fit:cover;width:100%}
+.kicker{font-size:13.5px;letter-spacing:.06em;color:var(--brick);font-weight:800;margin:24px 0 6px}
+h1{font-size:clamp(28px,5.8vw,46px);line-height:1.25;letter-spacing:-.02em;margin:0 0 14px}
+.deck{font-size:18px;color:var(--muted);margin:0 0 22px}
+.cast{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:24px 0}
+.cast div{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;font-size:14.5px;line-height:1.6}
+.cast img{width:64px;height:64px;border-radius:50%;border:2px solid var(--line);margin-bottom:8px;object-fit:cover}
+.cast b{display:block;font-size:16px}.cast small{display:block;color:var(--muted);margin-bottom:6px}
+
+.stat-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:24px 0}
+.stat-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 10px;text-align:center}
+.stat-card b{display:block;font-size:24px;color:var(--brick);line-height:1.2}
+.stat-card small{font-size:12.5px;color:var(--muted)}
+
+.viewer-box{background:var(--card);border:2px solid var(--brick);border-radius:16px;overflow:hidden;margin:28px 0;box-shadow:0 8px 28px rgba(0,0,0,.06)}
+.viewer-bar{background:color-mix(in srgb,var(--brick) 10%,var(--card));border-bottom:1px solid var(--line);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.viewer-tabs{display:flex;gap:6px;flex-wrap:wrap}
+.v-tab{padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font-size:13.5px;font-weight:800;cursor:pointer}
+.v-tab.active{background:var(--btn-brick);color:#FFFFFF;border-color:var(--brick)}
+.viewer-frame{width:100%;height:780px;border:none;background:var(--paper);display:block}
+
+.ep-grid{display:grid;grid-template-columns:1fr;gap:16px;margin:24px 0 48px}
+.ep-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;transition:transform .15s,border-color .15s}
+.ep-card:hover{border-color:var(--brick);transform:translateY(-2px)}
+.ep-badge{display:inline-block;background:var(--hl);color:var(--ink);font-size:12px;font-weight:800;padding:2px 8px;border-radius:6px;margin-bottom:6px}
+.ep-title{font-size:20px;font-weight:800;margin:0 0 6px;color:var(--ink);text-decoration:none;display:block}
+.ep-desc{font-size:14.5px;color:var(--muted);margin:0 0 10px}
+.ep-tags{display:flex;flex-wrap:wrap;gap:6px;font-size:12.5px}
+.ep-tag{background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:2px 10px;color:var(--teal);font-weight:700}
+.btn{display:inline-flex;align-items:center;gap:6px;background:var(--btn-brick);color:#FFFFFF;border:none;border-radius:8px;padding:10px 18px;font-size:14.5px;font-weight:700;cursor:pointer;text-decoration:none;white-space:nowrap}
+.btn:hover{filter:brightness(1.08)}
+.btn.sec{background:var(--paper);color:var(--ink);border:1px solid var(--line)}
+
+.try{background:var(--card);border:2px solid var(--hl);border-radius:var(--r);margin:28px 0;overflow:hidden}
+.try-h{background:var(--hl);padding:10px 16px;font-size:13.5px;font-weight:800;color:var(--ink);display:flex;justify-content:space-between;align-items:center}
+.try-b{padding:18px}
+.diag-btns{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
+.diag-btn{padding:10px;border:1px solid var(--line);background:var(--paper);border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;text-align:left;color:var(--ink)}
+.diag-btn.active{background:var(--btn-teal);color:#FFFFFF;color:#fff;border-color:var(--teal)}
+
+@media(max-width:680px){
+  .cast{grid-template-columns:1fr}
+  .stat-bar{grid-template-columns:repeat(2,1fr)}
+  .ep-card{flex-direction:column}
+  .diag-btns{grid-template-columns:1fr}
+}
+
+/* === Universal Contrast & Visibility Safety Rules (Light & Dark Mode) === */
+:root {
+  color-scheme: light;
+  --btn-brick: #B5452F;
+  --btn-teal: #2F6F73;
+  --btn-ok: #2F7D4F;
+  --btn-bad: #B5452F;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme: dark;
+  --paper:#181614;--card:#221F1C;--ink:#F5EFE6;--muted:#C4BAA8;--line:#3E3830;
+  --brick:#F08A72;--teal:#7FD0D4;--ochre:#F0BE6E;--navy:#A8C4E8;--hl:#4A3D10;
+  --ok:#7CE0A3;--bad:#F08A72;--bubble-me:#1F332E;--bubble-you:#2A2622;
+  --btn-brick:#B5452F;--btn-teal:#245E62;--btn-ok:#256B42;--btn-bad:#B53824;
+}}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --paper:#181614;--card:#221F1C;--ink:#F5EFE6;--muted:#C4BAA8;--line:#3E3830;
+  --brick:#F08A72;--teal:#7FD0D4;--ochre:#F0BE6E;--navy:#A8C4E8;--hl:#4A3D10;
+  --ok:#7CE0A3;--bad:#F08A72;--bubble-me:#1F332E;--bubble-you:#2A2622;
+  --btn-brick:#B5452F;--btn-teal:#245E62;--btn-ok:#256B42;--btn-bad:#B53824;
+}
+:root[data-theme="light"]{
+  color-scheme: light;
+  --paper:#F7F1E5;--card:#FFFDF8;--ink:#24211C;--muted:#5C5449;--line:#E3D9C6;
+  --brick:#B5452F;--teal:#2F6F73;--ochre:#C98B2B;--navy:#1F3A5F;--hl:#FFE89A;
+  --ok:#2F7D4F;--bad:#B5452F;--bubble-me:#E7F0EE;--bubble-you:#FFFFFF;
+  --btn-brick:#B5452F;--btn-teal:#2F6F73;--btn-ok:#2F7D4F;--btn-bad:#B5452F;
+}
+
+/* Explicit foreground & background for all form controls and interactive elements */
+button, input, select, textarea, option {
+  font-family: inherit;
+  color: var(--ink);
+  background-color: var(--card);
+}
+input[type="text"], select, textarea {
+  color: var(--ink) !important;
+  background-color: var(--paper) !important;
+  border: 1px solid var(--line) !important;
+}
+option {
+  color: var(--ink);
+  background-color: var(--card);
+}
+
+/* Fix all custom buttons, tabs, cards to explicitly use var(--ink) on var(--paper)/var(--card) */
+.quiz-btn, .mat-tab, .token-btn, .tree-folder, .tpl-tab, .dpi-btn, .key-btn, .drill-tab, .v-tab, .diag-btn, .nav-pill, .sort-card, .desk-item, .faq-card, .gate-card, .mcp-row, .dict-row, .rpt-card {
+  color: var(--ink) !important;
+  background-color: var(--paper);
+}
+.quiz-btn, .sort-card, .nav-pill {
+  background-color: var(--card);
+}
+
+/* Fix active/selected/status states to use deep background + pure white #FFFFFF text */
+.btn, a.btn {
+  background-color: var(--btn-brick) !important;
+  color: #FFFFFF !important;
+}
+.btn.sec, a.btn.sec, button.btn.sec {
+  background-color: var(--card) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+}
+.mat-tab.active, .tree-folder.active, .dpi-btn.active, .key-btn.active, .diag-btn.active {
+  background-color: var(--btn-teal) !important;
+  color: #FFFFFF !important;
+  border-color: var(--btn-teal) !important;
+}
+.tpl-tab.active, .drill-tab.active, .v-tab.active, .nav-pill.active {
+  background-color: var(--btn-brick) !important;
+  color: #FFFFFF !important;
+  border-color: var(--btn-brick) !important;
+}
+.quiz-btn.correct {
+  background-color: var(--btn-ok) !important;
+  color: #FFFFFF !important;
+  border-color: var(--btn-ok) !important;
+}
+.quiz-btn.wrong {
+  background-color: var(--btn-bad) !important;
+  color: #FFFFFF !important;
+  border-color: var(--btn-bad) !important;
+}
+
+/* Fix messenger bubbles and dialogue bubbles in both light and dark modes */
+.say .bub {
+  background-color: var(--bubble-you) !important;
+  color: var(--ink) !important;
+}
+.say.me .bub {
+  background-color: var(--bubble-me) !important;
+  color: var(--ink) !important;
+}
+.say.claude .bub {
+  background-color: var(--card) !important;
+  color: var(--ink) !important;
+}
+.msgr .b {
+  background-color: var(--paper) !important;
+  color: var(--ink) !important;
+}
+.msgr .m.mine .b {
+  background-color: var(--bubble-me) !important;
+  color: var(--ink) !important;
+  border-color: var(--line) !important;
+}
+
+/* Fix .try-h, .var-tag, .ep-badge highlight backgrounds to always have readable text */
+.try-h, .var-tag, .ep-badge {
+  background-color: var(--hl) !important;
+  color: var(--ink) !important;
+}
+
+/* Fix .code blocks so dark terminal always has light text #F3EDE2 on #23211E */
+.code, .code pre {
+  background-color: #23211E !important;
+  color: #F3EDE2 !important;
+}
+.code button {
+  background-color: #3E3A35 !important;
+  color: #FFFFFF !important;
+  border: 1px solid #6E665A !important;
+}
+
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="in">
+    <b>🏫 봄볕영어 학원장 자동화 시리즈 (전 7화 마스터 포털)</b>
+    <div class="nav-pills">
+      <a class="nav-pill" href="#liveViewer">📺 한 화면에서 전편 보기</a>
+      <a class="nav-pill" href="ep00/index.html">00화</a>
+      <a class="nav-pill" href="ep01/index.html">01화</a>
+      <a class="nav-pill" href="ep02/index.html">02화</a>
+      <a class="nav-pill" href="ep03/index.html">03화</a>
+      <a class="nav-pill" href="ep04/index.html">04화</a>
+      <a class="nav-pill" href="ep05/index.html">05화</a>
+      <a class="nav-pill" href="ep06/index.html">06화</a>
+      <button type="button" id="btnThemeToggle" class="nav-pill" style="cursor:pointer">🌙 어두운 화면</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="hero">
+    <img src="assets/hero.webp" alt="봄볕영어 교무실에서 남궁 철 원장과 지유나가 AI 자동화 시스템을 설계하는 메인 일러스트" width="1376" height="768">
+  </div>
+
+  <div class="kicker">MASTER SERIES PORTAL · EPISODE 00 – 06</div>
+  <h1>엑셀만 하던 49세 남궁 철 원장의<br>1인 학원 AI 자동화 정복기</h1>
+  <p class="deck">건조한 강의 대신 <b>"인물의 실수 → 독자의 조작 체험 → 짚고 가기(개념) → 실제 도구 검증"</b>의 4단계 드라마틱 루프로 체득하는 오프라인 완결형 인터랙티브 튜토리얼 시리즈입니다.</p>
+
+  <div class="stat-bar">
+    <div class="stat-card"><b>7편</b><small>스토리 에피소드 (00~06화)</small></div>
+    <div class="stat-card"><b>35종</b><small>인페이지 조작 위젯</small></div>
+    <div class="stat-card"><b>34시간</b><small>월간 반복 업무 절감</small></div>
+    <div class="stat-card"><b>100%</b><small>오프라인 단일 HTML 동작</small></div>
+  </div>
+
+  <!-- 인페이지 전편 즉시 뷰어 -->
+  <section id="liveViewer" class="viewer-box">
+    <div class="viewer-bar">
+      <div class="viewer-tabs" id="viewerTabs">
+        <button type="button" class="v-tab active" data-src="ep00/index.html">00화 오리엔테이션</button>
+        <button type="button" class="v-tab" data-src="ep01/index.html">01화 페르소나</button>
+        <button type="button" class="v-tab" data-src="ep02/index.html">02화 드라이브 허브</button>
+        <button type="button" class="v-tab" data-src="ep03/index.html">03화 데일리 출결</button>
+        <button type="button" class="v-tab" data-src="ep04/index.html">04화 주간 리포트</button>
+        <button type="button" class="v-tab" data-src="ep05/index.html">05화 데이터 사전</button>
+        <button type="button" class="v-tab" data-src="ep06/index.html">06화 비상 스위치</button>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <a id="btnOpenFull" href="ep00/index.html" target="_blank" class="btn sec" style="padding:6px 12px;font-size:13px">↗ 새 창/전체화면으로 열기</a>
+      </div>
+    </div>
+    <iframe id="epFrame" class="viewer-frame" src="ep00/index.html" title="에피소드 실시간 뷰어"></iframe>
+  </section>
+
+  <div class="cast">
+    <div>
+      <img src="assets/av-cheol.webp" alt="남궁 철 원장 아바타">
+      <b>남궁 철 (49세)</b>
+      <small>봄볕영어 원장 · 결정권자</small>
+      15년 손글씨 전단 장인. 컴퓨터는 "엑셀까지만" 알았으나 원장의 철학을 지키는 자동화에 눈을 뜬다.
+    </div>
+    <div>
+      <img src="assets/av-yuna.webp" alt="지유나 아바타">
+      <b style="color:var(--teal)">지유나 (17세)</b>
+      <small>고2 수강생 · 방송부 코치</small>
+      입버릇은 <i>"그거 미리보기로 봤어요?"</i>. 4D 프레임워크와 로컬 보안 설계로 원장님을 구출한다.
+    </div>
+    <div>
+      <img src="assets/av-moon.webp" alt="문 사장 아바타">
+      <b>문 사장 (50대)</b>
+      <small>1층 문인쇄 대표 · 품질 검문소</small>
+      30년 인쇄 장인. 300DPI 해상도, 재단선 여백 3mm, 그리고 '비상 정지 스위치'를 강조한다.
+    </div>
+  </div>
+
+  <!-- 추천 에피소드 진단 위젯 -->
+  <div class="try" id="tryPortal">
+    <div class="try-h">
+      <span>🧭 내 학원 급한 불 끄기 · 맞춤형 시작 에피소드 추천기</span>
+      <span style="font-size:12px;font-weight:400">가장 고민되는 상황을 눌러보세요</span>
+    </div>
+    <div class="try-b">
+      <div class="diag-btns" id="diagBtns">
+        <button type="button" class="diag-btn active" data-ep="0">"AI한테 글 쓰라고 하면 대기업 스팸 말투가 나와요"</button>
+        <button type="button" class="diag-btn" data-ep="1">"바탕화면에 최종_진짜최종 파일이 섞여서 못 찾겠어요"</button>
+        <button type="button" class="diag-btn" data-ep="2">"매일 출결·과제 알림톡 치다가 오타 날까 봐 무서워요"</button>
+        <button type="button" class="diag-btn" data-ep="3">"월말 성적표 30명분 복붙하느라 새벽 3시에 퇴근해요"</button>
+      </div>
+      <div id="diagResult" style="background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"></div>
+    </div>
+  </div>
+
+  <h2 style="margin:36px 0 14px">📚 전체 커리큘럼 &amp; 에피소드 바로가기</h2>
+
+  <div class="ep-grid">
+
+    <div class="ep-card">
+      <div>
+        <span class="ep-badge">EPISODE 00 · 오리엔테이션</span>
+        <a class="ep-title" href="ep00/index.html">"원장님, 매번 밤 11시에 퇴근하실 거예요?"</a>
+        <p class="ep-desc">엑셀 30개 시트에 갇힌 남궁 원장. AI에게 맡길 일(Delegation)과 원장이 직접 지켜야 할 최종 승인(Human Gate)을 가르는 4D 프레임워크의 첫걸음.</p>
+        <div class="ep-tags">
+          <span class="ep-tag">AI Fluency 4D</span>
+          <span class="ep-tag">위임 분류기</span>
+          <span class="ep-tag">자동화 ROI 계산기</span>
+          <span class="ep-tag">함정 색출</span>
+        </div>
+      </div>
+      <a class="btn" href="ep00/index.html">00화 열기 →</a>
+    </div>
+
+    <div class="ep-card">
+      <div>
+        <span class="ep-badge">EPISODE 01 · 페르소나와 자동화 설계</span>
+        <a class="ep-title" href="ep01/index.html">"인공지능한테 제 말투를 가르치라고요?"</a>
+        <p class="ep-desc">문 사장님께 다단계 의심을 받은 대기업체 안내문 참사! 15년 치 손글씨 가정통신문의 따뜻한 말투와 금지어 사전을 <code>CLAUDE.md</code>로 박제한다.</p>
+        <div class="ep-tags">
+          <span class="ep-tag">CLAUDE.md</span>
+          <span class="ep-tag">말투 온도 슬라이더</span>
+          <span class="ep-tag">금지어 필터</span>
+          <span class="ep-tag">대상별 매트릭스</span>
+        </div>
+      </div>
+      <a class="btn" href="ep01/index.html">01화 열기 →</a>
+    </div>
+
+    <div class="ep-card">
+      <div>
+        <span class="ep-badge">EPISODE 02 · 1일차: 드라이브 허브 만들기</span>
+        <a class="ep-title" href="ep02/index.html">"바탕화면에 새 폴더 (37) 은 이제 그만"</a>
+        <p class="ep-desc">작년 특강 파일을 인쇄소에 잘못 보낼 뻔한 아찔한 순간. MCP 로컬 파일시스템 격리(Root Isolation)와 5대 표준 폴더 트리, 날짜_반_문서 파일명 공식 정립.</p>
+        <div class="ep-tags">
+          <span class="ep-tag">MCP Root Isolation</span>
+          <span class="ep-tag">경로 보안 승인기</span>
+          <span class="ep-tag">파일명 조립 퍼즐</span>
+          <span class="ep-tag">원클릭 허브 스크립트</span>
+        </div>
+      </div>
+      <a class="btn" href="ep02/index.html">02화 열기 →</a>
+    </div>
+
+    <div class="ep-card">
+      <div>
+        <span class="ep-badge">EPISODE 03 · 2일차: 데일리 자동화 세팅</span>
+        <a class="ep-title" href="ep03/index.html">"도장 찍다 날 샌 출결, 1초 만에 알림톡"</a>
+        <p class="ep-desc">수업 시작 10분 전, 다른 학부모에게 지각 문자를 보낼 뻔한 대위기. 출결 CSV 자동 변수 매핑, 전화번호(PII) 마스킹, 불량 알림톡 반려 훈련.</p>
+        <div class="ep-tags">
+          <span class="ep-tag">Python CSV 파싱</span>
+          <span class="ep-tag">PII 전화번호 마스커</span>
+          <span class="ep-tag">Human-in-the-Loop</span>
+          <span class="ep-tag">함정 반려 훈련</span>
+        </div>
+      </div>
+      <a class="btn" href="ep03/index.html">03화 열기 →</a>
+    </div>
+
+    <div class="ep-card">
+      <div>
+        <span class="ep-badge">EPISODE 04 · 3일차: 주간·월간 자동화 세팅</span>
+        <a class="ep-title" href="ep04/index.html">"학생 30명 리포트, 복붙 없이 하룻밤에"</a>
+        <p class="ep-desc">금요일 밤 10시의 인쇄 마감 경보. 점수 구간별 조건부 총평 결합, HTML 실시간 성적표 렌더러, 문인쇄소를 통과하는 300DPI 벡터 PDF 일괄 출력.</p>
+        <div class="ep-tags">
+          <span class="ep-tag">조건부 코멘트 분기</span>
+          <span class="ep-tag">300 DPI 인쇄 규격</span>
+          <span class="ep-tag">실시간 성적표 렌더러</span>
+          <span class="ep-tag">재단선·폰트 검수</span>
+        </div>
+      </div>
+      <a class="btn" href="ep04/index.html">04화 열기 →</a>
+    </div>
+
+    <div class="ep-card">
+      <div>
+        <span class="ep-badge">EPISODE 05 · 4일차: 시뮬레이션 점검과 데이터 사전</span>
+        <a class="ep-title" href="ep05/index.html">"동명이인 김민준 둘이 성적이 바뀌었다"</a>
+        <p class="ep-desc">개강 전날 모의 시뮬레이션에서 발견된 중2 김민준·중3 김민준 충돌 사고! 고유 학번(<code>STD-2027-012</code>) 기본키와 <code>schema.json</code>으로 엣지 케이스를 원천 차단한다.</p>
+        <div class="ep-tags">
+          <span class="ep-tag">Primary Key</span>
+          <span class="ep-tag">동명이인 디버거</span>
+          <span class="ep-tag">스트레스 테스트</span>
+          <span class="ep-tag">schema.json 생성기</span>
+        </div>
+      </div>
+      <a class="btn" href="ep05/index.html">05화 열기 →</a>
+    </div>
+
+    <div class="ep-card">
+      <div>
+        <span class="ep-badge">EPISODE 06 · 완결편: 운영 규칙과 비상 스위치</span>
+        <a class="ep-title" href="ep06/index.html">"문 사장님의 경고: 비상 스위치는 어딨나"</a>
+        <p class="ep-desc">인터넷 단절, 파일 삭제, 서버 점검에도 학원이 멈추지 않는 Fail-safe 모의훈련과 Git 스냅샷 백업, 그리고 봄볕영어 자동화 마스터 수료증 발급.</p>
+        <div class="ep-tags">
+          <span class="ep-tag">Fail-safe 비상훈련</span>
+          <span class="ep-tag">Human Gate 판정</span>
+          <span class="ep-tag">실무 FAQ 플리퍼</span>
+          <span class="ep-tag">마스터 수료증 발급</span>
+        </div>
+      </div>
+      <a class="btn" href="ep06/index.html">06화 열기 →</a>
+    </div>
+
+  </div>
+
+  <footer style="border-top:1px solid var(--line);padding:24px 0 48px;font-size:14px;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px">
+    <div>
+      <b>봄볕영어 학원장 자동화 스토리 튜토리얼 시리즈 (00~06 완결)</b><br>
+      원장은 결정하고, Claude는 처리하고, 유나는 검수한다 · 오프라인 단일 HTML 표준 규격
+    </div>
+    <div>
+      <a href="UPGRADE_MASTER_SPEC.md">마스터 설계서(SPEC) 보기</a>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+// Live Tab Viewer
+(function(){
+  const tabs=document.querySelectorAll('#viewerTabs .v-tab');
+  const frame=document.getElementById('epFrame');
+  const btnFull=document.getElementById('btnOpenFull');
+  tabs.forEach(t=>{
+    t.addEventListener('click',()=>{
+      tabs.forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      frame.src=t.dataset.src;
+      btnFull.href=t.dataset.src;
+    });
+  });
+})();
+
+// Recommender
+(function(){
+  const btns=document.querySelectorAll('#diagBtns .diag-btn');
+  const res=document.getElementById('diagResult');
+  const recs=[
+    {t:"추천: 01화 페르소나와 자동화 설계", d:"원장님의 15년 손글씨 말투와 금지어 사전을 CLAUDE.md 한 장에 등록해 대기업 말투를 즉시 없앱니다.", link:"ep01/index.html"},
+    {t:"추천: 02화 드라이브 허브 만들기", d:"5대 표준 폴더 트리와 YYYYMMDD_반_문서 파일명 규칙으로 1초 만에 파일을 찾는 허브를 구축합니다.", link:"ep02/index.html"},
+    {t:"추천: 03화 데일리 자동화 세팅", d:"출결 CSV 자동 매핑과 전화번호(PII) 마스킹, 발송 전 승인 관문으로 오발송 걱정 없이 1분 만에 끝냅니다.", link:"ep03/index.html"},
+    {t:"추천: 04화 주간·월간 리포트 자동화", d:"점수 구간별 코멘트 자동 결합과 300DPI PDF 일괄 생성으로 30명 성적표를 15초 만에 인쇄소로 넘깁니다.", link:"ep04/index.html"}
+  ];
+  function show(i){
+    const r=recs[i];
+    res.innerHTML=`
+      <div>
+        <b style="color:var(--brick);display:block">${r.t}</b>
+        <span style="font-size:14px;color:var(--muted)">${r.d}</span>
+      </div>
+      <a class="btn" href="${r.link}">해당 화 바로가기 →</a>
+    `;
+  }
+  btns.forEach(b=>{
+    b.addEventListener('click',()=>{
+      btns.forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      show(parseInt(b.dataset.ep,10));
+    });
+  });
+  show(0);
+})();
+
+// Theme Toggle (Light / Dark) synced via localStorage
+(function(){
+  const saved = localStorage.getItem("agy_theme") || "light";
+  document.documentElement.setAttribute("data-theme", saved);
+  const btn = document.getElementById("btnThemeToggle");
+  function updateBtn(t){
+    if(!btn) return;
+    btn.textContent = (t === "dark") ? "☀️ 밝은 화면" : "🌙 어두운 화면";
+  }
+  updateBtn(saved);
+  if(btn){
+    btn.addEventListener("click", ()=>{
+      const cur = document.documentElement.getAttribute("data-theme") || "light";
+      const next = (cur === "dark") ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      localStorage.setItem("agy_theme", next);
+      updateBtn(next);
+      const frame = document.getElementById("epFrame");
+      if(frame && frame.contentDocument && frame.contentDocument.documentElement){
+        frame.contentDocument.documentElement.setAttribute("data-theme", next);
+      }
+    });
+  }
+})();
+
+</script>
+</body>
+</html>
